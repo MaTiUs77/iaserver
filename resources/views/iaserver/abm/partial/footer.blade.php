@@ -1,0 +1,1 @@
+@include('iaserver.common.footer')

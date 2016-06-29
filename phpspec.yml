@@ -1,0 +1,5 @@
+suites:
+    main:
+        namespace: IAServer
+        psr4_prefix: IAServer
+        src_path: app
