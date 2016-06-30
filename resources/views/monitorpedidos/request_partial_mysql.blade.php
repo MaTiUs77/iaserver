@@ -1,17 +1,5 @@
-@extends('angular')
-@section('ng','requestRecords')
+@extends('monitorpedidos.index')
 @section('body')
-    <nav class="navbar navbar-default">
-        <div class="container-fluid">
-            <div class="navbar-header">
-                <a class="navbar-brand">@yield('title','')</a>
-            </div>
-            <ul class="nav navbar-nav">
-                <li><a href="{{ url('amr/parciales') }}">EBS</a></li>
-                <li><a href="{{ url('amr/parciales/almacen') }}">PISO PRODUCCION</a></li>
-            </ul>
-        </div>
-    </nav>
     {{--FORMULARIO DE BUSQUEDA--}}
     <div  ng-controller = 'requestController' class="container-fluid">
         <div class="row">
@@ -21,7 +9,7 @@
                         <div class="form-group">
                             <input type="text" class="form-control" placeholder="PART_NUMBER" name="partnumber" required="true">
                         </div>
-                        <button type="submit" class="btn btn-info">Buscar</button>
+                        <button type="submit" class="btn btn-info"><i class="fa fa-search" aria-hidden="true"></i> Buscar</button>
                     </form>
                 </div>
                 <div class="col-lg-4">
@@ -45,7 +33,7 @@
                     <th>LINEADESTINO</th>
                     <th>TIEMPO</th>
                     <th>UBICACION</th>
-
+                    <th>ACCIONES</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -65,10 +53,11 @@
 
                         <td>{{$modelo->linDest}}</td>
 
-                        <td>{{$modelo->timestamp}}</td>
+                        <td>{{\IAServer\Http\Controllers\MonitorOp\GetWipOtInfo::tiempoAlmacen($modelo->timestamp)}}</td>
 
                         <td>{{$modelo->estadoUbicacion}}</td>
 
+                        <td><form method="post" action="{{url('amr/entregar/'.$modelo->id)}}"><button class="btn btn-danger btn-xs btn-detail" name="entregar">ENTREGAR</button></form></td>
                     </tr>
                 @endforeach
                 </tbody>
@@ -160,5 +149,7 @@
     {!! IAScript('vendor/monitorpedidos/app.js') !!}
     {!! IAScript('vendor/monitorpedidos/request.js') !!}
 
+    <script>
 
+    </script>
 @endsection

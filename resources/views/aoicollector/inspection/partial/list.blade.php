@@ -47,8 +47,6 @@
             <th>OP</th>
             <th>Fecha</th>
             <th>Hora</th>
-            <th>Wip</th>
-            <th>First</th>
         </tr>
     </thead>
     <tbody>
@@ -102,20 +100,37 @@
                     <td>
                         @if($panel->twip != null)
                             @if($panel->twip->CountOk() == $panel->bloques)
-                                <button class="btn btn-xs btn-success" tooltip-placement="left" tooltip="Procesado Correctamente"><span class="glyphicon glyphicon-thumbs-up"></span></button>
+                                <i class="fa fa-thumbs-o-up"  tooltip-placement="left" tooltip="Procesado Correctamente"></i>
                             @else
-                                <button class="btn btn-xs btn-danger" tooltip-placement="left" tooltip="Error total o parcial en declaracion"><span class="glyphicon glyphicon-thumbs-down"></span></button>
+                                <i class="fa fa-thumbs-o-down"  tooltip-placement="left" tooltip="Error total o parcial en declaracion"></i>
                             @endif
                         @else
-                            <button class="btn btn-xs btn-default" tooltip-placement="left" tooltip="Sin declarar"><span class="glyphicon glyphicon-thumbs-down"></span></button>
+                            <i class="fa fa-thumbs-o-down" tooltip-placement="left" tooltip="Sin declarar"></i>
                         @endif
-                    </td>
-                    <td>
-                        @if($panel->created_date != $panel->firstime)
-                            <button class="btn btn-xs btn-default" tooltip-placement="left" tooltip="Primera inspeccion: {{ $panel->firstime }}">
-                                <span class="glyphicon glyphicon-time"></span>
-                            </button>
+
+                        <?php
+                            $cogiscanService= new \IAServer\Http\Controllers\Cogiscan\Cogiscan();
+                            $cogiscan = $cogiscanService->queryItem($panel->panel_barcode);
+                        ?>
+                        @if(isset($cogiscan['attributes']['message']))
+                                <i class="fa fa-exclamation-triangle text-danger" tooltip="Cogiscan: {{ $cogiscan['attributes']['message'] }}"></i>
+                        @else
+                            @if(isset($cogiscan['Product']['attributes']['operation']))
+                                @if($cogiscan['Product']['attributes']['operation'] == 'Depanelization')
+                                    <i class="fa fa-send text-info" tooltip="Ruta: {{ $cogiscan['Product']['attributes']['operation'] }}, Estado: {{ $cogiscan['Product']['attributes']['status'] }}"></i>
+                                @else
+                                    <i class="fa fa-road text-success" tooltip="Ruta: {{ $cogiscan['Product']['attributes']['operation'] }}, Estado: {{ $cogiscan['Product']['attributes']['status'] }}"></i>
+                                @endif
+
+                                @if(isset($cogiscan['attributes']['quarantineLocked']) && $cogiscan['attributes']['quarantineLocked'] == "true")
+                                    <i class="fa fa-bomb text-danger" tooltip="Placa en cuarentena"></i>
+                                @endif
+                            @endif
                         @endif
+
+                            @if($panel->created_date != $panel->firstime)
+                                <i class="fa fa-clock-o" tooltip-placement="left" tooltip="Primera inspeccion: {{ $panel->firstime }}"></i>
+                            @endif
                     </td>
 
                 </tr>

@@ -2,7 +2,7 @@
 @if ($__env->yieldContent('ng'))
     <html lang="en" ng-app="@yield('ng')">
 @else
-    <html lang="en" ng-app>
+    <html lang="en" ng-app="">
 @endif
 <head>
     <meta charset="utf-8">

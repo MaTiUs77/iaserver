@@ -1,0 +1,8 @@
+c:\users\core\documents\visual studio 2015\Projects\DB2Wrapper\DB2Wrapper\bin\Debug\DB2Wrapper.exe.config
+c:\users\core\documents\visual studio 2015\Projects\DB2Wrapper\DB2Wrapper\bin\Debug\DB2Wrapper.exe
+c:\users\core\documents\visual studio 2015\Projects\DB2Wrapper\DB2Wrapper\bin\Debug\DB2Wrapper.pdb
+c:\users\core\documents\visual studio 2015\Projects\DB2Wrapper\DB2Wrapper\bin\Debug\IBM.Data.DB2.dll
+c:\users\core\documents\visual studio 2015\Projects\DB2Wrapper\DB2Wrapper\bin\Debug\IBM.Data.DB2.Entity.dll
+c:\users\core\documents\visual studio 2015\Projects\DB2Wrapper\DB2Wrapper\obj\Debug\DB2Wrapper.csprojResolveAssemblyReference.cache
+c:\users\core\documents\visual studio 2015\Projects\DB2Wrapper\DB2Wrapper\obj\Debug\DB2Wrapper.exe
+c:\users\core\documents\visual studio 2015\Projects\DB2Wrapper\DB2Wrapper\obj\Debug\DB2Wrapper.pdb

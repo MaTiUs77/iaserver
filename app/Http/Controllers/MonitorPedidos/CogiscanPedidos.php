@@ -21,23 +21,57 @@ use Illuminate\Support\Facades\Validator;
 
 class CogiscanPedidos extends Controller
 {
+
+    public function getMaterialError($item_code)
+    {
+        if(trim($item_code) != NULL){
+
+            return XXE_WMS_COGISCAN_PEDIDOS::SELECT(DB::RAW('PEDIDOS.*,PEDIDOS_LPNS.LPN,PEDIDOS_LPNS.LPN_QUANTITY'))
+                ->FROM('XXE_WMS_COGISCAN_PEDIDOS AS PEDIDOS')
+                ->LEFTJOIN('XXE_WMS_COGISCAN_PEDIDO_LPNS AS PEDIDOS_LPNS','PEDIDOS_LPNS.LINEA_ID','=','PEDIDOS.LINEA_ID')
+                ->WHERE('PEDIDOS.STATUS','ERROR')
+                ->WHERE('PEDIDOS.ITEM_CODE',$item_code)
+                ->ORDERBY('PEDIDOS.LINEA_ID','DESC')
+                ->paginate(60);
+        }
+        else {
+            return XXE_WMS_COGISCAN_PEDIDOS::WHERE('STATUS','<>', 'NEW')
+                ->WHERE('STATUS','<>','PROCESSED')
+                ->orderby ('LINEA_ID','DESC')
+                ->paginate(60);
+        }
+    }
     public function getRequestPartial($item_code)
     {
+        $carbon = new Carbon();
+        $carbon = Carbon::today();
             if(trim($item_code) != NULL){
 
-                return $op = XXE_WMS_COGISCAN_PEDIDOS::where('ITEM_CODE',$item_code)
-//                    ->where('STATUS','<>','NEW')
-//                    ->where('STATUS','<>','PROCESSED')
-                    ->orderby ('LAST_UPDATE_DATE','DESC')
-                    ->paginate(25);
+                return XXE_WMS_COGISCAN_PEDIDOS::SELECT(DB::RAW('PEDIDOS.*,PEDIDOS_LPNS.LPN,PEDIDOS_LPNS.LPN_QUANTITY'))
+                    ->FROM('XXE_WMS_COGISCAN_PEDIDOS AS PEDIDOS')
+                    ->LEFTJOIN('XXE_WMS_COGISCAN_PEDIDO_LPNS AS PEDIDOS_LPNS','PEDIDOS_LPNS.LINEA_ID','=','PEDIDOS.LINEA_ID')
+                    ->WHERE('PEDIDOS.STATUS','PROCESSED')
+                    ->WHERE('PEDIDOS.ITEM_CODE',$item_code)
+                    ->WHERE('PEDIDOS.LAST_UPDATE_DATE','>=',$carbon)
+                    ->ORDERBY('PEDIDOS.LINEA_ID','DESC')
+                    ->paginate(60);
             }
             else {
-                return XXE_WMS_COGISCAN_PEDIDOS::WHERE('STATUS','<>', 'NEW')
-                    ->WHERE('STATUS','<>','PROCESSED')
-                    ->orderby ('LAST_UPDATE_DATE','DESC')
-                    ->paginate(25);
+                return XXE_WMS_COGISCAN_PEDIDOS::SELECT(DB::RAW('PEDIDOS.*,PEDIDOS_LPNS.LPN,PEDIDOS_LPNS.LPN_QUANTITY'))
+                    ->FROM('XXE_WMS_COGISCAN_PEDIDOS AS PEDIDOS')
+                    ->LEFTJOIN('XXE_WMS_COGISCAN_PEDIDO_LPNS AS PEDIDOS_LPNS','PEDIDOS_LPNS.LINEA_ID','=','PEDIDOS.LINEA_ID')
+                    ->WHERE('PEDIDOS.STATUS','PROCESSED')
+                    ->WHERE('PEDIDOS.LAST_UPDATE_DATE','=',$carbon)
+                    ->ORDERBY('PEDIDOS.LINEA_ID','DESC')
+                    ->paginate(60);
             }
         }
+    public function getRequestNew()
+    {
+        return XXE_WMS_COGISCAN_PEDIDOS::WHERE('STATUS','NEW')
+            ->ORDERBY('LAST_UPDATE_DATE','DESC')
+            ->paginate(60);
+    }
     public function store(Request $request)
     {
         $newrequest = new XXE_WMS_COGISCAN_PEDIDOS();
@@ -73,6 +107,9 @@ class CogiscanPedidos extends Controller
     }
     public function showMaterialMysql($partnumber)
     {
+
+        $carbon = new Carbon();
+        $carbon = Carbon::today();
         if(trim($partnumber) != NULL)
         {
             return $estadomaterial = cgs_materialrequest::select(DB::raw("cgs_materialrequest.*, cgs_status.estadoUbicacion"))
@@ -80,8 +117,9 @@ class CogiscanPedidos extends Controller
                 ->LEFTJOIN("cgs_status", "cgs_status.idStatus", '=', 'cgs_materialrequest.ubicacionOrigen')
                 ->where('cgs_status.estadoUbicacion', '=', 'almacen')
                 ->where('cgs_materialrequest.codMat',$partnumber)
+                ->where('cgs_materialrequest.timestamp','>',$carbon)
                 ->orderby('timestamp', 'desc')
-                ->paginate(25);
+                ->paginate(60);
         }
         else
         {
@@ -89,9 +127,26 @@ class CogiscanPedidos extends Controller
                 ->FROM('cgs_materialrequest')
                 ->LEFTJOIN("cgs_status", "cgs_status.idStatus", '=', 'cgs_materialrequest.ubicacionOrigen')
                 ->where('cgs_status.estadoUbicacion', '=', 'almacen')
+                ->where('cgs_materialrequest.timestamp','>',$carbon)
                 ->orderby('timestamp', 'desc')
-                ->paginate(25);
+                ->paginate(60);
         }
 
+    }
+    public function changeStatus($id)
+    {
+        $material = cgs_materialrequest::find($id);
+
+        $material->ubicacionOrigen = "4";
+        $material->save();
+
+        return redirect('amr/parciales/almacen');
+    }
+    public function getDateInMysql($item_lpn)
+    {
+       $lpnDate = CogiscanPedidos::where('rawMaterial',$item_lpn)
+            ->get();
+        $esto = $this->changeStatus($lpnDate->timestamp);
+        return $esto;
     }
 }

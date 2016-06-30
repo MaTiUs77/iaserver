@@ -101,7 +101,29 @@ class GetWipOtInfo extends Controller
         $datetime = Carbon::now();
         $dateSerieHistory = Carbon::createFromFormat('Y-m-d H:i:s.u', $fecha);
         $diferencia = $dateSerieHistory -> diffForHumans($datetime);
+
         return $diferencia;
     }
+    public static function statusAmr($fecha)
+    {
+
+        Carbon::setLocale('es');
+        $datetime = Carbon::now();
+        $dateSerieHistory = Carbon::createFromFormat('Y-m-d H:i:s', $fecha);
+        $diferencia = $dateSerieHistory -> diffInMinutes($datetime);
+
+        return $diferencia;
+    }
+    public static function tiempoAlmacen($fecha)
+    {
+
+        Carbon::setLocale('es');
+        $datetime = Carbon::now();
+        $dateSerieHistory = Carbon::createFromFormat('Y-m-d H:i:s', $fecha);
+        $diferencia = $dateSerieHistory -> diffForHumans($datetime);
+
+        return $diferencia;
+    }
+
 
 }

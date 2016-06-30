@@ -18,9 +18,19 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
+use spec\Prophecy\Promise\RequiredArgumentException;
 
 class ViewPedidos extends Controller
 {
+    public function getMaterialError(Request $request)
+    {
+        $pedidos = new CogiscanPedidos();
+        $resume = $pedidos->getMaterialError($request->get('partnumber'));
+
+        $output = compact('resume');
+        return Response::multiple_output($output, 'monitorpedidos.request_error');
+
+    }
     public function index(Request $request)
     {
 
@@ -41,5 +51,13 @@ class ViewPedidos extends Controller
         return Response::multiple_output($output, 'monitorpedidos.request_partial_mysql');
     }
 
+    public function getRequestNew()
+    {
+        $material = new CogiscanPedidos();
+        $resume = $material->getRequestNew();
+
+        $output = compact('resume');
+        return Response::multiple_output($output, 'monitorpedidos.request_partial');
+    }
 
 }

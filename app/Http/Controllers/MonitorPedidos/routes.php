@@ -12,14 +12,12 @@
 */
 Route::group(['prefix' => 'amr'], function()
 {
-
-//    Route::get('/','menuController@index');
     Route::get('/parciales/almacen','MonitorPedidos\ViewPedidos@viewMysql');
-    Route::get('/parciales', 'MonitorPedidos\ViewPedidos@index');
+    Route::get('/parciales', 'MonitorPedidos\ViewPedidos@getMaterialError');
     Route::post('/parciales/pedir','MonitorPedidos\CogiscanPedidos@store');
-    //Route::post('/parciales/almacen/consulta', 'MonitorPedidos\CogiscanPedidos@update');
-   // Route::get('/insaut/{op?}','MonitorOp\MonitorOpView@indexInsaut');
-
+    Route::get('/pedidos/nuevos', 'MonitorPedidos\ViewPedidos@getRequestNew');
+    Route::get('/pedidos/procesados','MonitorPedidos\ViewPedidos@index');
+    Route::post('/entregar/{id}','MonitorPedidos\CogiscanPedidos@changeStatus');
 });
 
 

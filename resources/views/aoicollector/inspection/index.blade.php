@@ -42,7 +42,7 @@
                             </button>
                         </div>
 
-                        <h3>Inspecciones en <b>SMD-{{ $maquina->linea }}</b> - Total: <b>{{ $total  }}</b></h3>
+                        <h3>Inspecciones en <b>SMD-{{ $maquina->linea }}</b> - Paneles en Total: <b>{{ $total  }}</b></h3>
                         <hr>
 
                         @foreach( $programas as $p )

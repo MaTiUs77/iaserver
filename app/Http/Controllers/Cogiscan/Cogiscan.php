@@ -17,11 +17,17 @@ class Cogiscan extends Controller
     public $wdsl = "http://arus3ap07/cgsrpc/RPCServices?WSDL";
 
     public function __construct() {
-        SoapWrapper::add(function ($service) {
-            $service
-                ->name('cogiscan')
-                ->wsdl($this->wdsl);
-        });
+        try
+        {
+            SoapWrapper::add(function ($service) {
+                $service
+                    ->name('cogiscan')
+                    ->wsdl($this->wdsl);
+            });
+        } catch(\Exception $ex)
+        {
+
+        }
     }
 
     /**
@@ -65,19 +71,24 @@ class Cogiscan extends Controller
         {
             $r = new \ReflectionMethod($class, $method);
             $params = $r->getParameters();
-            foreach ($params as $param) {
-                $output[$method][] = $param->getName() . (($param->isOptional() == true) ? ' (opcional) ' : '');
+
+            $modifier = head(\Reflection::getModifierNames($r->getModifiers()));
+
+            if($modifier=='public')
+            {
+                foreach ($params as $param) {
+                    $output[$method][] = $param->getName() . (($param->isOptional() == true) ? ' (opcional) ' : '');
+                }
             }
         }
 
         return $output;
     }
 
-
     /////////////////////////////////////////////////////////////////////////////
     //                          COGISCAN WEBSERVICES
     /////////////////////////////////////////////////////////////////////////////
-    public function queryItem($itemId )
+    public function queryItem($itemId)
     {
         $param = [
             'queryItem',
