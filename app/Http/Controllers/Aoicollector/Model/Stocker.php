@@ -10,15 +10,20 @@ class Stocker extends Model
     protected $connection = 'iaserver';
     protected $table = 'aoidata.stocker';
 
-    public function scopeFindByIdStocker($query, $idStocker)
+    public function joinPanel()
     {
-        $sql = $this->from("aoidata.vi_stocker")->where('id', $idStocker)->first();
+        return $this->hasOne('IAServer\Http\Controllers\Aoicollector\Model\Stocker', 'id', 'id_panel');
+    }
+
+    public static function findByIdStocker($idStocker)
+    {
+        $sql = self::from("aoidata.vi_stocker")->where('id', $idStocker)->first();
         return $sql;
     }
 
-    public function scopeFindByStockerBarcode($query, $stockerBarcode)
+    public static function findByStockerBarcode($stockerBarcode)
     {
-        $sql = $this->from("aoidata.vi_stocker")->where('barcode', $stockerBarcode)->first();
+        $sql = self::from("aoidata.vi_stocker")->where('barcode', $stockerBarcode)->first();
         return $sql;
     }
 

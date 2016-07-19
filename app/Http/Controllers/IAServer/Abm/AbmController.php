@@ -30,14 +30,14 @@ class AbmController extends Controller
 
     public function edit($id)
     {
-        $roles = Role::all();
+        $roles = Role::orderBy('display_name','asc')->get();
         $user = User::find($id);
         return view('iaserver.abm.edit',compact('roles','user'));
     }
 
     public function create()
     {
-        $roles = Role::all();
+        $roles = Role::orderBy('display_name','asc')->get();
         return view('iaserver.abm.create',compact('roles'));
     }
 

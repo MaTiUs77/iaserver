@@ -1,15 +1,11 @@
 <?php
 namespace IAServer\Http\Controllers\SMTDatabase;
 
-use IAServer\Http\Controllers\Aoicollector\Model\Panel;
 use IAServer\Http\Controllers\SMTDatabase\Model\Ingenieria;
 use IAServer\Http\Controllers\SMTDatabase\Model\Lotes;
-use IAServer\Http\Controllers\SMTDatabase\Model\Materiales;
 use IAServer\Http\Controllers\SMTDatabase\Model\OrdenTrabajo;
 use IAServer\Http\Requests;
 use IAServer\Http\Controllers\Controller;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Input;
 
 class SMTDatabase extends Controller
 {

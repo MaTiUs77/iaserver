@@ -18,7 +18,7 @@ class CertificacionController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('role:admin|admin_ipc,instructor_ipc',['except' => 'index']);
+        $this->middleware('role:admin|ipc_admin,ipc_instructor',['except' => 'index']);
     }
 
     public function index()
@@ -32,7 +32,7 @@ class CertificacionController extends Controller
 
     public function create()
     {
-        $roles = Role::with('users')->where('name', 'instructor_ipc')->get()->first();
+        $roles = Role::with('users')->where('name', 'ipc_instructor')->get()->first();
 
         $instructores = array();
         if(isset($roles->users)) {

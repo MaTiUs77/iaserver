@@ -21,7 +21,7 @@ class Controldeplacas extends Controller
     public function index() {
         $id_sector = 2; // Automatica
 
-        $datos = (object) DatosController::salidaByOp($id_sector,['fecha'=>'now']);
+        $datos = (object) DatosController::salidaByOpList($id_sector,['fecha'=>'now']);
         return view('controldeplacas.index', compact('datos'));
     }
 
@@ -42,7 +42,7 @@ class Controldeplacas extends Controller
         $hasta = '';
 
         $id_sector = 2; // Automatica
-        $datos = (object) DatosController::salidaByOp($id_sector,[
+        $datos = (object) DatosController::salidaByOpList($id_sector,[
             'op'=> $op,
             'fecha' => 'all'
         ]);

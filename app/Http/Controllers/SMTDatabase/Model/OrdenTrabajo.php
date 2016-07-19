@@ -9,6 +9,9 @@ class OrdenTrabajo extends Model
     protected $connection = 'iaserver';
     protected $table = 'smtdatabase.orden_trabajo';
 
+    protected $fillable = ['op','modelo','lote','panel','qty'];
+    public $timestamps = false;
+
     /**
      * Localiza todos los paneles de la OP que contengan MEM-%
      *

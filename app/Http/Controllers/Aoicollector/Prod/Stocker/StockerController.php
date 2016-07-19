@@ -5,6 +5,7 @@ namespace IAServer\Http\Controllers\Aoicollector\Prod\Stocker;
 use IAServer\Http\Controllers\Aoicollector\Model\Produccion;
 use IAServer\Http\Controllers\Aoicollector\Model\Stocker;
 use IAServer\Http\Controllers\Aoicollector\Model\StockerDetalle;
+use IAServer\Http\Controllers\Aoicollector\Model\StockerTraza;
 use IAServer\Http\Controllers\SMTDatabase\SMTDatabase;
 use IAServer\Http\Controllers\Trazabilidad\Declaracion\Wip\Wip;
 use IAServer\Http\Requests;
@@ -100,7 +101,7 @@ class StockerController extends Controller
         return $output;
     }
 
-    private function getStockerInfo($idStocker=null,$stockerBarcode=null)
+    public function getStockerInfo($idStocker=null,$stockerBarcode=null)
     {
         $stocker = null;
         if($stockerBarcode==null)
@@ -129,6 +130,14 @@ class StockerController extends Controller
     public function getStockerContent($idStocker)
     {
         $stocker = StockerDetalle::where('id_stocker',$idStocker)->get();
+        return $stocker;
+    }
+
+    public function getStockerTraza($idStocker)
+    {
+        $stocker = StockerTraza::where('id_stocker',$idStocker)
+            ->orderBy('created_at','desc')
+            ->get();
         return $stocker;
     }
     //////////////////////////////////////////////////////////////////

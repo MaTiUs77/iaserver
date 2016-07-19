@@ -1,8 +1,8 @@
 @extends('angular')
 @section('ng','app')
-@section('title','IAServer - Administracion')
-@section('body')
+@section('title','Administracion')
 @section('bodytag',' ng-controller="IAAbm" ')
+@section('body')
 
     @include('iaserver.abm.partial.header')
 

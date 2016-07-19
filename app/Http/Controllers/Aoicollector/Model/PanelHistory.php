@@ -25,6 +25,11 @@ class PanelHistory extends Model
         return $this->hasOne('IAServer\Http\Controllers\Aoicollector\Model\TransaccionWip', 'id_panel', 'id');
     }
 
+    public function joinStockerDetalle()
+    {
+        return $this->hasOne('IAServer\Http\Controllers\Aoicollector\Model\StockerDetalle', 'id_panel', 'id');
+    }
+
     /**
      * Busca un codigo de bloque en PanelHistory, si no lo encuentra busca en BloqueHistory
      * Si no encontro nada, busca en Panel, donde seguramente se encuentre en estado PENDIENTE

@@ -4,9 +4,12 @@ namespace IAServer\Http\Controllers\Aoicollector\Pizarra;
 
 use IAServer\Http\Controllers\Aoicollector\Model\Produccion;
 use IAServer\Http\Controllers\Aoicollector\Pizarra\PizarraCone\ProduccionCone;
+use IAServer\Http\Controllers\IAServer\Filter;
 use IAServer\Http\Requests;
 use IAServer\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Session;
 
 class PizarraView extends Controller
 {
@@ -26,16 +29,48 @@ class PizarraView extends Controller
         return redirect(route('aoicollector.pizarra.linea',1));
     }
 
+    public function removeFilterGeneral()
+    {
+        $filter = array();
+        Session::set('filterGeneral', $filter);
+        return self::indexGeneral();
+    }
+
+    public function filterGeneral()
+    {
+        $filter = Input::all();
+        Session::set('filterGeneral', $filter);
+        return self::indexGeneral();
+    }
+
     public function indexGeneral()
     {
+        $pizarraFilterGeneral = Filter::makeSession('filterGeneral');
+
         // Obtengo lineas de produccion
         $produccion = Produccion::vista()
             ->groupBy('linea')
             ->whereNotNull('id_maquina')
-            ->orderBy('numero_linea')
+            ->orderBy('numero_linea');
+
+        if($pizarraFilterGeneral=='') {
+            $pizarraFilterGeneral = array();
+        }
+
+        if(count($pizarraFilterGeneral)>0)
+        {
+            foreach ($pizarraFilterGeneral as $numero_linea => $filter) {
+                $produccion = $produccion->where('numero_linea','<>',$numero_linea);
+            }
+        }
+
+        $produccion = $produccion->get();
+
+/*
 //            ->where('numero_linea',2)
 //            ->limit(1)
             ->get();
+*/
 
         $pizarra = array();
 
@@ -45,7 +80,7 @@ class PizarraView extends Controller
             $pizarra[] = $resume;
         }
 
-        $output = compact('pizarra');
+        $output = compact('pizarra','pizarraFilterGeneral');
 
         return Response::multiple_output($output,'aoicollector.pizarra.general');
     }

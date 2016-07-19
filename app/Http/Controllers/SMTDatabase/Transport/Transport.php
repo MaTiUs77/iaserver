@@ -1,19 +1,17 @@
 <?php
-namespace IAServer\Http\Controllers\SMTDatabase;
+namespace IAServer\Http\Controllers\SMTDatabase\Transport;
 
 use IAServer\Http\Controllers\Aoicollector\Model\Panel;
-use IAServer\Http\Controllers\SMTDatabase\Model\Ingenieria;
-use IAServer\Http\Controllers\SMTDatabase\Model\Lotes;
 use IAServer\Http\Controllers\SMTDatabase\Model\OrdenTrabajo;
+use IAServer\Http\Controllers\SMTDatabase\SMTDatabase;
 use IAServer\Http\Requests;
-use IAServer\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Input;
 
-class SMTDatabaseTransport extends Controller
+class Transport extends SMTDatabase
 {
     public static function handle($op, $transport_to_op = false)
     {
-        $smt = SMTDatabase::findOp($op);
+        $smt = self::findOp($op);
 
         if($smt!=null) {
             $transport = Panel::where('inspected_op',$op)->count();
@@ -22,7 +20,7 @@ class SMTDatabaseTransport extends Controller
 
         if($transport_to_op)
         {
-            $smtTo = SMTDatabase::findOp($transport_to_op);
+            $smtTo = self::findOp($transport_to_op);
 
             if($smtTo!=null) {
                 $quantity = Panel::where('inspected_op',$transport_to_op)->count();

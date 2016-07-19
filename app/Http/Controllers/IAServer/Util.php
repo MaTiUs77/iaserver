@@ -64,8 +64,11 @@ class Util extends Controller
 
         if($havePaginator)
         {
-            $columnas = head($eloquent->items())->getAttributes();
             $items = $eloquent->items();
+            if(count($items)>0)
+            {
+                $columnas = head($items)->getAttributes();
+            }
         } else
         {
             $columnas = array_keys((array)head($eloquent));

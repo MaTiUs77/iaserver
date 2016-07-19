@@ -21,7 +21,7 @@ class CargaController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('role:admin|operador_p2i',['except' => 'index']);
+        $this->middleware('role:admin|p2i_operador',['except' => 'index']);
     }
 
     public function index()

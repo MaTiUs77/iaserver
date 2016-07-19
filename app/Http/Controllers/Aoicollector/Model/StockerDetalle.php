@@ -12,4 +12,9 @@ class StockerDetalle extends Model
     public $fillable = ['id_stocker','id_panel'];
 
     public $timestamps = false;
+
+    public function joinPanel()
+    {
+        return $this->hasOne('IAServer\Http\Controllers\Aoicollector\Model\Panel', 'id', 'id_panel');
+    }
 }

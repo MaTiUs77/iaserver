@@ -1,6 +1,6 @@
 @extends('angular')
 @section('ng','app')
-@section('title','IAServer - Crear usuario')
+@section('title','Crear usuario')
 @section('body')
     @include('iaserver.abm.partial.header')
 

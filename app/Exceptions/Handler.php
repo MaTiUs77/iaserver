@@ -74,8 +74,12 @@ class Handler extends ExceptionHandler
             $e instanceof FatalErrorException
           )
         {
-            $this->emailSend('Matias','matius77@gmail.com',$messageArray);
-            $this->emailSend('Matias Flores','matias.flores@newsan.com.ar',$messageArray);
+
+            if(app()->environment() != 'local')
+            {
+                $this->emailSend('Matias','matius77@gmail.com',$messageArray);
+                $this->emailSend('Matias Flores','matias.flores@newsan.com.ar',$messageArray);
+            }
 
             return response()->view('errors.exception', ['mensaje'=>$e->getMessage()], 500);
         }
@@ -90,12 +94,15 @@ class Handler extends ExceptionHandler
 
         if($e instanceof CogiscanExceptionHandler)
         {
-            $this->emailSend('Matias','matius77@gmail.com',$messageArray);
-            $this->emailSend('Matias Flores','matias.flores@newsan.com.ar',$messageArray);
+            if(app()->environment() != 'local')
+            {
+                $this->emailSend('Matias', 'matius77@gmail.com', $messageArray);
+                $this->emailSend('Matias Flores', 'matias.flores@newsan.com.ar', $messageArray);
 
-            $this->emailSend('Diego Ezequiel Maidana Kobalc','Diego.Maidana@newsan.com.ar',$messageArray);
-            $this->emailSend('Jose Maria Casarotto','JoseMaria.Casarotto@newsan.com.ar',$messageArray);
-            $this->emailSend('Santiago Gabriel Romero','SantiagoGabriel.Romero@newsan.com.ar',$messageArray);
+                $this->emailSend('Diego Ezequiel Maidana Kobalc', 'Diego.Maidana@newsan.com.ar', $messageArray);
+                $this->emailSend('Jose Maria Casarotto', 'JoseMaria.Casarotto@newsan.com.ar', $messageArray);
+                $this->emailSend('Santiago Gabriel Romero', 'SantiagoGabriel.Romero@newsan.com.ar', $messageArray);
+            }
 
             return response()->view('errors.exception', ['mensaje'=>$e->getMessage()], 500);
         }

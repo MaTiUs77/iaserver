@@ -22,7 +22,7 @@ class MemoriasView extends Memorias
     function __construct()
     {
         //$this->debug = new Debug($this);
-        $this->middleware('role:admin|operador_memorias',['except' => ['index','reporte']]);
+        $this->middleware('role:admin|memorias_operador',['except' => ['index','reporte']]);
     }
 
     public function index()

@@ -66,7 +66,7 @@ class DatosController extends Controller
         return $sql;
     }
 
-    public static function salidaByOp($id_sector,$filtro=array('op','fecha')) {
+    public static function salidaByOpList($id_sector,$filtro=array('op','fecha')) {
         $query = "SELECT
                 d.id,
 
@@ -129,6 +129,16 @@ class DatosController extends Controller
         $sql = DB::connection('iaserver')->select($query);
 
         if(!$sql) {
+            $sql = array("error" => "Sin datos");
+        }
+
+        return $sql;
+    }
+
+    public static function salidaByOp($op) {
+        $sql = Datos::where('op',$op)->sum('cantidad');
+
+        if(!is_numeric($sql)) {
             $sql = array("error" => "Sin datos");
         }
 

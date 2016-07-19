@@ -21,7 +21,7 @@
     {!! IAScript('assets/jquery/cookies/cookies.js') !!}
 
     <!-- Bootstrap -->
-    {!!  IAStyle('assets/bootstrap/css/bootstrap.css') !!}
+    {!! IAStyle('assets/bootstrap/css/bootstrap.css') !!}
     {!! IAStyle('assets/bootstrap/css/bootstrap-theme.min.css') !!}
     {!! IAStyle('assets/dialog-master/css/bootstrap-dialog.min.css') !!}
     {!! IAScript('assets/bootstrap/js/bootstrap.min.js') !!}

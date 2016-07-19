@@ -100,8 +100,8 @@
                                 @endif
 
                                 <?php
-                                $cogiscanService= new \IAServer\Http\Controllers\Cogiscan\Cogiscan();
-                                $cogiscan = $cogiscanService->queryItem($panel->panel_barcode);
+                                    $cogiscanService= new \IAServer\Http\Controllers\Cogiscan\Cogiscan();
+                                    $cogiscan = $cogiscanService->queryItem($panel->panel_barcode);
                                 ?>
                                 @if(isset($cogiscan['attributes']['message']))
                                     <i class="fa fa-exclamation-triangle text-danger" tooltip="Cogiscan: {{ $cogiscan['attributes']['message'] }}"></i>

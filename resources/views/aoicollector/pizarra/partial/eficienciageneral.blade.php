@@ -1,11 +1,37 @@
 <?php
     $charteficienciageneral = 'charteficienciageneral_'.rand(0,99999);
 ?>
-    <div class="pull-right">
-        <small>Factor Planta:</small> <label class="label" id="factorPlanta">0%</label>
+
+    <div class="row">
+        <form method="post" action="{{ route('aoicollector.pizarra.general.filter') }}">
+            <div class="col-sm-2 col-md-2 col-lg-2" style="border: 1px solid #efefef;">
+                <div style="padding: 5px;">
+                    <button type="submit" class="btn btn-xs btn-success" tooltip="Oculta lineas seleccionadas">Aplicar filtro</button>
+                    <a href="{{ route('aoicollector.pizarra.general.filter.remove') }}" class="btn btn-xs btn-default">Quitar filtro</a>
+                </div>
+                <div style="height:250px;overflow: auto;">
+                    @foreach(\IAServer\Http\Controllers\Aoicollector\Model\Produccion::vista()->where('id_maquina','<>',null)->groupBy('linea')->orderBy('numero_linea')->get()  as $prod)
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="{{ $prod->numero_linea }}" {{ (key_exists($prod->numero_linea,$pizarraFilterGeneral)) ? 'checked' : ''}} >
+                                {{ $prod->linea }}
+                            </label>
+                        </div>
+                    @endforeach
+                </div>
+
+
+            </div>
+            <div class="col-sm-10 col-md-10 col-lg-10">
+                <div class="pull-right">
+                    <small>Factor Planta:</small> <label class="label" id="factorPlanta">0%</label>
+                </div>
+                <div class="clearfix"></div>
+                <div id="{{ $charteficienciageneral }}container2" style="width: 95%;height:300px;"></div>
+            </div>
+        </form>
     </div>
-    <div class="clearfix"></div>
-    <div id="{{ $charteficienciageneral }}container2" style="width: 95%;height:300px;"></div>
+
     <script>
         $(function () {
             var option_series2 = [

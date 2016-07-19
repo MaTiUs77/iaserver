@@ -10,7 +10,7 @@
             <div class="alert alert-info">{{ Session::get('message') }}</div>
         @endif
 
-        <form class="form-horizontal" role="form" method="post" action="{{ route('smtdatabase.componente.buscar') }}">
+        <form class="form-horizontal" role="form" method="post" action="{{ route('smtdatabase.componentes.buscar') }}">
             <div class="form-group">
                 <div class="col-sm-4 col-sm-offset-1">
                     <h3>Buscar componente</h3>

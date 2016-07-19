@@ -10,7 +10,7 @@ class Materiales extends Model
     protected $connection = 'iaserver';
     protected $table = 'smtdatabase.materiales';
 
-    public function materialIndex()
+    public function joinMaterialIndex()
     {
         return $this->hasMany('IAServer\Http\Controllers\SMTDatabase\Model\MaterialIndex','id_material','id');
     }

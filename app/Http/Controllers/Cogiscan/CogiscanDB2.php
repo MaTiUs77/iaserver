@@ -98,10 +98,24 @@ class CogiscanDB2 extends Controller
         return self::query($db,$query);
     }
 
+    public function itemInfoByToolKey($toolKey)
+    {
+        $db = 'CGS';
+        $query = "select b.BATCH_ID,p.* from CGSPCM.PRODUCT p inner join CGSPCM.PRODUCT_BATCH b on b.BATCH_KEY = p.BATCH_KEY where p.TOOL_KEY = $toolKey limit 1";
+        return self::query($db,$query);
+    }
+
+    public function itemInfoByComplex($itemId)
+    {
+        $db = 'CGS';
+        $query = "select b.BATCH_ID,p.* from CGSPCM.PRODUCT p inner join CGSPCM.PRODUCT_BATCH b on b.BATCH_KEY = p.BATCH_KEY inner join CGS.ITEM i on i.ITEM_ID = '".$itemId."' where p.TOOL_KEY = i.ITEM_KEY limit 1";
+        return self::query($db,$query);
+    }
+
     public function itemInfoById($itemId)
     {
         $db = 'CGS';
-        $query = "select * from CGS.ITEM_INFO where CGS.ITEM_INFO.ITEM_ID = '$itemId' ";
+        $query = "select * from CGS.ITEM_INFO where CGS.ITEM_INFO.ITEM_ID = '$itemId' limit 1 ";
 
         return self::query($db,$query);
     }
@@ -113,5 +127,4 @@ class CogiscanDB2 extends Controller
 
         return self::query($db,$query);
     }
-
 }

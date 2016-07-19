@@ -11,6 +11,7 @@ function IAStyle($path)
 
 function IABtnDropDown($route,$model)
 {
+    $routeId = str_replace(".","",$route).$model->id;
     $output = '
     <div class="btn-group">
       <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -22,10 +23,11 @@ function IABtnDropDown($route,$model)
         </li>
         <li role="separator" class="divider"></li>
         <li>
-            <form method="POST" id="destroy'.$route.$model->id.'"  action="'.route($route.'.destroy',$model->id).'">
+            <script>function Click'.$routeId.'() { if(confirm("Confirma eliminacion?")) { $("#Destroy'.$routeId.'").submit(); }}</script>
+            <form method="POST" id="Destroy'.$routeId.'"  action="'.route($route.'.destroy',$model->id).'">
                 <input name="_method" type="hidden" value="DELETE" class="">
             </form>
-            <a href="#" onclick="$(\'#destroy'.$route.$model->id.'\').submit()"><i class="fa fa-trash-o" aria-hidden="true"></i> Eliminar</a>
+            <a href="#" onclick="Click'.$routeId.'()"><i class="fa fa-trash-o" aria-hidden="true"></i> Eliminar</a>
         </li>
       </ul>
     </div>

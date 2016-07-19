@@ -1,6 +1,11 @@
 <?php
 // IASERVER HOME
 Route::get('/', ['as' =>'iaserver.home', 'uses' => 'IAServer\IAServerController@index']);
+
+Route::get('/home', function() {
+    return redirect(route('iaserver.home'));
+});
+
 Route::get('/logo', ['as' =>'iaserver.logo', 'uses' => 'IAServer\IAServerController@logo']);
 
 

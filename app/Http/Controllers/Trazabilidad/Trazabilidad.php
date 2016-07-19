@@ -2,6 +2,8 @@
 namespace IAServer\Http\Controllers\Trazabilidad;
 
 use IAServer\Http\Controllers\Aoicollector\Model\Panel;
+use IAServer\Http\Controllers\Aoicollector\Model\Stocker;
+use IAServer\Http\Controllers\Aoicollector\Prod\Stocker\StockerController;
 use IAServer\Http\Controllers\Controldeplacas\DatosController;
 use IAServer\Http\Controllers\IAServer\Util;
 use IAServer\Http\Controllers\SMTDatabase\SMTDatabase;
@@ -67,7 +69,8 @@ class Trazabilidad extends Controller
             $smt = SMTDatabase::findOp($op);
             if(isset($smt->modelo)) {
                 $smt->registros = Panel::where('inspected_op',$op)->count();
-                $controldeplacas = (object) DatosController::salida($smt->modelo,$smt->lote,$smt->panel);
+                //$controldeplacas = (object) DatosController::salida($smt->modelo,$smt->lote,$smt->panel);
+                $controldeplacas = (object) DatosController::salidaByOp($op);
             }
 
 //            $wipPeriod = collect($wip->period($op)->get());

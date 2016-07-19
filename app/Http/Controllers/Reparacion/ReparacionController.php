@@ -2,14 +2,18 @@
 
 namespace IAServer\Http\Controllers\Reparacion;
 
+use Carbon\Carbon;
+use IAServer\Http\Controllers\IAServer\Filter;
 use IAServer\Http\Controllers\IAServer\Util;
 use IAServer\Http\Controllers\Reparacion\Model\Historial;
 use IAServer\Http\Requests;
 use IAServer\Http\Controllers\Controller;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Session;
 
 class ReparacionController extends Controller
 {
@@ -22,11 +26,141 @@ class ReparacionController extends Controller
         */
     }
 
-    public function getSector($id_sector, $fecha_desde, $fecha_hasta="") {
-        $reparacion = Historial::listarSector($id_sector, $fecha_desde, $fecha_hasta)->get();
+    public function getReporte() {
 
-        $output = compact('reparacion');
+        // Crea una session para filtro de fecha
+        $defaultFrom = Carbon::now()->format('d-m-Y');
+        $defaultTo = Carbon::now()->format('d-m-Y');
+        Filter::makeSession('from_session',$defaultFrom);
+        Filter::makeSession('to_session',$defaultTo);
+
+        Filter::makeSession('id_sector',25);
+
+        // Obtengo la fecha, y cambio el formato 16-09-2015 -> 2015-09-16
+        $fechaFrom = Util::dateToEn(Session::get('from_session'));
+        $fechaTo = Util::dateToEn(Session::get('to_session'));
+
+        $reparacion = Historial::listarSector(Session::get('id_sector'), $fechaFrom, $fechaTo)->get();
+
+        $resumen = new \stdClass();
+        $resumen->rechazos = $reparacion->where('estado','P')->count();
+        $resumen->reparaciones = $reparacion->where('estado','R')->count();
+        $resumen->pendientes = $reparacion->where('estado','P')->where('historico','actual')->count();
+        $resumen->scrap = $reparacion->where('estado','S')->count();
+        $resumen->bonepile = $reparacion->where('estado','B')->count();
+        $resumen->analisis = $reparacion->where('estado','A')->count();
+
+        $causas = $reparacion->groupBy('causa');
+        $defectos = $reparacion->groupBy('defecto');
+        $referencias = $reparacion->groupBy('referencia');
+        $acciones = $reparacion->groupBy('accion');
+        $origenes = $reparacion->groupBy('origen');
+        $reparadores = $reparacion->groupBy('nombre_completo');
+        $turnos = $reparacion->groupBy('turno');
+
+        $stats = new \stdClass();
+        $stats->defectos = collect($this->extendHistorialCollection($defectos))->sortByDesc('rechazos');
+        $stats->causas = collect($this->extendHistorialCollection($causas))->sortByDesc('rechazos');
+        $stats->referencias = collect($this->extendHistorialCollection($referencias))->sortByDesc('rechazos');
+        $stats->acciones = collect($this->extendHistorialCollection($acciones))->sortByDesc('rechazos');
+        $stats->origenes = collect($this->extendHistorialCollection($origenes))->sortByDesc('rechazos');
+        $stats->reparadores = collect($this->extendHistorialCollection($reparadores))->sortByDesc('rechazos');
+        $stats->turnos = collect($this->extendHistorialCollection($turnos))->sortByDesc('rechazos');
+
+        $output = compact('reparacion','resumen','stats');
+
         return Response::multiple_output($output,'reparacion.index');
+    }
+
+    public function extendHistorialCollection(Collection $collection)
+    {
+        foreach($collection as $key => $items)
+        {
+            $collection[$key] = new \stdClass();
+            $collection[$key]->reparados = $items->where('estado','R')->count();
+            $collection[$key]->pendientes =  $items->where('estado','P')->where('historico','actual')->count();
+            $collection[$key]->rechazos = $items->where('estado','P')->count();
+            $collection[$key]->scrap = $items->where('estado','S')->count();
+            $collection[$key]->bonepile = $items->where('estado','B')->count();
+            $collection[$key]->analisis = $items->where('estado','A')->count();
+            $collection[$key]->items= $items;
+        }
+
+        return $collection;
+    }
+
+    // EN FASE DE DESARROLLO
+    public function extendHistorialCollectionAndSplitKey(Collection $collection)
+    {
+        foreach($collection as $key => $items)
+        {
+            if(str_contains($key,','))
+            {
+                foreach (explode(',',$key) as $rekey) {
+                    if(isset($collection[$rekey]))
+                    {
+                        if($collection[$rekey] instanceof \Illuminate\Support\Collection)
+                        {
+                            $oldContent = $collection[$rekey];
+                            $collection[$rekey] = new \stdClass();
+                            $collection[$rekey]->reparados = $items->where('estado','R')->count();
+                            $collection[$rekey]->pendientes =  $items->where('estado','P')->where('historico','actual')->count();
+                            $collection[$rekey]->rechazos = $items->where('estado','P')->count();
+                            $collection[$rekey]->scrap = $items->where('estado','S')->count();
+                            $collection[$rekey]->bonepile = $items->where('estado','B')->count();
+                            $collection[$rekey]->analisis = $items->where('estado','A')->count();
+                            $collection[$rekey]->oldcontent = $oldContent;
+                            dump("============Support\Collection ".$rekey."=================",$collection,$collection[$rekey]);
+
+                        } else
+                        {
+                            $collection[$rekey]->pendientes += $items->where('estado','P')->where('historico','actual')->count();
+                            $collection[$rekey]->rechazos += $items->where('estado','P')->count();
+                            $collection[$rekey]->scrap += $items->where('estado','S')->count();
+                            $collection[$rekey]->bonepile += $items->where('estado','B')->count();
+                            $collection[$rekey]->analisis += $items->where('estado','A')->count();
+//                        $collection[$rekey]->items = $items;
+
+                            dump("============Is Object ".$rekey."=================",$collection,$collection[$rekey]);
+
+                        }
+                    } else
+                    {
+                        $collection[$rekey] = new \stdClass();
+                        $collection[$rekey]->reparados = $items->where('estado','R')->count();
+                        $collection[$rekey]->pendientes =  $items->where('estado','P')->where('historico','actual')->count();
+                        $collection[$rekey]->rechazos = $items->where('estado','P')->count();
+                        $collection[$rekey]->scrap = $items->where('estado','S')->count();
+                        $collection[$rekey]->bonepile = $items->where('estado','B')->count();
+                        $collection[$rekey]->analisis = $items->where('estado','A')->count();
+                        $collection[$rekey]->items= $items;
+
+                        dump('splid add',$rekey,$key,$collection[$key], $collection[$rekey]);
+
+                    }
+                }
+                //unset($collection[$key]);
+
+            } else
+            {
+                $collection[$key] = new \stdClass();
+                $collection[$key]->reparados = $items->where('estado','R')->count();
+                $collection[$key]->pendientes =  $items->where('estado','P')->where('historico','actual')->count();
+                $collection[$key]->rechazos = $items->where('estado','P')->count();
+                $collection[$key]->scrap = $items->where('estado','S')->count();
+                $collection[$key]->bonepile = $items->where('estado','B')->count();
+                $collection[$key]->analisis = $items->where('estado','A')->count();
+                $collection[$key]->items= $items;
+
+                if($key=='Q86')
+                {
+                    dump("============ADDED ".$key."=================",$collection[$key]);
+                }
+            }
+        }
+
+        dd($collection);
+        return $collection;
     }
 
     public function getBarcode($id_sector, $barcode) {

@@ -19,6 +19,9 @@ class Historial extends Model
             'historial.codigo',
             'operador.nombre',
             'operador.apellido',
+            DB::raw('
+                CONCAT(operador.nombre," ",operador.apellido) as nombre_completo
+            '),
             'historial.modelo',
             'historial.lote',
             'historial.panel',
