@@ -43,6 +43,8 @@ class Cogiscan extends Controller
         $attributes= array_except( Request::segments() , [0,1]);
         if(method_exists($this,$command))
         {
+            $attributes = $this->normalizeAttributes($attributes);
+
             $items = call_user_func_array(array($this, $command), $attributes);
             $output = $items;
         } else
@@ -51,6 +53,16 @@ class Cogiscan extends Controller
         }
 
         return Response::multiple_output($output);
+    }
+
+    private function normalizeAttributes($attributes)
+    {
+        foreach($attributes as $index => $att)
+        {
+            $attributes[$index] = urldecode($att);
+        }
+
+        return $attributes;
     }
 
     private function services()

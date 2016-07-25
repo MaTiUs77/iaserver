@@ -27,7 +27,7 @@ Route::group(['prefix' => 'inspection'], function()
 
     Route::group(['prefix' => 'search'], function()
     {
-        Route::get('/reference/{reference}/{id_maquina}/{turno}/{fecha}/{programa}', [
+        Route::get('/reference/{reference}/{id_maquina}/{turno}/{fecha}/{programa}/{realOFalso}', [
             'as' => 'aoicollector.inspection.search.reference',
             'uses' => 'Aoicollector\Inspection\InspectionController@searchReference'
         ]);

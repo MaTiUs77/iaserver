@@ -12,6 +12,7 @@
 */
 Route::group(['prefix' => 'amr'], function()
 {
+    Route::get('/parciales/almacen/{smt}','MonitorPedidos\ViewPedidos@showReservaXLinea');
     Route::get('/parciales/almacen','MonitorPedidos\ViewPedidos@viewMysql');
     Route::get('/parciales', 'MonitorPedidos\ViewPedidos@getMaterialError');
     Route::post('/parciales/pedir','MonitorPedidos\CogiscanPedidos@store');

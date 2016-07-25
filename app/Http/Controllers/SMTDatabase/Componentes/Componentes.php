@@ -9,7 +9,14 @@ use Illuminate\Support\Facades\Input;
 class Componentes extends SMTDatabase
 {
     public static function buscarComponente($componente) {
-        $materiales = Materiales::modelsWithComponente($componente)->get();
+        $materiales = Materiales::findComponent($componente)->get();
+        $output = compact('materiales','componente');
+        return $output;
+    }
+
+    public static function buscarSemielaborado($componente) {
+        $materiales = Materiales::findSemielaborado($componente)->get();
+
         $output = compact('materiales','componente');
         return $output;
     }

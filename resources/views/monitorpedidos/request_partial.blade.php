@@ -24,10 +24,10 @@
                     @endif
 
             </div>
-            {{--BOTON DE PEDIDO DE MATERIALES DESACTIVADO TEMPORALMENTE--}}
-            {{--<div class="col-lg-4" align="right">--}}
-                {{--<button id="btn-add" class="btn btn-danger btn-xs" ng-click="toggle('add',0)"><i class="fa fa-plus" aria-hidden="true"></i> Nuevo PartNumber</button>--}}
-            {{--</div>--}}
+            {{--BOTON DE PEDIDO DE MATERIALES--}}
+            <div class="col-lg-4" align="right">
+                <button id="btn-add" class="btn btn-danger btn-xs" ng-click="toggle('add',0)"><i class="fa fa-plus" aria-hidden="true"></i> Nuevo PartNumber</button>
+            </div>
         </div>
     <div class="container-fluid">
 
@@ -44,7 +44,7 @@
                 <th>UBICACION</th>
                 <th>STATUS</th>
                 <th>FECHA</th>
-                {{--<th>ACCIONES</th>--}}
+                <th>TIEMPO</th>
 
             </tr>
             </thead>
@@ -73,6 +73,8 @@
                     <td>{{$modelo->STATUS}}</td>
 
                     <td> {{$modelo->LAST_UPDATE_DATE}}</td>
+
+                    <td>{{$date = \IAServer\Http\Controllers\MonitorOp\GetWipOtInfo::ultimaDeclaracion($modelo->LAST_UPDATE_DATE)}}</td>
 
                     {{--<TD>--}}
 

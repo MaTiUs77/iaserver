@@ -198,6 +198,30 @@ return [
             'strict'    => false,
         ],
 
+        'amr_prod_desa' => [
+            'driver'    => 'mysql',
+            'host'      => env('AMRDESA_HOST', '10.30.10.97'),
+            'database'  => env('AMRDESA_DATABASE', 'cgs_interface_db_desa'),
+            'username'  => env('AMRDESA_USERNAME', 'jmc'),
+            'password'  => env('AMRDESA_PASSWORD', 'apisql'),
+            'charset'   => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix'    => '',
+            'strict'    => false,
+        ],
+
+        'db2_tools' => [
+            'driver'    => 'mysql',
+            'host'      => env('DB2TOOLS_HOST', '10.30.10.97'),
+            'database'  => env('DB2TOOLS_DATABASE', 'db2_tools'),
+            'username'  => env('DB2TOOLS_USERNAME', 'jmc'),
+            'password'  => env('DB2TOOLS_PASSWORD', 'apisql'),
+            'charset'   => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix'    => '',
+            'strict'    => false,
+        ],
+
         'cgs_prod' => [
             'driver'   => 'sqlsrv',
             'host'     => env('CGSDEV_HOST', 'ARUSHDB20'),

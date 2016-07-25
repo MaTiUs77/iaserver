@@ -94,10 +94,16 @@
                         </td>
                         <td>{{ $r->referencia }}</td>
                         <td>{{ $r->total }}</td>
-                        <td>{{ $r->total_falso }}</td>
+                        <td>
+                            @if($r->total_falso > 0 )
+                                <a href="{{  route('aoicollector.inspection.search.reference',[$r->referencia, $maquina->id, $turno, $fecha_eng, $resume->programa,'falso'] ) }}" target="_blank">{{ $r->total_falso  }}</a>
+                            @else
+                                0
+                            @endif
+                        </td>
                         <td>
                             @if($r->total_real > 0 )
-                                <a href="{{  route('aoicollector.inspection.search.reference',[$r->referencia, $maquina->id, $turno, $fecha_eng, $resume->programa] ) }}" target="_blank">{{ $r->total_real  }}</a>
+                                <a href="{{  route('aoicollector.inspection.search.reference',[$r->referencia, $maquina->id, $turno, $fecha_eng, $resume->programa,'real'] ) }}" target="_blank">{{ $r->total_real  }}</a>
                             @else
                                 0
                             @endif

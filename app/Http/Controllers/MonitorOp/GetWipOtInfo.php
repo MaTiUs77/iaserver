@@ -97,12 +97,19 @@ class GetWipOtInfo extends Controller
 
     public static function ultimaDeclaracion($fecha)
     {
-        Carbon::setLocale('es');
-        $datetime = Carbon::now();
-        $dateSerieHistory = Carbon::createFromFormat('Y-m-d H:i:s.u', $fecha);
-        $diferencia = $dateSerieHistory -> diffForHumans($datetime);
+        try
+        {
+            Carbon::setLocale('es');
+            $datetime = Carbon::now();
+            $dateSerieHistory = Carbon::createFromFormat('Y-m-d H:i:s.u', $fecha);
+            $diferencia = $dateSerieHistory -> diffForHumans($datetime);
 
-        return $diferencia;
+            return $diferencia;
+        } catch(\Exception $ex)
+        {
+            return 'Error: '.$ex->getMessage();
+        }
+
     }
     public static function statusAmr($fecha)
     {

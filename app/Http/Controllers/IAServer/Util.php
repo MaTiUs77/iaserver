@@ -103,7 +103,7 @@ class Util extends Controller
                     Util::array_to_xml($value, $subnode);
                 }
                 else{
-                    $subnode = $xml_obj->addChild("item_$key");
+                    $subnode = $xml_obj->addChild("item");
                     Util::array_to_xml($value, $subnode);
                 }
             }

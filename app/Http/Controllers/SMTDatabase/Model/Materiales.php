@@ -15,7 +15,7 @@ class Materiales extends Model
         return $this->hasMany('IAServer\Http\Controllers\SMTDatabase\Model\MaterialIndex','id_material','id');
     }
 
-    public static function modelsWithComponente($componente)
+    public static function findComponent($componente,$likeMode = false)
     {
         $sql = self::select(DB::raw("
             i.modelo,
@@ -23,11 +23,25 @@ class Materiales extends Model
 	        "))
             ->from("smtdatabase.materiales as m")
             ->join( 'smtdatabase.material_index as mi', DB::raw( 'mi.id_material' ), '=', DB::raw( 'm.id' ) )
-            ->join( 'smtdatabase.ingenieria as i', DB::raw( 'i.id' ), '=', DB::raw( 'mi.id_ingenieria' ) )
-            ->where('m.componente',$componente)
-            ->groupBy([
-                'i.modelo','m.componente','m.descripcion_componente','m.asignacion'
-            ]);
+            ->join( 'smtdatabase.ingenieria as i', DB::raw( 'i.id' ), '=', DB::raw( 'mi.id_ingenieria' ) );
+
+        if($likeMode) {
+            $sql = $sql->where('m.componente','like',"4-651-%$componente%");
+        } else
+        {
+            $sql = $sql->where('m.componente',$componente);
+        }
+
+        $sql = $sql->groupBy([
+            'i.modelo','m.componente','m.descripcion_componente','m.asignacion'
+        ]);
+
+        return $sql;
+    }
+
+    public static function findSemielaborado($semielaborado)
+    {
+        $sql = self::findComponent($semielaborado,true);
         return $sql;
     }
 }

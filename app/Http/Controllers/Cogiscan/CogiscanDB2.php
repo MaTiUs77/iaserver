@@ -16,14 +16,14 @@ class CogiscanDB2 extends Controller
      *
      * @return mixed
      */
-    public function dynamicCommands()
-    {
+    public function dynamicCommands(){
         $command = Request::segment(3);
         $attributes= array_except( Request::segments() , [0,1,2]);
 
         $output = "";
         if(method_exists($this,$command))
         {
+            $attributes = $this->normalizeAttributes($attributes);
             $output = call_user_func_array(array($this, $command), $attributes);
         } else
         {
@@ -32,6 +32,17 @@ class CogiscanDB2 extends Controller
 
         return Response::multiple_output($output);
     }
+
+    private function normalizeAttributes($attributes)
+    {
+        foreach($attributes as $index => $att)
+        {
+            $attributes[$index] = urldecode($att);
+        }
+
+        return $attributes;
+    }
+
     private function services()
     {
         $class = 'IAServer\Http\Controllers\Cogiscan\CogiscanDB2';
@@ -124,6 +135,46 @@ class CogiscanDB2 extends Controller
     {
         $db = 'CGS';
         $query = "select * from CGS.ITEM_INFO where QUARANTINE_LOCKED = '$quarentine' ";
+
+        return self::query($db,$query);
+    }
+
+    public function partNumber($partNumber,$itemId)
+    {
+        $db = 'CGS';
+        $query = "select * from CGS.PART_NUMBER p left join CGS.ITEM i on i.ITEM_ID = '$itemId'  where p.PART_NUMBER = '$partNumber' ";
+
+        return self::query($db,$query);
+    }
+
+    public function posicionesPorUbicacion($partNumber,$itemId)
+    {
+        $db = 'CGS';
+        $query = "select * from CGSLSC.TOOL_SETUP where PRODUCT_PN_KEY = (select PART_NUMBER_KEY from CGS.PART_NUMBER where PART_NUMBER = '$partNumber' limit 1) and TOOL_KEY = (select ITEM_KEY from CGS.ITEM where ITEM_ID = '$itemId' limit 1) ";
+
+        return self::query($db,$query);
+    }
+
+    public function itemByComplex($itemId)
+    {
+        $db = 'CGS';
+        $query = "select * from CGS.ITEM where ITEM_ID = '$itemId'";
+
+        return self::query($db,$query);
+    }
+
+    public function toolSetup($PRODUCT_PN_KEY,$TOOL_KEY)
+    {
+        $db = 'CGS';
+        $query = "select * from CGSLSC.TOOL_SETUP where PRODUCT_PN_KEY = $PRODUCT_PN_KEY and TOOL_KEY = $TOOL_KEY";
+
+        return self::query($db,$query);
+    }
+
+    public function opByPartNumber($partNumber)
+    {
+        $db = 'CGS';
+        $query = "select * from CGSPCM.product_batch where product_pn_key = (select part_number_key from CGS.part_number where part_number = '$partNumber')";
 
         return self::query($db,$query);
     }

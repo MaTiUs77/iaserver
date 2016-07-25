@@ -21,18 +21,6 @@ use Illuminate\Support\Facades\Session;
 
 class InspectionController extends Controller
 {
-    /**
-     * El metodo __construct define si se realiza Debug del controlador
-     *
-     * @var Debug|null
-     */
-    public $debug = null;
-
-    function __construct()
-    {
-        //$this->debug = new Debug($this);
-    }
-
     public function exportarLista($id_maquina,$fecha,$minOrMax)
     {
         $maquina = Maquina::findOrFail($id_maquina);
@@ -184,21 +172,22 @@ class InspectionController extends Controller
         $barcode = Input::get('barcode');
         $maquina = null;
         $insp_by_date = array();
+        $maquinas = Maquina::orderBy('linea')->get();
 
         if(!empty($search_barcode)) {
             $barcode = $search_barcode;
         }
 
-        $insp = PanelHistory::buscar($barcode);
+        $find = new FindInspection();
+        $insp = (object) $find->barcode($barcode);
 
-        if($insp!=null)
+        if(isset($insp->aoi))
         {
-            $finsp = (object) head($insp);
-            if(isset($finsp->id_maquina)) {
-                $maquina = Maquina::find($finsp->id_maquina);
+            if(isset($insp->aoi->panel->id_maquina)) {
+                $maquina = Maquina::find($insp->aoi->panel->id_maquina);
             }
 
-            foreach($insp as $r) {
+            foreach($insp->aoi->historial as $r) {
                 $insp_by_date[$r->created_date][] = $r;
             }
         }
@@ -208,18 +197,16 @@ class InspectionController extends Controller
             $maquina = Maquina::orderBy('linea')->take(1)->first();
         }
 
-        $maquinas = Maquina::orderBy('linea')->get();
-
         $output = compact('insp','insp_by_date','maquinas','maquina','timeline','barcode');
 
         return Response::multiple_output($output,'aoicollector.inspection.index');
     }
 
-    public function searchReference($reference, $id_maquina, $turno, $fecha_eng, $progama)
+    public function searchReference($reference, $id_maquina, $turno, $fecha_eng, $progama,$realOFalso = 'real')
     {
         $search_reference = $reference;
 
-        $panel_barcodes = $this->findPanelWithReference($id_maquina, $turno, $fecha_eng, $progama, $reference, 'real');
+        $panel_barcodes = $this->findPanelWithReference($id_maquina, $turno, $fecha_eng, $progama, $reference, $realOFalso);
 
         $maquina = Maquina::find($id_maquina);
         foreach($panel_barcodes as $p)

@@ -31,6 +31,7 @@ class ViewPedidos extends Controller
         return Response::multiple_output($output, 'monitorpedidos.request_error');
 
     }
+
     public function index(Request $request)
     {
 
@@ -44,10 +45,13 @@ class ViewPedidos extends Controller
 
     public function viewMysql(Request $request)
     {
-        $material = new CogiscanPedidos();
-        $pedido = $material->showMaterialMysql($request->get('partnumber'));
 
-        $output = compact('pedido');
+        $material = new CogiscanPedidos();
+        $pedido = $material->showMaterialMysql();
+
+        $reserva = $material->showReserva($request->get('valor'));
+
+        $output = compact('pedido', 'reserva');
         return Response::multiple_output($output, 'monitorpedidos.request_partial_mysql');
     }
 
@@ -60,4 +64,13 @@ class ViewPedidos extends Controller
         return Response::multiple_output($output, 'monitorpedidos.request_partial');
     }
 
+    public function showReservaXLinea($smt)
+    {
+
+        $pedidos = new CogiscanPedidos();
+        $reserva = $pedidos->showReservaXLinea($smt);
+
+        $output = compact('reserva');
+        return Response::multiple_output($output, 'monitorpedidos.reservas');
+    }
 }

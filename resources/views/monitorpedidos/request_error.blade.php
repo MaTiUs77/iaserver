@@ -1,6 +1,6 @@
 @extends('monitorpedidos.index')
 @section('body')
-    <div  ng-controller = 'requestController' class="container-fluid">
+    <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12" align="center">
                 <a href="{{url('amr/pedidos/nuevos')}}" class="btn btn-info btn-xs btn-detail" role="button">NUEVOS</a>
