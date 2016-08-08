@@ -5,14 +5,7 @@ Route::group(array('prefix' => 'trazabilidad'), function() {
         'uses' => 'Trazabilidad\Trazabilidad@index'
     ]);
 
-    Route::group(array('prefix' => 'stocker'), function() {
-        Route::match(['get', 'post'], '/find/{element?}', [
-            'as' => 'trazabilidad.stocker.find',
-            'uses' => 'Trazabilidad\TrazaStocker@findElement'
-        ]);
-    });
-
-    Route::get('/show/{op}/{modo}/{trans_ok}', [
+    Route::get('/show/{op}/{modo}/{trans_ok}/{manual}/{ebs_error_trans?}', [
         'as' => 'trazabilidad.form.trans_ok',
         'uses' => 'Trazabilidad\Trazabilidad@formTransOk'
     ]);

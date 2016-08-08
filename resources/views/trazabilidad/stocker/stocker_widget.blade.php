@@ -4,6 +4,9 @@
     <div class="row">
         <div class="col-lg-3">
             <blockquote>
+                <small>Stocker ID</small>
+                {{ $stocker->barcode }}
+
                 <small>Linea de produccion</small>
                 {{ $linea }}
 
@@ -25,25 +28,24 @@
                         </li>
                     @endforeach
                 </ul>
-
-
             </blockquote>
         </div>
+
             <div class="col-lg-9">
             <table class="table table-bordered table-striped">
-                <thead class="panel">
-                <tr>
-                    <th>Panel</th>
-                    <th>Programa</th>
-                    <th>AOI</th>
-                    <th>INS</th>
-                    <th>Errores</th>
-                    <th>Falsos</th>
-                    <th>Reales</th>
-                    <th>Bloques</th>
-                    <th>Fecha</th>
-                    <th>Hora</th>
-                </tr>
+                <thead>
+                    <tr>
+                        <th>Panel</th>
+                        <th>Programa</th>
+                        <th>AOI</th>
+                        <th>INS</th>
+                        <th>Errores</th>
+                        <th>Falsos</th>
+                        <th>Reales</th>
+                        <th>Bloques</th>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                    </tr>
                 </thead>
                 <tbody>
                     @foreach($stockerDetalle as $detalle)

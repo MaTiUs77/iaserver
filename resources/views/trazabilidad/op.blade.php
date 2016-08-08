@@ -50,13 +50,14 @@
         @endif
     </div>
 
-    @if(isAdmin() && !$is_memory)
+    @if(!$is_memory)
         @if(count($manualWipSerie)>0 || count($manualWipHistory)>0)
             <div class="row">
                 <div class="col-lg-12">
                     <h3>Transacciones manuales en wip</h3>
                     @include('trazabilidad.widget.detalle_transacciones',[
                         'nro_op' => $wip->wip_ot->nro_op,
+                        'manual' => true,
                         'wip_serie' => $manualWipSerie,
                         'wip_history' => $manualWipHistory,
                     ])
@@ -66,14 +67,12 @@
     @endif
 
     @if(collect($wip->transactions->detail->wip_serie)->count()>0 || collect($wip->transactions->detail->wip_history)->count()>0)
-        <blockquote>
-            @include('trazabilidad.widget.detalle_declaracion_por_hora',[
-                'wip_op' => $wip->wip_ot->nro_op,
-                'title' => 'Declaraciones por hora',
-                'period' => $wip->period,
-                'navigator' => true
-            ])
-        </blockquote>
+        @include('trazabilidad.widget.detalle_declaracion_por_hora',[
+            'wip_op' => $wip->wip_ot->nro_op,
+            'title' => 'Declaraciones por hora',
+            'period' => $wip->period,
+            'navigator' => true
+        ])
     @endif
 
     @else

@@ -10,4 +10,7 @@ Route::group(['prefix' => 'aoicollector'], function()
     include('Service/routes.php');
     include('Stat/routes.php');
     include('Inspection/routes.php');
+    include('Stocker/routes.php');
 });
+
+

@@ -40,42 +40,4 @@ Route::group(['prefix' => 'prod'], function() {
             'uses' => 'Aoicollector\Prod\ProdController@userLogout'
         ]);
     });
-
-    Route::group(['prefix' => 'stocker'], function()
-    {
-        Route::get('/set/{stkbarcode}/{aoibarcode}', [
-            'as' => 'aoicollector.prod.stocker.view.set',
-            'uses' => 'Aoicollector\Prod\Stocker\StockerController@view_setStockerToAoi'
-        ]);
-
-        Route::get('/info/{stkbarcode}', [
-            'as' => 'aoicollector.prod.stocker.info',
-            'uses' => 'Aoicollector\Prod\Stocker\StockerController@view_stockerInfo'
-        ]);
-
-        Route::get('/controldeplacas/{stkbarcode}', [
-            'as' => 'aoicollector.prod.stocker.controldeplacas',
-            'uses' => 'Aoicollector\Prod\Stocker\StockerController@view_stockerControldeplacas'
-        ]);
-
-        Route::get('/remove/{stkbarcode}', [
-            'as' => 'aoicollector.prod.stocker.view.remove',
-            'uses' => 'Aoicollector\Prod\Stocker\StockerController@view_removeStocker'
-        ]);
-
-        Route::get('/panel/add/{panelbarcode}/{aoibarcode}', [
-            'as' => 'aoicollector.prod.stocker.panel.view.add',
-            'uses' => 'Aoicollector\Prod\Stocker\PanelStockerController@view_addPanel'
-        ]);
-
-        Route::get('/panel/addmanual/{panelbarcode}/{aoibarcode}', [
-            'as' => 'aoicollector.prod.stocker.panel.view.addmanual',
-            'uses' => 'Aoicollector\Prod\Stocker\PanelStockerController@view_addPanelManual'
-        ]);
-
-        Route::get('/panel/remove/{panelbarcode}', [
-            'as' => 'aoicollector.prod.stocker.panel.view.remove',
-            'uses' => 'Aoicollector\Prod\Stocker\PanelStockerController@view_removePanel'
-        ]);
-    });
 });

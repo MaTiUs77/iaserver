@@ -40,6 +40,13 @@ class Wip extends Controller
             if($withPeriod)
             {
                 $this->period = $this->period($op);
+                /*$byDateArr = [];
+                foreach($this->period as $p)
+                {
+                    $byDateArr["$p->anio-$p->mes-$p->dia"][] = $p;
+                }
+
+                $this->periodByDate = $byDateArr;*/
             }
 
         } else {
@@ -61,6 +68,13 @@ class Wip extends Controller
             if($withPeriod)
             {
                 $this->period = $this->period($op);
+               /* $byDateArr = [];
+                foreach($this->period as $p)
+                {
+                    $byDateArr["$p->anio-$p->mes-$p->dia"][] = $p;
+                }
+
+                $this->periodByDate = $byDateArr;*/
             }
         }
 

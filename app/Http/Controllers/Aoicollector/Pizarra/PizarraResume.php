@@ -129,6 +129,7 @@ class PizarraResume extends Controller
             {
                 /////////// DEFINO HORA Y PRODUCCION POR OP ///////////
                 list($hora, $minuto, $segundo) = explode(':', $period->periodo);
+
                 $hora = (int)$hora;
                 if ($hora >= $this->config['M']['desde'] && $hora < $this->config['M']['hasta']) {
                     $period->turno = 'M';
@@ -254,7 +255,6 @@ class PizarraResume extends Controller
 
         return $diff->count();
     }
-
 
     /***
      * Obtiene lista de reportes de produccion de la fecha solicitada

@@ -38,11 +38,13 @@ class AppServiceProvider extends ServiceProvider
                 case 'xml':
                     $xml = new \SimpleXMLElement('<service/>');
                     $header['Content-Type'] = 'application/xml';
+
+//                    $vars = collect($vars['reparacion'])->take(46);
                     $output = json_encode($vars);
 
                     try
                     {
-                        Util::array_to_xml(json_decode($output,true),$xml);
+                        Util::array_to_xml(json_decode($output  ,true),$xml);
                         return Response::make($xml->asXML(), $status, $header);
                     } catch(\Exception $e)
                     {

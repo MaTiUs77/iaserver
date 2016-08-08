@@ -5,8 +5,17 @@
     <div id="{{ $prodchart }}container" style="width: 95%;height:{{ isset($height) ? $height : '300' }}px;"></div>
 
     <script>
+
         $(function () {
+/*
+            Highcharts.setOptions({
+                global: {
+                    useUTC: false
+                }
+            });
+*/
             var {{ $prodchart }} = null;
+
 
             var {{ $prodchart }}options = {
                 chart: {
@@ -31,12 +40,18 @@
                     text: '{{ $title }}'
                 },
                 xAxis: {
-                    type: 'datetime',
-                    tickInterval: 3600 * 1000,
                     title: {
                         text: 'Fecha'
                     },
-                    range: 24 * 3600 * 1000 // six months
+                    /*labels: {
+                        formatter: function() {
+                            return moment(this.value).format("MM-DD");
+                        }
+                    },*/
+                    type: 'datetime',
+                    tickInterval: moment.duration(1, 'hour').asMilliseconds(),
+//                    minTickInterval: moment.duration(1, 'hour').asMilliseconds(),
+                    range:  moment.duration(1, 'day').asMilliseconds(),
                 },
                 yAxis: {
                     title: {
@@ -109,6 +124,16 @@
                         },
                         data: [
                             @foreach($period as $point)
+                                <?php
+                                    if(isset($periodoByDate["$point->anio-$point->mes-$point->dia"]))
+                                    {
+                                        $periodoByDate["$point->anio-$point->mes-$point->dia"] += $point->total;
+                                    } else
+                                    {
+                                        $periodoByDate["$point->anio-$point->mes-$point->dia"] = $point->total;
+                                    }
+                                ?>
+
                                 [moment("{{ $point->anio }}-{{ $point->mes }}-{{ $point->dia }} {{ $point->periodo }}:00 -0000", "YYYY-MM-DD HH:mm Z").valueOf(),{{ $point->total }}],
                             @endforeach
                         ]},

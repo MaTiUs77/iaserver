@@ -31,75 +31,19 @@ class FindInspection extends Controller
             // Si encontro resultados...
             if($panel!=null)
             {
-                $aoi = new \stdClass();
-                $aoi->panel = (object)(head(head($panel)));
-                $aoi->bloque = null;
-                $aoi->historial = $panel;
+                $result = new \stdClass();
+                $result->last = $this->panelDataHandler($barcode,collect($panel)->first());
+                $result->historial = null;
 
-                $wip = null;
-                $declarado = false;
-                $error = null;
-
-                if (isset($aoi->panel->panel_barcode))
+                if(count($panel)>1)
                 {
-                    $bloques = BloqueHistory::where('id_panel_history', $aoi->panel->id_panel_history)->get();
-                    $bloque = array_where($bloques, function ($key, $value) use($aoi, $barcode) {
-                        if($value->barcode == $barcode){
-                            return $value;
-                        }
-                    });
-                    $aoi->analisis = $this->analisisDespacho($bloques,$aoi->panel);
-                    if($aoi->analisis->mode == 'E')
+                    foreach($panel as $historyPanel)
                     {
-                        $aoi->bloque = head($bloque);
+                        $result->historial[] = $this->panelDataHandler($barcode,$historyPanel);
                     }
-
-                    if ($this->withDetail) {
-                        $aoi->detalle = DetalleHistory::fullDetail($aoi->bloque->id_bloque_history)->get();
-                    }
-
-                    if ($this->withProductioninfo) {
-                        $aoi->production = Produccion::maquina($aoi->panel->id_maquina);
-                    }
-
-                    if ($this->withSmt) {
-                        $w = new Wip();
-                        $smt = SMTDatabase::findOp($aoi->panel->inspected_op);
-                        $wipResult = $w->findOp($aoi->panel->inspected_op,false,false);
-
-                        $semielaborado =null;
-                        if(isset($wipResult->wip_ot->codigo_producto))
-                        {
-                            $semielaborado = $wipResult->wip_ot->codigo_producto;
-                        }
-                        $smt->semielaborado = $semielaborado;
-
-                        unset($smt->op);
-                        unset($smt->id);
-                        unset($smt->prod_aoi);
-                        unset($smt->prod_man);
-                        unset($smt->qty);
-                    }
-
-                    if ($this->withCogiscan)
-                    {
-                        $cogiscanService= new Cogiscan();
-                        $cogiscan = $cogiscanService->queryItem($aoi->panel->panel_barcode);
-                    }
-
-                    if($this->withWip)
-                    {
-                        $wip_serie = $this->barcodeDeclared($barcode, $aoi->panel);
-                        $output = compact('db','barcode','aoi','smt','cogiscan','wip_serie');
-                    } else
-                    {
-                        $output = compact('db','barcode','aoi','smt','cogiscan');
-                    }
-
-                } else {
-                    $error = "No se localizo el barcode en AOI";
-                    $output = compact('db','barcode', 'error');
                 }
+
+                return $result;
             } else
             {
                 $error = "No se localizo el barcode en AOI";
@@ -113,6 +57,56 @@ class FindInspection extends Controller
         }
 
         return $output;
+    }
+
+    private function panelDataHandler($barcode, PanelHistory $panel)
+    {
+        $moreInfo = new \stdClass();
+        $moreInfo->panel = $panel;
+        $moreInfo->bloque = null;
+        $moreInfo->detalle = null;
+        $moreInfo->production = null;
+        $moreInfo->smt = null;
+        $moreInfo->analisis = null;
+
+        if (isset($panel->panel_barcode))
+        {
+            $bloques = BloqueHistory::where('id_panel_history', $panel->id_panel_history)->get();
+
+            $bloque = $bloques->where('barcode',$barcode)->first();
+
+            $moreInfo->analisis = $this->analisisDespacho($bloques,$panel);
+            if($moreInfo->analisis->mode == 'E')
+            {
+                $moreInfo->bloque = $bloque;
+            }
+
+            if ($this->withDetail) {
+                $moreInfo->detalle = DetalleHistory::fullDetail($bloque->id_bloque_history)->get();
+            }
+
+            if ($this->withProductioninfo) {
+                $moreInfo->production = Produccion::maquina($panel->id_maquina);
+            }
+
+            if($this->withSmt) {
+                $moreInfo->smt = $panel->smt();
+            }
+            if($this->withCogiscan)
+            {
+                $moreInfo->cogiscan = $panel->cogiscan();
+            }
+            if($this->withWip)
+            {
+                $moreInfo->wip = $panel->wip();
+            }
+
+            return $moreInfo;
+
+        } else {
+            $error = "No se localizo el barcode en AOI";
+            return compact('error');
+        }
     }
 
     /**
@@ -156,66 +150,5 @@ class FindInspection extends Controller
         }
 
         return $info;
-    }
-
-    /**
-     * Verifica si el codigo de barra fue declarado en WipSerie o si se encuentra en WipSerieHistory
-     *
-     * @param string $barcode
-     * @param PanelHistory|null $panelHistory null
-     * @return array
-     */
-    private function barcodeDeclared($barcode, PanelHistory $panelHistory=null)
-    {
-        $panel = null;
-
-        if($panelHistory != null)
-        {
-            $panel = $panelHistory;
-        } else
-        {
-            $panelHistory = PanelHistory::buscar($barcode);
-            $panel = (object)(head(head($panelHistory)));
-        }
-
-        $w = new Wip();
-        $wip = $w->findBarcode($barcode, $panel->inspected_op);
-
-        $declarado = false;
-        $pendiente = false;
-
-        if(count($wip)>0)
-        {
-            $findTransOk1= array_first($wip, function ($index,$obj) {
-                if($obj->trans_ok == 1)
-                {
-                    return $obj;
-                }
-            });
-
-            if(count($findTransOk1)==1)
-            {
-                $declarado = true;
-            }
-
-            $findTransOk0= array_first($wip, function ($index,$obj) {
-                if($obj->trans_ok == 0)
-                {
-                    return $obj;
-                }
-            });
-
-            if(count($findTransOk0)==1)
-            {
-                $pendiente = true;
-            }
-        }
-
-        $output = array();
-        $output['declarado'] = $declarado;
-        $output['pendiente'] = $pendiente;
-        $output['wip'] = $wip;
-
-        return $output;
     }
 }

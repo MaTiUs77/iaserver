@@ -56,8 +56,9 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach( $panels as $panel)
+                @foreach( $panels as $inspection)
                     <!-- Si hay un error los muestro -->
+
                     @if ( isset($insp->error))
                         <tr>
                             <td colspan="13">
@@ -65,56 +66,68 @@
                             </td>
                         </tr>
                     @else
-                        <tr class="{{ ($panel->revision_aoi == 'OK' && $panel->revision_ins == 'OK' ) ? 'success' : '' }} {{ ($panel->revision_ins == 'NG' ) ? 'danger' : '' }}">
+                        <tr class="{{ ($inspection->panel->revision_aoi == 'OK' && $inspection->panel->revision_ins == 'OK' ) ? 'success' : '' }} {{ ($inspection->panel->revision_ins == 'NG' ) ? 'danger' : '' }}">
                             <td style="width:50px;">
-                                <button id_panel="{{ $panel->id_panel_history }}" route="{{ route('aoicollector.inspection.blocks',$panel->id_panel_history) }}" ng-click="getInspectionBlocks($event);" class="btn btn-xs btn-default">Bloques</button>
+                                <button id_panel="{{ $inspection->panel->id_panel_history }}" route="{{ route('aoicollector.inspection.blocks',$inspection->panel->id_panel_history) }}" ng-click="getInspectionBlocks($event);" class="btn btn-xs btn-default">Bloques</button>
                             </td>
-                            <td>SMD-{{ $panel->linea }}</td>
-                            <td>{{ $panel->panel_barcode }}</td>
-                            <td>{{ $panel->programa }}</td>
-                            <td>{{ $panel->revision_aoi }}</td>
-                            <td>{{ $panel->revision_ins }}</td>
-                            <td>{{ $panel->errores }}</td>
-                            <td>{{ $panel->falsos }}</td>
-                            <td>{{ $panel->reales }}</td>
-                            <td>{{ $panel->bloques }}</td>
+                            <td>SMD-{{ $inspection->panel->linea }}</td>
+                            <td>{{ $inspection->panel->panel_barcode }}</td>
+                            <td>{{ $inspection->panel->programa }}</td>
+                            <td>{{ $inspection->panel->revision_aoi }}</td>
+                            <td>{{ $inspection->panel->revision_ins }}</td>
+                            <td>{{ $inspection->panel->errores }}</td>
+                            <td>{{ $inspection->panel->falsos }}</td>
+                            <td>{{ $inspection->panel->reales }}</td>
+                            <td>{{ $inspection->panel->bloques }}</td>
                             <td>
-                                @if ($panel->etiqueta === 'E')
+                                @if ($inspection->panel->etiqueta === 'E')
                                     Fisica
                                 @else
                                     Virtual
                                 @endif
                             </td>
-                            <td>{{ $panel->inspected_op }}</td>
-                            <td>{{ $panel->created_date }}</td>
-                            <td>{{ $panel->created_time }}</td>
+                            <td>{{ $inspection->panel->inspected_op }}</td>
+                            <td>{{ $inspection->panel->created_date }}</td>
+                            <td>{{ $inspection->panel->created_time }}</td>
                             <td>
-                                @if($panel->twip != null)
-                                    @if($panel->twip->CountOk() == $panel->bloques)
-                                        <i class="fa fa-thumbs-o-up"  tooltip-placement="left" tooltip="Procesado Correctamente"></i>
+
+                                @if($inspection->panel->twip)
+                                    @if($inspection->panel->twip->trans_code == 1)
+                                        <i style="color: #49bc00;" class="fa fa-thumbs-o-up fa-2x" tooltip-placement="left" tooltip="Declaracion: {{ $inspection->panel->twip->trans_det }}"></i>
                                     @else
-                                        <i class="fa fa-thumbs-o-down"  tooltip-placement="left" tooltip="Error total o parcial en declaracion"></i>
+                                        <i class="fa fa-thumbs-o-down"  tooltip-placement="left" tooltip="{{ $inspection->panel->twip->trans_code }}:{{ $inspection->panel->twip->trans_det }}"></i>
                                     @endif
                                 @else
                                     <i class="fa fa-thumbs-o-down" tooltip-placement="left" tooltip="Sin declarar"></i>
                                 @endif
 
-                                <?php
-                                    $cogiscanService= new \IAServer\Http\Controllers\Cogiscan\Cogiscan();
-                                    $cogiscan = $cogiscanService->queryItem($panel->panel_barcode);
-                                ?>
-                                @if(isset($cogiscan['attributes']['message']))
-                                    <i class="fa fa-exclamation-triangle text-danger" tooltip="Cogiscan: {{ $cogiscan['attributes']['message'] }}"></i>
-                                @else
-                                    @if(isset($cogiscan['Product']['attributes']['operation']))
-                                        @if($cogiscan['Product']['attributes']['operation'] == 'Depanelization')
-                                            <i class="fa fa-send text-info" tooltip="Ruta: {{ $cogiscan['Product']['attributes']['operation'] }}, Estado: {{ $cogiscan['Product']['attributes']['status'] }}"></i>
+                                <!-- Deshabilito la opcion de verificar el barcode declarado en la interfaz -->
+                                @if(true==false)
+                                    @if($inspection->wip->declarado)
+                                        @if($inspection->wip->last->trans_ok == 1 && empty($inspection->wip->last->ebs_error_trans))
+                                            <i style="color: #49bc00;" class="fa fa-thumbs-o-up fa-2x" tooltip-placement="left" tooltip="Declarado en la interfaz"></i>
                                         @else
-                                            <i class="fa fa-road text-success" tooltip="Ruta: {{ $cogiscan['Product']['attributes']['operation'] }}, Estado: {{ $cogiscan['Product']['attributes']['status'] }}"></i>
+                                            <i class="fa fa-thumbs-o-down"  tooltip-placement="left" tooltip="{{ $inspection->wip->last->trans_ok }}:{{ $inspection->wip->last->ebs_error_trans }}"></i>
                                         @endif
+                                    @else
+                                        <i class="fa fa-thumbs-o-down" tooltip-placement="left" tooltip="Sin declarar"></i>
+                                    @endif
+                                @endif
 
-                                        @if(isset($cogiscan['attributes']['quarantineLocked']) && $cogiscan['attributes']['quarantineLocked'] == "true")
-                                            <i class="fa fa-bomb text-danger" tooltip="Placa en cuarentena"></i>
+                                @if(isset($inspection->panel->joinProduccion->cogiscan_traza) && $inspection->panel->joinProduccion->cogiscan_traza==1)
+                                    @if(isset($inspection->cogiscan['attributes']['message']))
+                                        <i class="fa fa-exclamation-triangle text-danger" tooltip="Cogiscan: {{ $inspection->cogiscan['attributes']['message'] }}"></i>
+                                    @else
+                                        @if(isset($inspection->cogiscan['Product']['attributes']['operation']))
+                                            @if($inspection->cogiscan['Product']['attributes']['operation'] == 'Depanelization')
+                                                <i class="fa fa-send text-info" tooltip="Ruta: {{ $inspection->cogiscan['Product']['attributes']['operation'] }}, Estado: {{ $inspection->cogiscan['Product']['attributes']['status'] }}"></i>
+                                            @else
+                                                <i class="fa fa-road text-success" tooltip="Ruta: {{ $inspection->cogiscan['Product']['attributes']['operation'] }}, Estado: {{ $inspection->cogiscan['Product']['attributes']['status'] }}"></i>
+                                            @endif
+
+                                            @if(isset($inspection->cogiscan['attributes']['quarantineLocked']) && $inspection->cogiscan['attributes']['quarantineLocked'] == "true")
+                                                <i class="fa fa-bomb text-danger" tooltip="Placa en cuarentena"></i>
+                                            @endif
                                         @endif
                                     @endif
                                 @endif

@@ -13,16 +13,26 @@
                     @foreach($resume->byOp as $op => $item)
                         @if(count($item->periodo['M']))
                             <div class="col-lg-6">
-                                <blockquote>
-                                {{ $op }}
-                                <small>Modelo</small>
-                                {{ $item->smt->modelo }} -
-                                {{ $item->smt->panel }}
-                                <small>Lote</small>
-                                {{ $item->smt->lote }}
-                                <small>Producido</small>
-                                {{$item->produccionM }}
-                                </blockquote>
+                                @if(isset($item->smt))
+                                    <blockquote>
+                                        {{ $op }}
+                                        <small>Modelo</small>
+                                        {{ $item->smt->modelo }} -
+                                        {{ $item->smt->panel }}
+                                        <small>Lote</small>
+                                        {{ $item->smt->lote }}
+                                        <small>Producido</small>
+                                        {{$item->produccionM }}
+                                    </blockquote>
+                                @else
+                                    <blockquote>
+                                        {{ $op }}
+                                        <small>Modelo</small>
+                                        <span class="label label-danger">Error al obtener datos</span>
+                                        <small>Producido</small>
+                                        {{$item->produccionM }}
+                                    </blockquote>
+                                @endif
                             </div>
                         @endif
                     @endforeach

@@ -1,51 +1,18 @@
 <?php
 
-namespace IAServer\Http\Controllers\Aoicollector\Prod\Stocker;
+namespace IAServer\Http\Controllers\Aoicollector\Stocker\Controller;
 
 use IAServer\Http\Controllers\Aoicollector\Model\Produccion;
 use IAServer\Http\Controllers\Aoicollector\Model\Stocker;
 use IAServer\Http\Controllers\Aoicollector\Model\StockerDetalle;
 use IAServer\Http\Controllers\Aoicollector\Model\StockerTraza;
-use IAServer\Http\Controllers\SMTDatabase\SMTDatabase;
 use IAServer\Http\Controllers\Trazabilidad\Declaracion\Wip\Wip;
 use IAServer\Http\Requests;
 use IAServer\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Response;
 
 class StockerController extends Controller
 {
     public $stockerBarcodePattern = '/^STK[0-9]{5}$/';
-
-    public function view_setStockerToAoi($stockerBarcode,$aoibarcode)
-    {
-        $produccion = Produccion::where('barcode',$aoibarcode)->first();
-        $output = $this->addStocker($produccion,$stockerBarcode);
-        return Response::multiple_output($output);
-    }
-
-    public function view_stockerControldeplacas($stockerBarcode)
-    {
-        $output = $this->stockerControldeplacas($stockerBarcode);
-        return Response::multiple_output($output);
-    }
-
-    public function view_stockerInfo($stockerBarcode)
-    {
-        $stocker = $this->stockerInfoByBarcode($stockerBarcode);
-        if(isset($stocker->op))
-        {
-            $smt = SMTDatabase::findOp($stocker->op);
-        }
-
-        $output =  compact('stocker','smt');
-        return Response::multiple_output($output);
-    }
-
-    public function view_removeStocker($stockerBarcode)
-    {
-        $output = $this->removeStocker($stockerBarcode);
-        return Response::multiple_output($output);
-    }
 
     public function isValidStockerBarcode($stockerBarcode)
     {

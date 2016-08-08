@@ -26,6 +26,8 @@ class Handler extends ExceptionHandler
         ValidationException::class,
     ];
 
+    private $messageArray = [];
+
     /**
      * Report or log an exception.
      *
@@ -48,64 +50,26 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $e)
     {
-        $ip = Request::server('REMOTE_ADDR');
-        $host = getHostByAddr(Request::server('REMOTE_ADDR'));
-        $messageArray = array(
-            "Exception" => $e->getFile(),
-            "File" => get_class($this),
-            "User" => (Auth::user()) ? Auth::user()->name : 'No logueado',
-            "IP" => $ip,
-            "Host" => $host,
-            "Request Url" => Request::url(),
-            "Code" => $e->getCode(),
-            "Message" => $e->getMessage()
-            //"Stack" => $e->getTraceAsString()
-        );
+        $this->prepareMessage($e);
 
-        $messageOutput = "";
-        foreach($messageArray as $key => $value){
-            $messageOutput .= $key.' ---> '.$value."\n";
-        }
-
-        Log::error($messageOutput);
+        $this->cogiscanError($request,$e);
+        $this->xmlError($request,$e);
 
         if(
             $e instanceof \PDOException ||
             $e instanceof FatalErrorException
           )
         {
-
-            if(app()->environment() != 'local')
-            {
-                $this->emailSend('Matias','matius77@gmail.com',$messageArray);
-                $this->emailSend('Matias Flores','matias.flores@newsan.com.ar',$messageArray);
-            }
+            $this->emailToMatius();
 
             return response()->view('errors.exception', ['mensaje'=>$e->getMessage()], 500);
         }
 
         /*if($e instanceof \ErrorException)
         {
-            $this->emailSend('Matias','matius77@gmail.com',$e);
-            $this->emailSend('Matias Flores','matias.flores@newsan.com.ar',$e);
-
             return response()->view('errors.exception', ['mensaje'=>$e->getMessage()], 500);
         }*/
 
-        if($e instanceof CogiscanExceptionHandler)
-        {
-            if(app()->environment() != 'local')
-            {
-                $this->emailSend('Matias', 'matius77@gmail.com', $messageArray);
-                $this->emailSend('Matias Flores', 'matias.flores@newsan.com.ar', $messageArray);
-
-                $this->emailSend('Diego Ezequiel Maidana Kobalc', 'Diego.Maidana@newsan.com.ar', $messageArray);
-                $this->emailSend('Jose Maria Casarotto', 'JoseMaria.Casarotto@newsan.com.ar', $messageArray);
-                $this->emailSend('Santiago Gabriel Romero', 'SantiagoGabriel.Romero@newsan.com.ar', $messageArray);
-            }
-
-            return response()->view('errors.exception', ['mensaje'=>$e->getMessage()], 500);
-        }
 
         if($e instanceof NotFoundHttpException)
         {
@@ -115,7 +79,10 @@ class Handler extends ExceptionHandler
         return parent::render($request, $e);
     }
 
-    public function emailSend($toName,$toMail, Array $messageArray)
+    /*
+     *      EMAIL SENDER
+     */
+    private function emailSend($toName,$toMail, Array $messageArray)
     {
         $ip = Request::server('REMOTE_ADDR');
         $host = getHostByAddr(Request::server('REMOTE_ADDR'));
@@ -129,6 +96,71 @@ class Handler extends ExceptionHandler
         } catch (Exception $ex)
         {
             throw new EmailExceptionHandler("No fue posible enviar el correo de aviso de error",$ex->getMessage(),500);
+        }
+    }
+
+    private function prepareMessage(Exception $e)
+    {
+        $ip = Request::server('REMOTE_ADDR');
+        $host = getHostByAddr(Request::server('REMOTE_ADDR'));
+        $this->messageArray = array(
+            "Exception" => $e->getFile(),
+            "File" => get_class($this),
+            "User" => (Auth::user()) ? Auth::user()->name : 'No logueado',
+            "IP" => $ip,
+            "Host" => $host,
+            "Request Url" => Request::url(),
+            "Code" => $e->getCode(),
+            "Message" => $e->getMessage()
+            //"Stack" => $e->getTraceAsString()
+        );
+
+        $messageOutput = "";
+        foreach($this->messageArray as $key => $value){
+            $messageOutput .= $key.' ---> '.$value."\n";
+        }
+
+        Log::error($messageOutput);
+    }
+
+    private function emailToCogiboys()
+    {
+        if(app()->environment() != 'local') {
+            $this->emailSend('Diego Ezequiel Maidana Kobalc', 'Diego.Maidana@newsan.com.ar', $this->messageArray);
+            $this->emailSend('Jose Maria Casarotto', 'JoseMaria.Casarotto@newsan.com.ar', $this->messageArray);
+            $this->emailSend('Santiago Gabriel Romero', 'SantiagoGabriel.Romero@newsan.com.ar', $this->messageArray);
+        }
+    }
+
+    private function emailToMatius()
+    {
+        if(app()->environment() != 'local') {
+            $this->emailSend('Matias', 'matius77@gmail.com', $this->messageArray);
+            $this->emailSend('Matias Flores', 'matias.flores@newsan.com.ar', $this->messageArray);
+        }
+    }
+
+    /*
+     *      CUSTOM ERROR HANDLERS
+     */
+    private function cogiscanError($request, Exception $e)
+    {
+        if($e instanceof CogiscanExceptionHandler)
+        {
+            $this->emailToMatius();
+            $this->emailToCogiboys();
+
+            return response()->view('errors.exception', ['mensaje'=>$e->getMessage()], 500);
+        }
+    }
+
+    private function xmlError($request, Exception $e)
+    {
+        if($e instanceof XmlExceptionHandler)
+        {
+            $this->emailToMatius();
+
+            return response()->view('errors.exception', ['mensaje'=>$e->getMessage()], 500);
         }
     }
 }

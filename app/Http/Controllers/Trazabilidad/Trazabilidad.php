@@ -122,7 +122,7 @@ class Trazabilidad extends Controller
         return redirect( route('trazabilidad.find.op',$wipInfo->wip_ot->nro_op) )->with('message',$message);
     }
 
-    public function formTransOk($op,$modo, $trans_ok=null)
+    public function formTransOk($op,$modo, $trans_ok=null,$manual=false,$ebs_error_trans=null)
     {
         $serie_table = array();
         $history_table = array();
@@ -130,17 +130,19 @@ class Trazabilidad extends Controller
         $serie_trans = null;
         $history_trans = null;
 
+        if($manual=="db") { $manual=false; }
+
         switch($modo)
         {
             case 'serie':
                 $serie = new WipSerie();
-                $serie_trans = $serie->wipInfoTransOk($op,$trans_ok,50);
+                $serie_trans = $serie->wipInfoTransOk($op,$trans_ok,50,$manual,$ebs_error_trans);
                 $serie_table = Util::eloquentToTable($serie_trans,true);
 
                 break;
             case 'history':
                 $history = new WipSerieHistory();
-                $history_trans = $history->wipInfoTransOk($op,$trans_ok,50);
+                $history_trans = $history->wipInfoTransOk($op,$trans_ok,50,$manual,$ebs_error_trans);
                 $history_table = Util::eloquentToTable($history_trans,true);
 
             break;

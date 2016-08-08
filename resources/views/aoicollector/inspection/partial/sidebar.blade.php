@@ -12,7 +12,14 @@
         ?>
         <a href="{{ route('aoicollector.inspection.show',$mac->id) }}" class="list-group-item {{ $mac->id == $maquina->id && !isset($insp->error) ? 'active' : '' }}" style="{{ $offline_style }}" tooltip-placement="left" tooltip="{{ $mac->maquina }}">
             <span class="glyphicon {{ $icon }}"></span>
-            <span class="badge" style="width: 30px;">{{ $mac->tipo }}</span>
+
+            @if($mac->cogiscan=='T')
+                <i style="font-size: 18px;" class="fa fa-star pull-right"></i>
+            @endif
+            @if($mac->cogiscan=='Y')
+                <i style="font-size: 18px;" class="fa fa-star-half-empty pull-right"></i>
+            @endif
+
             SMD-{{ $mac->linea }}
         </a>
         @endforeach

@@ -94,7 +94,12 @@ class InspectionController extends Controller
         $insp = array();
         $por_pagina = 50;
 
-        $maquina = Maquina::findOrFail($id_maquina);
+        $maquina = Maquina::select('maquina.*','produccion.cogiscan')
+        ->orderBy('maquina.linea')
+        ->leftJoin('aoidata.produccion','produccion.id_maquina','=','maquina.id')
+        ->where('maquina.id',$id_maquina)
+        ->first();
+
 
         // Crea una session para filtro de fecha
         Filter::dateSession();
@@ -124,7 +129,10 @@ class InspectionController extends Controller
             $total = 0;
         }
 
-        $maquinas = Maquina::orderBy('linea')->get();
+        $maquinas = Maquina::select('maquina.*','produccion.cogiscan')
+            ->orderBy('maquina.linea')
+            ->leftJoin('aoidata.produccion','produccion.id_maquina','=','maquina.id')
+            ->get();
 
         $output = compact('insp','maquinas','maquina','total','pagina','por_pagina','paginas','programas');
 
@@ -178,18 +186,23 @@ class InspectionController extends Controller
             $barcode = $search_barcode;
         }
 
-        $find = new FindInspection();
-        $insp = (object) $find->barcode($barcode);
+        $findService = new FindInspection();
+        $findService->withCogiscan = true;
+        $findService->withSmt = true;
+        $findService->withWip = true;
+        $insp = (object) $findService->barcode($barcode);
 
-        if(isset($insp->aoi))
+        if(isset($insp->last))
         {
-            if(isset($insp->aoi->panel->id_maquina)) {
-                $maquina = Maquina::find($insp->aoi->panel->id_maquina);
+            if(isset($insp->last->panel->id_maquina)) {
+                $maquina = Maquina::find($insp->last->panel->id_maquina);
             }
 
-            foreach($insp->aoi->historial as $r) {
-                $insp_by_date[$r->created_date][] = $r;
-            }
+            $insp_by_date = collect($insp->historial)->groupBy('panel.created_date');
+
+/*            foreach($insp->historial as $r) {
+                $insp_by_date[$r->panel->created_date][] = $r;
+            }*/
         }
 
         if(!$maquina)

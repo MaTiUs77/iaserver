@@ -1,34 +1,15 @@
 <?php
 
-namespace IAServer\Http\Controllers\Aoicollector\Prod\Stocker;
+namespace IAServer\Http\Controllers\Aoicollector\Stocker\Controller;
 
 use IAServer\Http\Controllers\Aoicollector\Model\Produccion;
 use IAServer\Http\Controllers\Aoicollector\Model\Stocker;
 use IAServer\Http\Controllers\Aoicollector\Model\StockerDetalle;
 use IAServer\Http\Controllers\Aoicollector\Service\Service;
 use IAServer\Http\Requests;
-use Illuminate\Support\Facades\Response;
 
 class PanelStockerController extends StockerController
 {
-    public function view_addPanel($panelBarcode,$aoibarcode)
-    {
-        $output = $this->addPanel($panelBarcode,$aoibarcode);
-        return Response::multiple_output($output);
-    }
-
-    public function view_addPanelManual($panelBarcode,$aoibarcode)
-    {
-        $output = $this->addPanelManual($panelBarcode,$aoibarcode);
-        return Response::multiple_output($output);
-    }
-
-    public function view_removePanel($panelBarcode)
-    {
-        $output = $this->removePanel($panelBarcode);
-        return Response::multiple_output($output);
-    }
-
     public function removePanel($panelBarcode)
     {
         $webservice = new Service();

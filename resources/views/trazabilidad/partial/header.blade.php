@@ -15,23 +15,16 @@
         </div>
         <!-- END BUSQUEDA -->
 
-        @if(isAdmin())
-            <div class="col-lg-3">
-                <form method="POST" action="{{ route('trazabilidad.stocker.find') }}">
-                    <div class="input-group" >
-                        <input type="text" name="element" class="form-control" placeholder="Stocker o Placa" value="{{ Input::get('element')  }}"/>
-                        <span class="input-group-btn">
-                            <button type="submit" class="btn btn-info"><i class="glyphicon glyphicon-search"></i> Buscar</button>
-                        </span>
-                    </div>
-                </form>
-            </div>
-        @endif
-
-
+        <div class="col-lg-3">
+            <form method="POST" action="{{ route('aoicollector.stocker.trazabilidad.view.find') }}">
+                <div class="input-group" >
+                    <input type="text" name="element" class="form-control" placeholder="Stocker o Placa" value="{{ Input::get('element')  }}"/>
+                    <span class="input-group-btn">
+                        <button type="submit" class="btn btn-info"><i class="glyphicon glyphicon-search"></i> Buscar</button>
+                    </span>
+                </div>
+            </form>
+        </div>
     </div>
-
-
-
 
 </div>

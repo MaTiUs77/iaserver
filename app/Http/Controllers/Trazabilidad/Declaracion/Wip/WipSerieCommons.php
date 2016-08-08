@@ -28,7 +28,7 @@ class WipSerieCommons extends Controller
         return $query;
     }
 
-    public function wipInfoTransOk($op, $trans_ok=null, $paginate=0)
+    public function wipInfoTransOk($op, $trans_ok=null, $paginate=0,$manual=false,$ebs_error_trans=null)
     {
         $instance = new $this->class;
         $query = $instance::where('nro_op',$op);
@@ -36,6 +36,16 @@ class WipSerieCommons extends Controller
         if($trans_ok!=null)
         {
             $query = $query->where("trans_ok",$trans_ok);
+        }
+
+        if($ebs_error_trans!=null)
+        {
+            $query = $query->whereNotNull("EBS_ERROR_TRANS");
+        }
+
+        if($manual)
+        {
+            $query = $query->where("cantidad",">",1);
         }
 
         $query = $query->orderBy('fecha_insercion','desc');

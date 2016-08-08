@@ -2,6 +2,9 @@
 
 namespace IAServer\Http\Controllers\Aoicollector\Model;
 
+use IAServer\Http\Controllers\Cogiscan\Cogiscan;
+use IAServer\Http\Controllers\SMTDatabase\SMTDatabase;
+use IAServer\Http\Controllers\Trazabilidad\Declaracion\Wip\Wip;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
@@ -28,6 +31,11 @@ class PanelHistory extends Model
     public function joinStockerDetalle()
     {
         return $this->hasOne('IAServer\Http\Controllers\Aoicollector\Model\StockerDetalle', 'id_panel', 'id');
+    }
+
+    public function joinProduccion()
+    {
+        return $this->hasOne('IAServer\Http\Controllers\Aoicollector\Model\Produccion', 'id_maquina', 'id_maquina');
     }
 
     /**
@@ -378,5 +386,78 @@ class PanelHistory extends Model
             ->groupBy('programa','inspected_op')
             ->orderBy('id_maquina')
             ->get();
+    }
+
+    public function wip()
+    {
+        $w = new Wip();
+        $wip = $w->findBarcode($this->panel_barcode, $this->inspected_op);
+
+        $declarado = false;
+        $pendiente = false;
+
+        if(count($wip)>0)
+        {
+            $findTransOk1= array_first($wip, function ($index,$obj) {
+                if($obj->trans_ok == 1)
+                {
+                    return $obj;
+                }
+            });
+
+            if(count($findTransOk1)==1)
+            {
+                $declarado = true;
+            }
+
+            $findTransOk0= array_first($wip, function ($index,$obj) {
+                if($obj->trans_ok == 0)
+                {
+                    return $obj;
+                }
+            });
+
+            if(count($findTransOk0)==1)
+            {
+                $pendiente = true;
+            }
+        }
+
+        $output = array();
+        $output['declarado'] = $declarado;
+        $output['pendiente'] = $pendiente;
+        $output['last'] = $wip->first();
+        $output['historial'] = $wip;
+
+        return (object) $output;
+    }
+
+    public function cogiscan()
+    {
+        $cogiscanService= new Cogiscan();
+        return $cogiscanService->queryItem($this->panel_barcode);
+    }
+
+    public function smt()
+    {
+        $w = new Wip();
+        $smt = SMTDatabase::findOp($this->inspected_op);
+
+        // Obtengo semielaborado desde interfaz
+        $wipResult = $w->findOp($this->inspected_op,false,false);
+        $semielaborado =null;
+        if(isset($wipResult->wip_ot->codigo_producto))
+        {
+            $semielaborado = $wipResult->wip_ot->codigo_producto;
+        }
+        $smt->semielaborado = $semielaborado;
+
+        unset($smt->op);
+        unset($smt->id);
+        unset($smt->prod_aoi);
+        unset($smt->prod_man);
+        unset($smt->qty);
+
+        return $smt;
     }
 }

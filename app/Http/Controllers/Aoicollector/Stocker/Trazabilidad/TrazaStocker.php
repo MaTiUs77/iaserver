@@ -1,17 +1,15 @@
 <?php
-namespace IAServer\Http\Controllers\Trazabilidad;
+namespace IAServer\Http\Controllers\Aoicollector\Stocker\Trazabilidad;
 
 use IAServer\Http\Controllers\Aoicollector\Model\PanelHistory;
 use IAServer\Http\Controllers\Aoicollector\Model\Produccion;
-use IAServer\Http\Controllers\Aoicollector\Model\Stocker;
-use IAServer\Http\Controllers\Aoicollector\Model\StockerDetalle;
-use IAServer\Http\Controllers\Aoicollector\Prod\Stocker\StockerController;
+use IAServer\Http\Controllers\Aoicollector\Stocker\Controller\StockerController;
 use IAServer\Http\Requests;
-use IAServer\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Input;
 
-class TrazaStocker extends Controller
+class TrazaStocker extends StockerController
 {
+    // Localiza un stocker o un panel segun el elemento enviado
     public function findElement($element="")
     {
         $element = strtoupper( $element );
@@ -20,8 +18,7 @@ class TrazaStocker extends Controller
             $element = strtoupper( Input::get('element') );
         }
 
-        $stockerCtrl = new StockerController();
-        if($stockerCtrl->isValidStockerBarcode($element)) {
+        if($this->isValidStockerBarcode($element)) {
             return $this->findStocker($element);
         } else
         {
@@ -29,12 +26,12 @@ class TrazaStocker extends Controller
         }
     }
 
+    // Localiza un stocker segun su barcode
     public function findStocker($barcode)
     {
         $output = array();
-        $stockerCtrl = new StockerController();
-        if($stockerCtrl->isValidStockerBarcode($barcode)) {
-            $stocker = $stockerCtrl->stockerInfoByBarcode($barcode);
+        if($this->isValidStockerBarcode($barcode)) {
+            $stocker = $this->stockerInfoByBarcode($barcode);
             if (isset($stocker->error)) {
                 $error = $stocker->error;
                 $output = compact('error');
@@ -42,8 +39,8 @@ class TrazaStocker extends Controller
                 if(isset($stocker->aoi_barcode))
                 {
                     $linea = Produccion::barcode($stocker->aoi_barcode)->linea;
-                    $stockerDetalle = $stockerCtrl->getStockerContent($stocker->id);
-                    $stockerTraza = $stockerCtrl->getStockerTraza($stocker->id);
+                    $stockerDetalle = $this->getStockerContent($stocker->id);
+                    $stockerTraza = $this->getStockerTraza($stocker->id);
                     $output = compact('linea','stocker', 'stockerDetalle','stockerTraza','mode');
                 } else
                 {
@@ -51,8 +48,8 @@ class TrazaStocker extends Controller
                     $output = compact('error');
                 }
             }
-            return view('trazabilidad.stocker.index', $output);
         }
+        return $output;
     }
 
     public function locatePanelInStocker($panelBarcode)
@@ -74,8 +71,7 @@ class TrazaStocker extends Controller
             {
                 $id_stocker = $panel->joinStockerDetalle->id_stocker;
                 // Obtengo datos de Stocker
-                $stockerCtrl = new StockerController();
-                $stocker = $stockerCtrl->getStockerInfo($id_stocker);
+                $stocker = $this->getStockerInfo($id_stocker);
 
                 if (isset($stocker->error)) {
                     $error = $stocker->error;
@@ -84,8 +80,8 @@ class TrazaStocker extends Controller
                     if(isset($stocker->aoi_barcode))
                     {
                         $linea = Produccion::barcode($stocker->aoi_barcode)->linea;
-                        $stockerDetalle = $stockerCtrl->getStockerContent($stocker->id);
-                        $stockerTraza = $stockerCtrl->getStockerTraza($stocker->id);
+                        $stockerDetalle = $this->getStockerContent($stocker->id);
+                        $stockerTraza = $this->getStockerTraza($stocker->id);
                         $output = compact('linea','stocker', 'stockerDetalle','stockerTraza','panel');
                     } else
                     {
@@ -100,6 +96,6 @@ class TrazaStocker extends Controller
             }
         }
 
-        return view('trazabilidad.stocker.index', $output);
+        return $output;
     }
 }

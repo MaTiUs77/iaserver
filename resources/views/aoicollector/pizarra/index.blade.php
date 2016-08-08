@@ -17,7 +17,6 @@
         </div>
     @endif
 </div>
-
 <div class="row">
     <div class="col-xs-12 col-sm-9 col-md-9 col-lg-10">
         @if(!isset($resume->produccionLine))
