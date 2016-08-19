@@ -32,6 +32,7 @@ class WipSerie extends WipSerieCommons
                 'ebs_error_trans',
                 'fecha_insercion']
             )
+            //->where('referencia_1','like',$barcode.'%')
             ->where('referencia_1',$barcode)
             ->where('organization_code','UP3');
 

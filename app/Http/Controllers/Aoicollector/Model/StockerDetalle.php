@@ -2,6 +2,7 @@
 
 namespace IAServer\Http\Controllers\Aoicollector\Model;
 
+use IAServer\Http\Controllers\Trazabilidad\Declaracion\Wip\Wip;
 use Illuminate\Database\Eloquent\Model;
 
 class StockerDetalle extends Model

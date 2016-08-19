@@ -6,9 +6,6 @@ use IAServer\Http\Controllers\Aoicollector\Model\BloqueHistory;
 use IAServer\Http\Controllers\Aoicollector\Model\DetalleHistory;
 use IAServer\Http\Controllers\Aoicollector\Model\PanelHistory;
 use IAServer\Http\Controllers\Aoicollector\Model\Produccion;
-use IAServer\Http\Controllers\Cogiscan\Cogiscan;
-use IAServer\Http\Controllers\SMTDatabase\SMTDatabase;
-use IAServer\Http\Controllers\Trazabilidad\Declaracion\Wip\Wip;
 use IAServer\Http\Requests;
 use IAServer\Http\Controllers\Controller;
 
@@ -19,6 +16,7 @@ class FindInspection extends Controller
     public $withProductioninfo = false;
     public $withSmt = false;
     public $withCogiscan = false;
+    public $onlyLast = false;
 
     public function barcode($barcode)
     {
@@ -33,10 +31,11 @@ class FindInspection extends Controller
             {
                 $result = new \stdClass();
                 $result->last = $this->panelDataHandler($barcode,collect($panel)->first());
-                $result->historial = null;
 
-                if(count($panel)>1)
+                if(count($panel)>1 && !$this->onlyLast )
                 {
+                    $result->historial = null;
+
                     foreach($panel as $historyPanel)
                     {
                         $result->historial[] = $this->panelDataHandler($barcode,$historyPanel);
@@ -59,7 +58,7 @@ class FindInspection extends Controller
         return $output;
     }
 
-    private function panelDataHandler($barcode, PanelHistory $panel)
+    private function panelDataHandler($barcode,  $panel)
     {
         $moreInfo = new \stdClass();
         $moreInfo->panel = $panel;
@@ -82,7 +81,10 @@ class FindInspection extends Controller
             }
 
             if ($this->withDetail) {
-                $moreInfo->detalle = DetalleHistory::fullDetail($bloque->id_bloque_history)->get();
+                if($bloque!=null)
+                {
+                    $moreInfo->detalle = DetalleHistory::fullDetail($bloque->id_bloque_history)->get();
+                }
             }
 
             if ($this->withProductioninfo) {
@@ -109,13 +111,6 @@ class FindInspection extends Controller
         }
     }
 
-    /**
-     * Verifica el modo del panel, si es virtual o no, y si es posible el despacho
-     *
-     * @param BloqueHistory $bloqueHistory
-     * @param PanelHistory $panelHistory
-     * @return \stdClass
-     */
     private function analisisDespacho($bloqueHistory, $panelHistory)
     {
         $info = new \stdClass();

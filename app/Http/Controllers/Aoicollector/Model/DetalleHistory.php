@@ -14,9 +14,9 @@ class DetalleHistory extends Model
         return $query->leftJoin('aoidata.rns_faultcode','aoidata.rns_faultcode.faultcode','=','aoidata.history_inspeccion_detalle.faultcode');
     }
 
-    public function scopeFullDetail($query, $id_bloque)
+    public static function fullDetail($id_bloque)
     {
-        return $this->where('id_bloque_history',$id_bloque)->leftJoinFaultcode()->select(['history_inspeccion_detalle.*','rns_faultcode.descripcion']);
+        return self::where('id_bloque_history',$id_bloque)->leftJoinFaultcode()->select(['history_inspeccion_detalle.*','rns_faultcode.descripcion']);
     }
 
     public function joinFaultcode()

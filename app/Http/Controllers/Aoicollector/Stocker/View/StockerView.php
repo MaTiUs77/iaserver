@@ -23,13 +23,23 @@ class StockerView extends TrazaStockerView
 
     public function view_stockerInfo($stockerBarcode)
     {
+        $output = $this->findStocker($stockerBarcode);
+
         $stocker = $this->stockerInfoByBarcode($stockerBarcode);
         if(isset($stocker->op))
         {
             $smt = SMTDatabase::findOp($stocker->op);
         }
 
-        $output =  compact('stocker','smt');
+        return Response::multiple_output($output);
+    }
+
+    public function view_stockerInfoDeclared($stockerBarcode)
+    {
+        $output = $this->findStocker($stockerBarcode);
+        $output->smt =  SMTDatabase::findOp($output->stocker->op);
+        $output->detalle = $this->stockerDeclaredDetail($output->stocker);
+
         return Response::multiple_output($output);
     }
 

@@ -2,14 +2,22 @@
 Route::group(['prefix' => 'service'], function() {
     // Pagina principal del configurador de produccion
 
-    Route::get('/process', [
-        'as' => 'aoicollector.service.process',
-        'uses' => 'Aoicollector\Service\ServiceView@view_process'
-    ]);
+    Route::group(['prefix' => 'proccess'], function()
+    {
+        Route::get('/', [
+            'as' => 'aoicollector.service.process',
+            'uses' => 'Aoicollector\Service\ServiceMultiProccess@view_process'
+        ]);
 
-    Route::post('/process', [
-        'as' => 'aoicollector.service.process.post',
-        'uses' => 'Aoicollector\Service\ServiceView@view_process_post'
+        Route::post('/', [
+            'as' => 'aoicollector.service.process.post',
+            'uses' => 'Aoicollector\Service\ServiceMultiProccess@view_process_post'
+        ]);
+    });
+
+    Route::get('/last/{barcode}', [
+        'as' => 'aoicollector.service',
+        'uses' => 'Aoicollector\Service\ServiceView@view_barcodeStatusLast'
     ]);
 
     Route::get('/production/{aoibarcode}', [
@@ -36,8 +44,6 @@ Route::group(['prefix' => 'service'], function() {
         'as' => 'aoicollector.service',
         'uses' => 'Aoicollector\Service\ServiceView@view_barcodeStatus'
     ]);
-
-
 
 
 });

@@ -62,7 +62,15 @@
                                     {{ $smt->modelo  }} - {{ $smt->lote  }} - {{ $smt->panel  }}
                                     <small>Programa</small>
                                     {{ $p->programa  }}
-
+                                    <?php
+                                        $pcbData = \IAServer\Http\Controllers\Aoicollector\Model\PcbData::where('nombre',$p->programa)->where('tipo_maquina',$maquina->tipo)->first();
+                                    ?>
+                                    @if(isset($pcbData))
+                                        <small>Etiquetas</small>
+                                        {{ $pcbData->etiquetas }}
+                                        <small>Placa secundaria</small>
+                                         {{ $pcbData->secundaria == '1' ? 'Si' : 'No' }}
+                                    @endif
                                 </blockquote>
 
                             </div>

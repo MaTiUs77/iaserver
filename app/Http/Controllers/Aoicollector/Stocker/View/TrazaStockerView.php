@@ -9,7 +9,11 @@ class TrazaStockerView extends TrazaStocker
     // Localiza un stocker o un panel segun el elemento enviado
     public function view_findElement($element="")
     {
-        $output = $this->findElement($element);
+        $find = $this->findElement($element);
+        $detalle = $this->stockerDeclaredDetail($find->stocker);
+
+        $output = compact('find','detalle');
+
         return view('trazabilidad.stocker.index', $output);
     }
 
@@ -17,6 +21,8 @@ class TrazaStockerView extends TrazaStocker
     public function view_findStocker($barcode)
     {
         $output = $this->findStocker($barcode);
+
+
         return view('trazabilidad.stocker.index', $output);
     }
 }

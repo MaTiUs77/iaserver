@@ -17,3 +17,5 @@ require('Controllers/P2i/routes.php');
 require('Controllers/Ipc/routes.php');
 require('Controllers/Email/routes.php');
 
+require('Controllers/Redis/routes.php');
+

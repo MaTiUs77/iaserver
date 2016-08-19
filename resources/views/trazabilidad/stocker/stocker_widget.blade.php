@@ -5,23 +5,23 @@
         <div class="col-lg-3">
             <blockquote>
                 <small>Stocker ID</small>
-                {{ $stocker->barcode }}
+                {{ $find->stocker->barcode }}
 
                 <small>Linea de produccion</small>
-                {{ $linea }}
+                {{ $find->linea }}
 
                 <small>Op</small>
-                {{ $stocker->op }}
+                {{ $find->stocker->op }}
 
                 <small>Semielaborado</small>
-                {{ $stocker->semielaborado }}
+                {{ $find->stocker->semielaborado }}
 
                 <small>Unidades</small>
-                {{ $stocker->unidades }}
+                {{ $find->stocker->unidades }}
 
                 <small>Trazabilidad</small>
                 <ul class="list-group">
-                    @foreach($stockerTraza as $tstocker)
+                    @foreach($find->trazabilidad as $tstocker)
                         <li class="list-group-item">
                             <div style="font-size: 10px;">{{ $tstocker->created_at }}</div>
                             <div style="font-size: 14px;">{{ $tstocker->joinRoute->name }}</div>
@@ -48,55 +48,54 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($stockerDetalle as $detalle)
-                        @if(isset($detalle->joinPanel))
-                            @if(isset($panel) && $panel->panel_barcode == $detalle->joinPanel->panel_barcode)
-                                <tr class="info">
-                            @else
-                                <tr>
-                            @endif
-                            <td>{{ $detalle->joinPanel->panel_barcode }}</td>
-                            <td>{{ $detalle->joinPanel->programa }}</td>
-                            <td>{{ $detalle->joinPanel->revision_aoi }}</td>
-                            <td>{{ $detalle->joinPanel->revision_ins }}</td>
-                            <td>{{ $detalle->joinPanel->errores }}</td>
-                            <td>{{ $detalle->joinPanel->falsos }}</td>
-                            <td>{{ $detalle->joinPanel->reales }}</td>
-                            <td>{{ $detalle->joinPanel->bloques }}</td>
-                            <td>{{ $detalle->joinPanel->created_date }}</td>
-                            <td>{{ $detalle->joinPanel->created_time }}</td>
-                            <td>
-                                @if($detalle->joinPanel->twip != null)
-                                    @if($detalle->joinPanel->twip->CountOk() == $detalle->joinPanel->bloques)
-                                        <i class="fa fa-thumbs-o-up fa-2x "  tooltip-placement="left" tooltip="Procesado Correctamente"></i>
+                    @foreach($detalle->paneles as $item)
+                        <?php
+                            $panel = $item->panel;
+                        ?>
+                        @if(isset($panel))
+                            <tr>
+                                <td>{{ $panel->panel_barcode }}</td>
+                                <td>{{ $panel->programa }}</td>
+                                <td>{{ $panel->revision_aoi }}</td>
+                                <td>{{ $panel->revision_ins }}</td>
+                                <td>{{ $panel->errores }}</td>
+                                <td>{{ $panel->falsos }}</td>
+                                <td>{{ $panel->reales }}</td>
+                                <td>{{ $panel->bloques }}</td>
+                                <td>{{ $panel->created_date }}</td>
+                                <td>{{ $panel->created_time }}</td>
+
+                                <td>
+                                    <?php
+                                        $cogiscanService= new \IAServer\Http\Controllers\Cogiscan\Cogiscan();
+                                        $cogiscan = $cogiscanService->queryItem($panel->panel_barcode);
+                                    ?>
+                                    @if(isset($cogiscan['attributes']['message']))
+                                        <i class="fa fa-exclamation-triangle fa-2x text-danger" tooltip="Cogiscan: {{ $cogiscan['attributes']['message'] }}"></i>
                                     @else
-                                        <i class="fa fa-thumbs-o-down fa-2x "  tooltip-placement="left" tooltip="Error total o parcial en declaracion"></i>
-                                    @endif
-                                @else
-                                    <i class="fa fa-thumbs-o-down fa-2x " tooltip-placement="left" tooltip="Sin declarar"></i>
-                                @endif
+                                        @if(isset($cogiscan['Product']['attributes']['operation']))
+                                            @if($cogiscan['Product']['attributes']['operation'] == 'Depanelization')
+                                                <i class="fa fa-send fa-2x text-info" tooltip="Ruta: {{ $cogiscan['Product']['attributes']['operation'] }}, Estado: {{ $cogiscan['Product']['attributes']['status'] }}"></i>
+                                            @else
+                                                <i class="fa fa-road fa-2x text-success" tooltip="Ruta: {{ $cogiscan['Product']['attributes']['operation'] }}, Estado: {{ $cogiscan['Product']['attributes']['status'] }}"></i>
+                                            @endif
 
-                                <?php
-                                $cogiscanService= new \IAServer\Http\Controllers\Cogiscan\Cogiscan();
-                                $cogiscan = $cogiscanService->queryItem($detalle->joinPanel->panel_barcode);
-                                ?>
-                                @if(isset($cogiscan['attributes']['message']))
-                                    <i class="fa fa-exclamation-triangle fa-2x text-danger" tooltip="Cogiscan: {{ $cogiscan['attributes']['message'] }}"></i>
-                                @else
-                                    @if(isset($cogiscan['Product']['attributes']['operation']))
-                                        @if($cogiscan['Product']['attributes']['operation'] == 'Depanelization')
-                                            <i class="fa fa-send fa-2x text-info" tooltip="Ruta: {{ $cogiscan['Product']['attributes']['operation'] }}, Estado: {{ $cogiscan['Product']['attributes']['status'] }}"></i>
-                                        @else
-                                            <i class="fa fa-road fa-2x text-success" tooltip="Ruta: {{ $cogiscan['Product']['attributes']['operation'] }}, Estado: {{ $cogiscan['Product']['attributes']['status'] }}"></i>
-                                        @endif
-
-                                        @if(isset($cogiscan['attributes']['quarantineLocked']) && $cogiscan['attributes']['quarantineLocked'] == "true")
-                                            <i class="fa fa-bombtext-danger" tooltip="Placa en cuarentena"></i>
+                                            @if(isset($cogiscan['attributes']['quarantineLocked']) && $cogiscan['attributes']['quarantineLocked'] == "true")
+                                                <i class="fa fa-bombtext-danger" tooltip="Placa en cuarentena"></i>
+                                            @endif
                                         @endif
                                     @endif
-                                @endif
-                            </td>
-                        </tr>
+
+                                    @if($item->panel_declarado)
+                                        <i class="fa fa-thumbs-o-up fa-2x text-success" tooltip-placement="left" tooltip="Declarado"></i>
+                                    @endif
+
+                                    @if($item->panel_errores)
+                                        <i class="fa fa-thumbs-o-down fa-2x text-danger" tooltip-placement="left" tooltip="Declarado con errores"></i>
+                                    @endif
+
+                                </td>
+                            </tr>
                         @else
                             <tr>
                                 <td colspan="10">

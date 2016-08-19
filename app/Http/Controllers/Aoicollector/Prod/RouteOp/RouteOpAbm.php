@@ -1,16 +1,17 @@
 <?php
 
-namespace IAServer\Http\Controllers\Aoicollector\Prod;
+namespace IAServer\Http\Controllers\Aoicollector\Prod\RouteOp;
 
 use IAServer\Http\Controllers\Aoicollector\Model\Produccion;
 use IAServer\Http\Controllers\Aoicollector\Model\RouteOp;
+use IAServer\Http\Controllers\Trazabilidad\Sfcs\Sfcs;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
 
 
-class RouteOpController extends Controller
+class RouteOpAbm extends Controller
 {
     public function __construct()
     {
@@ -22,7 +23,14 @@ class RouteOpController extends Controller
         $op = Input::get('op');
         $routeop = RouteOp::where('op',$op)->get();
 
-        $output = compact('op','routeop');
+        $sfcsService = new Sfcs();
+        $sfcs = $sfcsService->puestosOp($op);
+
+//        $sfcsConfig = $sfcsService->configlinea($sfcs->line_id);
+//        dd($sfcsConfig);
+
+        $output = compact('op','routeop','sfcs');
+
         return Response::multiple_output($output,'aoicollector.prod.routeop.index');
     }
 

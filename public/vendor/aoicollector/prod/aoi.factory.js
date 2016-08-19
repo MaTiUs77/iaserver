@@ -12,6 +12,7 @@ app.factory('Aoi', function($q, IaCore){
             runinng = true;
             httpget = IaCore.http({
                 url: 'prod/info/'+aoibarcode+'?filter=1&allstocker=1',
+//                url : 'http://localhost:8000/produccion',
                 method: 'GET',
                 timeout: timeout
             });

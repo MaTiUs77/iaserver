@@ -198,7 +198,13 @@ class InspectionController extends Controller
                 $maquina = Maquina::find($insp->last->panel->id_maquina);
             }
 
-            $insp_by_date = collect($insp->historial)->groupBy('panel.created_date');
+            if(isset($insp->historial))
+            {
+                $insp_by_date = collect($insp->historial)->groupBy('panel.created_date');
+            } else
+            {
+                $insp_by_date[$insp->last->panel->created_date] = $insp;
+            }
 
 /*            foreach($insp->historial as $r) {
                 $insp_by_date[$r->panel->created_date][] = $r;

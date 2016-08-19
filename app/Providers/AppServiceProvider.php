@@ -39,7 +39,7 @@ class AppServiceProvider extends ServiceProvider
                     $xml = new \SimpleXMLElement('<service/>');
                     $header['Content-Type'] = 'application/xml';
 
-//                    $vars = collect($vars['reparacion'])->take(46);
+//                    $vars = collect($vars['reparacion'])->take(146);
                     $output = json_encode($vars);
 
                     try

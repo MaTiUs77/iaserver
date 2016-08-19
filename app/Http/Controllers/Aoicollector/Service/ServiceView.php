@@ -2,11 +2,9 @@
 
 namespace IAServer\Http\Controllers\Aoicollector\Service;
 
+use IAServer\Http\Controllers\Aoicollector\Inspection\FindInspection;
 use IAServer\Http\Controllers\Aoicollector\Model\Produccion;
 use IAServer\Http\Requests;
-use Illuminate\Support\Facades\Input;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
 
 class ServiceView extends Service
@@ -16,34 +14,39 @@ class ServiceView extends Service
         parent::__construct();
     }
 
-    public function view_barcodeStatus($barcode,$withWip=false,$withDetail=false, $withProductioninfo=false, $withSmt=true)
+    public function view_barcodeStatus($barcode,$withWip = false)
     {
-        $output = $this->barcodeStatus($barcode,$withWip,$withDetail, $withProductioninfo, $withSmt);
+        $panel = new FindInspection();
+        $panel->withSmt = true;
+        $panel->withCogiscan = true;
+        $panel->onlyLast = true;
+        $panel->withWip = $withWip;
+        //$panel->withDetail = true;
+
+        $output = $panel->barcode($barcode);
+
+        if(isset($output->last))
+        {
+            $output = $output ->last;
+        }
+
         return Response::multiple_output($output);
     }
 
-    public function view_process()
+    public function view_barcodeStatusLast($barcode)
     {
-        return view('aoicollector.service.process.index');
-    }
-    public function view_process_post()
-    {
-        $lista = Input::get('barcodes');
-        $modo= Input::get('modo');
-        if(!empty($lista))
-        {
-            return $this->process($lista,$modo);
+        $panel = new FindInspection();
+        $panel->withSmt = true;
+        $panel->withCogiscan = true;
+        $panel->withWip = true;
+        $panel->onlyLast = true;
+        $output = $panel->barcode($barcode);
 
-        } else
+        if(isset($output ->last))
         {
-            $output = compact('lista');
-            return Response::multiple_output($output,'aoicollector.service.process.index');
+            $output = $output ->last;
         }
-    }
 
-    public function view_barcodeInBackup($barcode)
-    {
-        $output = $this->barcodeInBackup($barcode);
         return Response::multiple_output($output);
     }
 
@@ -52,12 +55,19 @@ class ServiceView extends Service
         return $this->view_barcodeStatus($barcode,true);
     }
 
+
+    public function view_barcodeInBackup($barcode)
+    {
+        $output = $this->barcodeInBackup($barcode);
+        return Response::multiple_output($output);
+    }
+
     public function view_produccion($aoibarcode)
     {
         $output = Produccion::fullInfo($aoibarcode,[
             'transaction'=>false,
             'stocker'=>false,
-            'smt'=>false,
+            'smt'=>true,
             'placas'=>false,
             'period' => false
         ]);

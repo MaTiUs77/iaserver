@@ -33,7 +33,7 @@ class Service extends Controller
 
     function __construct()
     {
-        $this->debug = new Debug($this,false,'declaracion',false);
+        $this->debug = new Debug($this,false,'service',false);
 
         $ip = Request::server('REMOTE_ADDR');
         $host = getHostByAddr(Request::server('REMOTE_ADDR'));

@@ -84,8 +84,6 @@ class StockerController extends Controller
             if( ($stocker->paneles > 0) && ($stocker->paneles==$stocker->limite) ) { $stocker->full = 1;	} else { $stocker->full = 0; }
 
             $output = $stocker;
-            //          $detalle = $this->getStockerContent($stocker->id);
-//            $output['detalle'] = $detalle;
 
             return $output;
         } else
@@ -121,7 +119,7 @@ class StockerController extends Controller
                 unset($stocker->full);
                 $stocker->despachado = 1;
                 $stocker->save();
-                $output = $stocker;
+                $output = compact('stocker');
             }
         }
 

@@ -39,6 +39,7 @@
             <th>Panel</th>
             <th>Lote</th>
             <th>Qty</th>
+            <th>Placas inspeccionadas</th>
         </tr>
         </thead>
             <tbody>
@@ -52,6 +53,7 @@
                         <td>{{ $orden->panel }}</td>
                         <td>{{ $orden->lote }}</td>
                         <td>{{ $orden->qty }}</td>
+                        <td>{{ $orden->prod_aoi }}</td>
                     </tr>
                 @endforeach
             </tbody>

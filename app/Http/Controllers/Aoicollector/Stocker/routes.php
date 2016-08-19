@@ -6,10 +6,18 @@ Route::group(array('prefix' => 'stocker'), function() {
         'uses' => 'Aoicollector\Stocker\View\StockerView@view_stockerInfo'
     ]);
 
-    Route::get('/controldeplacas/{stkbarcode}', [
-        'as' => 'aoicollector.stocker.view.controldeplacas',
-        'uses' => 'Aoicollector\Stocker\View\StockerView@view_stockerControldeplacas'
+    Route::get('/declared/{stkbarcode}', [
+        'as' => 'aoicollector.stocker.view.info',
+        'uses' => 'Aoicollector\Stocker\View\StockerView@view_stockerInfoDeclared'
     ]);
+
+    Route::group(array('prefix' => 'route'), function() {
+
+        Route::get('/controldeplacas/{stkbarcode}', [
+            'as' => 'aoicollector.stocker.view.controldeplacas',
+            'uses' => 'Aoicollector\Stocker\View\StockerView@view_stockerControldeplacas'
+        ]);
+    });
 
     Route::group(array('prefix' => 'prod'), function() {
 

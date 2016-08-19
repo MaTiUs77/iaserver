@@ -39,36 +39,62 @@
     <div class="container">
         @if(isset($op))
             <h3>{{ $op }}</h3>
-            @if(count($routeop)>0)
-                <table class="table table-bordered table-striped table-hover">
-                <thead>
-                <tr style="text-align: center;">
-                    <th></th>
-                    <th>OP</th>
-                    <th>Puesto</th>
-                    <th>Declara</th>
-                    <th>OP Puesto anterior</th>
-                </tr>
-                </thead>
-                <tbody>
-                @foreach($routeop as $route)
-                    <tr style="text-align: center;">
-                        <td>
-                            {!! IABtnDelete(route('aoicollector.prod.routeop.destroy',$route->id),'btn-xs btn-danger') !!}
-                        </td>
-                        <td>{{ $route->op }}</td>
-                        <td>{{ $route->name }}</td>
-                        <td>{{ $route->declare }}</td>
-                        <td>{{ $route->parent_op }}</td>
-                    </tr>
-                @endforeach
-                </tbody>
-            </table>
-            @endif
+            <div class="row">
+                <div class="col-md-6">
+                    @if(count($routeop)>0)
+                        <table class="table table-bordered table-striped table-hover">
+                            <thead>
+                            <tr style="text-align: center;">
+                                <th></th>
+                                <th>OP</th>
+                                <th>Puesto</th>
+                                <th>Declara</th>
+                                <th>OP Puesto anterior</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach($routeop as $route)
+                                <tr style="text-align: center;">
+                                    <td>
+                                        {!! IABtnDelete(route('aoicollector.prod.routeop.destroy',$route->id),'btn-xs btn-danger') !!}
+                                    </td>
+                                    <td>{{ $route->op }}</td>
+                                    <td>{{ $route->name }}</td>
+                                    <td>{{ $route->declare }}</td>
+                                    <td>{{ $route->parent_op }}</td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    @endif
 
-            <a href="{{ url('aoicollector/prod/routeop/create') }}?op={{$op}}" class="btn btn-default">Crear rutas</a>
+                    <a href="{{ url('aoicollector/prod/routeop/create') }}?op={{$op}}" class="btn btn-default">Crear rutas de IAServer</a>
+
+                </div>
+                <div class="col-md-6">
+                    <blockquote>
+                        <h4>Rutas SFCS</h4>
+                        <small>ModeloId</small>
+                        {{ $sfcs['modelo_id'] }}
+                        <small>LineId</small>
+                        {{ $sfcs['line_id'] }}
+
+                        <small>Puestos</small>
+                        @foreach($sfcs['list'] as $route)
+                            <span style="padding: 5px;" class="label label-primary ng-binding">{{ $route['puesto'] }}</span>
+                            @if($route['declara'])
+                                <span style="padding: 5px;" class="label label-info">DECLARA</span>
+                            @else
+                                <span style="padding: 5px;" class="label label-warning">NO DECLARA</span>
+                            @endif
+
+                            (id: {{ $route['puesto_id'] }})
+                        @endforeach
+                    </blockquote>
+                </div>
+            </div>
+
         @endif
-
 
     </div>
 

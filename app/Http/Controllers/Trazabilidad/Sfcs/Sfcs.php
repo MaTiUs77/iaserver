@@ -48,6 +48,7 @@ class Sfcs extends Controller
     {
         $sql = DB::connection('sfcs')->select("
         SELECT
+        cp.RegEx  as regex,
         op.Numero as op,
         cl.Id as line_id,
         pu.Nombre as puesto,
@@ -57,12 +58,14 @@ class Sfcs extends Controller
         FROM
             sfcsplus.dbo.ordenproduccion as op,
             sfcsplus.dbo.configlinea as cl,
-            sfcsplus.dbo.puesto as pu
+            sfcsplus.dbo.puesto as pu,
+            sfcsplus.dbo.CodigoPuesto cp
         WHERE
             cl.Modelo_id = ".$modelo_id." AND
             cl.Id = ".$linea_id." AND
             pu.Id = ".$puesto_id." AND
-            op.Numero= '".$op."'
+            op.Numero= '".$op."' AND
+            cp.Puesto_id = ".$puesto_id."
         ");
 
         return head($sql);
