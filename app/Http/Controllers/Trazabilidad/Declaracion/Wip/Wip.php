@@ -5,6 +5,7 @@ use IAServer\Http\Controllers\IAServer\Util;
 use IAServer\Http\Controllers\Trazabilidad\Declaracion\Wip\Model\XXEWipOt;
 use IAServer\Http\Requests;
 use IAServer\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
 
 class Wip extends Controller
 {
@@ -89,15 +90,15 @@ class Wip extends Controller
      * @param string $trans_ok
      * @return mixed
      */
-    public function findBarcode($barcode, $op="", $trans_ok="")
+    public function findBarcode($barcode, $op="", $trans_ok="",$like="")
     {
         $serie = new WipSerie();
         $history = new WipSerieHistory();
 
-        $wip_serie = $serie->findBarcode($barcode,$op,$trans_ok);
+        $wip_serie = $serie->findBarcode($barcode,$op,$trans_ok,$like);
         if(!count($wip_serie))
         {
-            $wip_serie = $history->findBarcode($barcode,$op,$trans_ok);
+            $wip_serie = $history->findBarcode($barcode,$op,$trans_ok,$like);
         }
 
         return $wip_serie;

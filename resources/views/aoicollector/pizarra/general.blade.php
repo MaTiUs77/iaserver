@@ -5,17 +5,52 @@
 @section('bodytag','ng-controller="pizarraController"')
 
 
-<div class="well">
-    <a href="{{ route('aoicollector.pizarra.linea',1) }}" class="btn btn-info">Ver detalle por linea</a>
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Pizarra de produccion</a>
+        </div>
 
-    <div class="pull-right">
-        @include('iaserver.common.datepicker',[
-            'button' => 'Aplicar',
-            'custom_session'=>'pizarra_fecha',
-            'route'=>route('aoicollector.pizarra.general')
-        ])
-    </div>
-</div>
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <a href="{{ route('aoicollector.pizarra.linea',1) }}" class="btn btn-default navbar-btn navbar-left">Detalle por linea</a>
+
+            <form method="GET" action="?" class="navbar-form navbar-left">
+                <div class="form-group">
+                    <input type="text" name="pizarra_fecha" value="{{ Session::get('pizarra_fecha') }}" placeholder="Seleccionar fecha" class="form-control"/>
+                </div>
+                <button type="submit" class="btn btn-info"><i class="glyphicon glyphicon-calendar"></i> Aplicar</button>
+            </form>
+
+            <script type="text/javascript">
+                $(function() {
+                    $('input[name="pizarra_fecha"]').daterangepicker({
+                        locale: {
+                            format: 'DD/MM/YYYY',
+                            customRangeLabel: 'Definir rango'
+                        },
+                        ranges: {
+                            'Hoy': [moment(), moment()],
+                            'Ayer': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                            'Ultimos 7 dias': [moment().subtract(6, 'days'), moment()],
+                            'Ultimos 30 dias': [moment().subtract(29, 'days'), moment()],
+                            'Este Mes': [moment().startOf('month'), moment().endOf('month')],
+                            'Ultimo Mes': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                        },
+                        autoApply: true
+                    });
+                });
+            </script>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
 
 <div class="container">
 
@@ -62,7 +97,14 @@
 {!! IAScript('assets/highstock/js/highstock.js') !!}
 {!! IAScript('assets/moment.min.js') !!}
 
+        <!-- Include Date Range Picker -->
+{!! IAScript('assets/moment.locale.es.js') !!}
+{!! IAScript('assets/jquery/daterangepicker/daterangepicker.js') !!}
+{!! IAStyle('assets/jquery/daterangepicker/daterangepicker.css') !!}
+
+
 <script>
+    moment.locale("es");
 
     function chartController(title, renderTo, series, legend, enableNavigator, category)
     {

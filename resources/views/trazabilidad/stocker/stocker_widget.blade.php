@@ -1,9 +1,22 @@
-@if(isset($error))
-   <h3>{{ $error }}</h3>
+@if(isset($find->error))
+   <h3>{{ $find->error }}</h3>
 @else
     <div class="row">
         <div class="col-lg-3">
             <blockquote>
+                <small>Declarado</small>
+                @if($detalle->stocker_declarado)
+                    <span class="label label-success">Si</span>
+                @endif
+
+                @if($detalle->stocker_errores)
+                    <span class="label label-danger">Error en declaraciones</span>
+                @endif
+
+                @if($detalle->stocker_pendiente)
+                    <span class="label label-warning">Pendiente</span>
+                @endif
+
                 <small>Stocker ID</small>
                 {{ $find->stocker->barcode }}
 
@@ -70,6 +83,8 @@
                                         $cogiscanService= new \IAServer\Http\Controllers\Cogiscan\Cogiscan();
                                         $cogiscan = $cogiscanService->queryItem($panel->panel_barcode);
                                     ?>
+                                    <?php
+                                    /*
                                     @if(isset($cogiscan['attributes']['message']))
                                         <i class="fa fa-exclamation-triangle fa-2x text-danger" tooltip="Cogiscan: {{ $cogiscan['attributes']['message'] }}"></i>
                                     @else
@@ -85,15 +100,27 @@
                                             @endif
                                         @endif
                                     @endif
+                                    */
+                                    ?>
+                                    @if(!isset($item->bloques) || head($item->bloques) == null)
+                                            <i class="fa fa-exclamation-circle fa-2x text-danger" tooltip-placement="left" tooltip="Sin declarar"></i>
+                                    @else
+                                        @if($item->panel_declarado)
+                                            <i class="fa fa-thumbs-o-up fa-2x text-success" tooltip-placement="left" tooltip="Declarado"></i>
+                                        @else
+                                            @if($item->panel_errores)
+                                                <i class="fa fa-thumbs-o-down fa-2x text-danger" tooltip-placement="left" tooltip="Declarado con errores"></i>
+                                            @endif
 
-                                    @if($item->panel_declarado)
-                                        <i class="fa fa-thumbs-o-up fa-2x text-success" tooltip-placement="left" tooltip="Declarado"></i>
-                                    @endif
+                                            @if($item->panel_pendiente)
+                                                <i class="fa fa-clock-o fa-2x text-info" tooltip-placement="left" tooltip="Pendiente"></i>
+                                            @endif
 
-                                    @if($item->panel_errores)
-                                        <i class="fa fa-thumbs-o-down fa-2x text-danger" tooltip-placement="left" tooltip="Declarado con errores"></i>
-                                    @endif
-
+                                            @if(!$item->panel_errores && !$item->panel_pendiente)
+                                                <i class="fa fa-exclamation-circle fa-2x text-warning" tooltip-placement="left" tooltip="Declaracion parcial: {{ $item->panel_declarado_total }} unidades"></i>
+                                            @endif
+                                        @endif
+                                  @endif
                                 </td>
                             </tr>
                         @else

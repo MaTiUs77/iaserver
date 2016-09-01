@@ -5,6 +5,7 @@ namespace IAServer\Http\Controllers\Aoicollector\Service;
 use IAServer\Http\Controllers\Aoicollector\Inspection\FindInspection;
 use IAServer\Http\Controllers\Aoicollector\Model\Produccion;
 use IAServer\Http\Requests;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Response;
 
 class ServiceView extends Service
@@ -55,7 +56,6 @@ class ServiceView extends Service
         return $this->view_barcodeStatus($barcode,true);
     }
 
-
     public function view_barcodeInBackup($barcode)
     {
         $output = $this->barcodeInBackup($barcode);
@@ -64,13 +64,16 @@ class ServiceView extends Service
 
     public function view_produccion($aoibarcode)
     {
-        $output = Produccion::fullInfo($aoibarcode,[
-            'transaction'=>false,
-            'stocker'=>false,
-            'smt'=>true,
-            'placas'=>false,
-            'period' => false
-        ]);
+        //$output = Cache::remember('produccion', 1, function() use($aoibarcode) {
+            $output = Produccion::fullInfo($aoibarcode,[
+                'transaction'=>false,
+                'stocker'=>false,
+                'smt'=>true,
+                'placas'=>false,
+                'period' => false
+            ]);
+//        });
+
         return Response::multiple_output($output);
     }
 

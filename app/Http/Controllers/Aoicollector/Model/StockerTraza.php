@@ -2,6 +2,7 @@
 
 namespace IAServer\Http\Controllers\Aoicollector\Model;
 
+use IAServer\User;
 use Illuminate\Database\Eloquent\Model;
 
 class StockerTraza extends Model

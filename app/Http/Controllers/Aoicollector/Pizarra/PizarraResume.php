@@ -6,12 +6,9 @@ use Carbon\Carbon;
 use IAServer\Http\Controllers\Aoicollector\Model\PanelHistory;
 use IAServer\Http\Controllers\Aoicollector\Model\Produccion;
 use IAServer\Http\Controllers\Aoicollector\Pizarra\PizarraCone\ProduccionCone;
-use IAServer\Http\Controllers\IAServer\Filter;
-use IAServer\Http\Controllers\IAServer\Util;
 use IAServer\Http\Controllers\SMTDatabase\SMTDatabase;
 use IAServer\Http\Requests;
 use IAServer\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Session;
 
 class PizarraItemObj extends Controller
 {
@@ -72,11 +69,9 @@ class PizarraResume extends Controller
         ],
     ];
 
-    public function __construct($linea)
+    public function __construct($linea,Carbon $desdeCarbon,Carbon $hastaCarbon)
     {
-        Filter::dateSession('pizarra_fecha');
-        // Obtengo la fecha, y cambio el formato 16-09-2015 -> 2015-09-16
-        $this->dateEn = Util::dateToEn(Session::get('pizarra_fecha'));
+        $this->dateEn = $desdeCarbon->toDateString(); // Util::dateToEn(Session::get('pizarra_fecha'));
 
         $this->proyectado = new PizarraItemObj();
         $this->produccion = new PizarraItemObj();

@@ -1,5 +1,5 @@
 <?php
-Route::group(['prefix' => 'redis'], function()
+Route::group(['prefix' => 'redistest'], function()
 {
     Route::get('/', [
         'as' => 'redis.index',

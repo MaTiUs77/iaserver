@@ -11,6 +11,37 @@ Route::group(array('prefix' => 'stocker'), function() {
         'uses' => 'Aoicollector\Stocker\View\StockerView@view_stockerInfoDeclared'
     ]);
 
+    Route::get('/pocket/{stkbarcode?}', [
+        'as' => 'aoicollector.stocker.view.pocket',
+        'uses' => 'Aoicollector\Stocker\View\StockerView@view_findStockerPocketPc'
+    ]);
+
+    Route::group(array('prefix' => 'abm'), function() {
+
+        Route::get('/', [
+            'as' => 'aoicollector.stocker.abm.index',
+            'uses' => 'Aoicollector\Stocker\Controller\AbmStocker@index'
+        ]);
+    });
+
+    Route::group(array('prefix' => 'lavado'), function()
+    {
+        Route::match(['get', 'post'], '/', [
+            'as' => 'aoicollector.stocker.lavado.index',
+            'uses' => 'Aoicollector\Stocker\Controller\LavadoController@index'
+        ]);
+
+        Route::get('/imprimir/{etiqueta}', [
+            'as' => 'aoicollector.stocker.lavado.imprimir.etiqueta',
+            'uses' => 'Aoicollector\Stocker\Controller\LavadoController@imprimir'
+        ]);
+
+        Route::post('/etiquetar', [
+            'as' => 'aoicollector.stocker.lavado.etiquetar',
+            'uses' => 'Aoicollector\Stocker\Controller\LavadoController@etiquetar'
+        ]);
+    });
+
     Route::group(array('prefix' => 'route'), function() {
 
         Route::get('/controldeplacas/{stkbarcode}', [
@@ -52,8 +83,8 @@ Route::group(array('prefix' => 'stocker'), function() {
 
     Route::group(array('prefix' => 'trazabilidad'), function() {
 
-        Route::match(['get', 'post'], '/find/{element?}', [
-            'as' => 'aoicollector.stocker.trazabilidad.view.find',
+        Route::match(['get', 'post'], '/{element?}', [
+            'as' => 'aoicollector.stocker.trazabilidad.view',
             'uses' => 'Aoicollector\Stocker\View\TrazaStockerView@view_findElement'
         ]);
     });

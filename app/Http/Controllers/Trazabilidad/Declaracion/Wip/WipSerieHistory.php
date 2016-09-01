@@ -9,7 +9,7 @@ class WipSerieHistory extends WipSerieCommons
 {
     public $class = 'IAServer\Http\Controllers\Trazabilidad\Declaracion\Wip\Model\XXEWipITFSerieHistory';
 
-    public function findBarcode($barcode,$op="",$transOk="")
+    public function findBarcode($barcode,$op="",$transOk="",$like="")
     {
         $serie = XXEWipITFSerieHistory::select([
                 'id',
@@ -24,8 +24,15 @@ class WipSerieHistory extends WipSerieCommons
                 'ebs_error_trans',
                 'fecha_insercion']
         )
-            ->where('referencia_1',$barcode)
             ->where('organization_code','UP3');
+
+        if(empty($like))
+        {
+            $serie->where('referencia_1',$barcode);
+        } else
+        {
+            $serie->where('referencia_1','like',$like);
+        }
 
         if(!empty($op))
         {

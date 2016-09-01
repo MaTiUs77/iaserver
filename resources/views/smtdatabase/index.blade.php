@@ -46,6 +46,23 @@
                 </div>
             </div>
         </form>
+
+        <form class="form-horizontal" role="form" method="post" action="{{ route('smtdatabase.componentes.buscar.semielaborado.modelo') }}">
+            <div class="form-group">
+                <div class="col-sm-4 col-sm-offset-1">
+                    <h3>Buscar semielaborado por modelo</h3>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-4 col-sm-offset-1">
+                    <input ng-required="true"  type="text" class="form-control" placeholder="Ej: 19EN33" name="modelo">
+                </div>
+                <div class="col-sm-4">
+                    <input type="submit" value="Buscar" class="btn btn-primary">
+                </div>
+            </div>
+        </form>
     </div>
 
     @include('iaserver.common.footer')

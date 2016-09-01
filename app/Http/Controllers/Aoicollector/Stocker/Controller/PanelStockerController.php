@@ -17,7 +17,6 @@ class PanelStockerController extends StockerController
         $panel = null;
         $output = array();
 
-
         if(isset($service->aoi->panel)) {
             $panel = $service->aoi->panel;
             $stocker = StockerDetalle::where('id_panel',$panel->id)->first();

@@ -23,22 +23,69 @@ class StockerView extends TrazaStockerView
 
     public function view_stockerInfo($stockerBarcode)
     {
-        $output = $this->findStocker($stockerBarcode);
-
-        $stocker = $this->stockerInfoByBarcode($stockerBarcode);
-        if(isset($stocker->op))
+        /*try
         {
-            $smt = SMTDatabase::findOp($stocker->op);
-        }
+            $onRedis = \LRedis::get($stockerBarcode.':info');
+
+            if($onRedis == null)
+            {*/
+                //------------------ Datos de stocker  ---------------------
+                $output = $this->findStocker($stockerBarcode);
+                if(isset($output->stocker->op))
+                {
+                    $output->smt = SMTDatabase::findOp($output->stocker->op);
+                }
+                //-----------------------------------------------------------
+                /*
+                if(isset($output->stocker->op))
+                {
+                    \LRedis::set($output->stocker->barcode.':info', json_encode($output));
+                }
+            } else
+            {
+                $output = json_decode($onRedis);
+            }
+        } catch(\Exception $e)
+        {
+            return response()->view('errors.exception', ['mensaje'=> "Error al ejecutar Redis"], 500);
+        }*/
+
+
 
         return Response::multiple_output($output);
     }
 
     public function view_stockerInfoDeclared($stockerBarcode)
     {
-        $output = $this->findStocker($stockerBarcode);
-        $output->smt =  SMTDatabase::findOp($output->stocker->op);
-        $output->detalle = $this->stockerDeclaredDetail($output->stocker);
+        /*
+        try
+        {
+            $onRedis = \LRedis::get($stockerBarcode.'.declared');
+
+            if($onRedis == null)
+            {*/
+                //--------------- Datos de stocker declarado ----------------
+                $output = $this->findStocker($stockerBarcode);
+                $output->smt =  SMTDatabase::findOp($output->stocker->op);
+                $output->detalle = $this->stockerDeclaredDetail($output->stocker);
+                //-----------------------------------------------------------
+/*
+                if($output->detalle != null)
+                {
+                    if($output->detalle->stocker_declarado)
+                    {
+                        \LRedis::set($output->stocker->barcode.'.declared', json_encode($output));
+                        \LRedis::expire($output->stocker->barcode, 50);
+                    }
+                }
+            } else
+            {
+                $output = json_decode($onRedis);
+            }
+        } catch(\Exception $e)
+        {
+            return response()->view('errors.exception', ['mensaje'=> "Error al ejecutar Redis"], 500);
+        }*/
 
         return Response::multiple_output($output);
     }

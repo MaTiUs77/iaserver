@@ -47,7 +47,7 @@ app.factory('Stocker',function($q, IaCore, toasty) {
     interfaz.valid = function(stocker_barcode) {
         if(stocker_barcode) {
             if(
-                strStartsWith(stocker_barcode,'STK') &&
+                strStartsWith(stocker_barcode.toUpperCase(),'STK') &&
                 stocker_barcode.length==barcode_length
             ) {
                 return true;
@@ -68,8 +68,8 @@ app.factory('Stocker',function($q, IaCore, toasty) {
         });
 
         var url = [
-            'prod',
             'stocker',
+            'prod',
             'set',
             new_stocker_barcode,
             aoi_barcode
@@ -86,8 +86,8 @@ app.factory('Stocker',function($q, IaCore, toasty) {
             timeout: 5000
         });
         var url = [
-            'prod',
             'stocker',
+            'prod',
             'remove',
             stocker_barcode
         ];

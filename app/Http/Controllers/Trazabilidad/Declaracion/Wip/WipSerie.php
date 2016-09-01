@@ -17,7 +17,7 @@ class WipSerie extends WipSerieCommons
      * @param int $transOk
      * @return mixed
      */
-    public function findBarcode($barcode,$op="",$transOk="")
+    public function findBarcode($barcode,$op="",$transOk="",$like="")
     {
         $serie = XXEWipITFSerie::select([
                 'id',
@@ -31,10 +31,15 @@ class WipSerie extends WipSerieCommons
                 'ebs_error_desc',
                 'ebs_error_trans',
                 'fecha_insercion']
-            )
-            //->where('referencia_1','like',$barcode.'%')
-            ->where('referencia_1',$barcode)
-            ->where('organization_code','UP3');
+            )->where('organization_code','UP3');
+
+        if(empty($like))
+        {
+            $serie->where('referencia_1',$barcode);
+        } else
+        {
+            $serie->where('referencia_1','like',$like);
+        }
 
         if(!empty($op))
         {
@@ -51,6 +56,7 @@ class WipSerie extends WipSerieCommons
         //$serie = array_change_key_case($serie,CASE_LOWER);
         return $result;
     }
+
 
     /**
      * Declara un semielaborado en XXEWipITFSerie
@@ -71,7 +77,7 @@ class WipSerie extends WipSerieCommons
         $serie->CANTIDAD = $cantidad;
         $serie->TRANS_OK = 0;
 
-        if(!empty($referencia) && is_numeric($referencia) && count($referencia)<=20)
+        if(!empty($referencia))
         {
             $serie->REFERENCIA_1 = $referencia;
         }

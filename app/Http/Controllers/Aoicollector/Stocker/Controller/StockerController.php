@@ -115,10 +115,8 @@ class StockerController extends Controller
             $output = $stocker;
         } else {
             if (isset($stocker->id)) {
-                unset($stocker->unidades);
-                unset($stocker->full);
-                $stocker->despachado = 1;
-                $stocker->save();
+                $stocker->sendToRouteId(2);
+                $stocker = Stocker::findByIdStocker($stocker->id);
                 $output = compact('stocker');
             }
         }

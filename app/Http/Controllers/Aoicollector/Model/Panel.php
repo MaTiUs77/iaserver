@@ -41,7 +41,7 @@ class Panel extends Model
                 $declarado = true;
             }
 
-            if($wip->where('ebs_error_trans',null)->where('trans_ok','9')->count()>0)
+            if($wip->where('ebs_error_trans',null)->where('trans_ok','0')->count()>0)
             {
                 $pendiente = true;
             }
@@ -52,6 +52,40 @@ class Panel extends Model
         $output['pendiente'] = $pendiente;
         $output['last'] = $wip->first();
         $output['historial'] = $wip;
+
+        return (object) $output;
+    }
+
+    public function wipSecundario()
+    {
+        $w = new Wip();
+        $like = $this->panel_barcode.'-%';
+
+        $wip = $w->findBarcode($this->panel_barcode, $this->inspected_op,"",$like);
+
+        $declarado = false;
+        $pendiente = false;
+
+        if(count($wip)>0)
+        {
+
+            if($wip->where('ebs_error_trans',null)->where('trans_ok','1')->count()>0)
+            {
+                $declarado = true;
+            }
+
+            if($wip->where('ebs_error_trans',null)->where('trans_ok','0')->count()>0)
+            {
+                $pendiente = true;
+            }
+        }
+
+        $output = array();
+        $output['declarado'] = $declarado;
+        $output['pendiente'] = $pendiente;
+        $output['last'] = $wip->first();
+        $output['historial'] = $wip;
+
 
         return (object) $output;
     }

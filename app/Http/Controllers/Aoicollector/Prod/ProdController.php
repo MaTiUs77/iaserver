@@ -9,6 +9,7 @@ use IAServer\Http\Controllers\Trazabilidad\Declaracion\Wip\Wip;
 use IAServer\Http\Controllers\Trazabilidad\Sfcs\Sfcs;
 use IAServer\Http\Requests;
 use IAServer\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Response;
 
@@ -16,7 +17,24 @@ class ProdController extends Controller
 {
     public function aoiProductionInfo($aoibarcode,$first=false)
     {
-        $prod = Produccion::fullInfo($aoibarcode);
+        /*try
+        {
+            $onRedis = \LRedis::get($aoibarcode);
+
+            if($onRedis == null)
+            {*/
+                $prod = (object) Produccion::fullInfo($aoibarcode);
+                /*\LRedis::set($prod->produccion->barcode, json_encode($prod));
+                \LRedis::expire($prod->produccion->barcode, 50);
+            } else
+            {
+                $prod = json_decode($onRedis);
+            }
+
+        } catch(\Exception $e)
+        {
+            return response()->view('errors.exception', ['mensaje'=> "Error al ejecutar Redis"], 500);
+        }*/
 
         return Response::multiple_output($prod);
     }

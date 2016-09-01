@@ -1,4 +1,299 @@
-app.controller("prodController",function($scope,$rootScope,$http,$timeout,$interval, IaCore, Aoi, Stocker, Panel, toasty)
+app.controller("prodController",function($scope,$rootScope,$http,$timeout,$interval, IaCore, Aoi, Stocker, Panel, toasty, cfpLoadingBar)
+{
+    $rootScope.configprod = {
+        refresh_time : 4,
+        aoibarcode : IaCore.storage({name:'aoibarcode'})
+    };
+
+    $rootScope.aoiService = {};
+    $rootScope.stockerService = {};
+    $rootScope.userService = {};
+
+    $rootScope.printError = function(title,result,modal)
+    {
+        if(result.error!=undefined) { result = result.error; }
+
+        if(result) {
+            switch (modal) {
+                case 'modal':
+                    IaCore.modalError($scope, result);
+                    break;
+                default:
+                    toasty.error({
+                        title: title,
+                        msg: result,
+                        timeout: 5000
+                    });
+                    break;
+            }
+        }
+    };
+
+    $scope.renderPeriodChart = function()
+    {
+        if($rootScope.aoiService.produccion.period!=undefined)
+        {
+            var allOp = $rootScope.aoiService.produccion.period.map(function(obj) { return obj.op; });
+            var opserie = allOp.filter(function(v,i) { return allOp.indexOf(v) == i; });
+
+            $.each(opserie,function(index, op)
+            {
+                var points = $rootScope.aoiService.produccion.period.filter(function(obj,index) {
+                    if(obj.op==op)
+                    {
+                        return obj;
+                    }
+                });
+
+                var serieData = [];
+                $.each(points,function(index, p)
+                {
+                    var now = new Date();
+                    serieData.push([Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), p.periodo.split(':')[0]), p.total]);
+                });
+
+                // Verifica si ya se creo la serie en el chart
+                var mapSeries = prodchart.series.map(function(obj){ return obj.name; });
+                var serieindex = mapSeries.indexOf(op);
+
+                // La serie no exite, se crea con sus datos adjuntos
+                if(serieindex<0)
+                {
+                    prodchart.addSeries({
+                        name: op,
+                        data: serieData
+                    });
+                } else
+                {
+                    //              var lastcolor = prodchart.series[serieindex].color;
+                    //                prodchart.series[serieindex].remove();
+                    // La serie existe, actualizo datos
+                    prodchart.series[serieindex].setData(serieData);
+                    /*prodchart.addSeries({
+                     name: op,
+                     color: lastcolor,
+                     data: serieData
+                     });*/
+                }
+
+                /* prodchart.addSeries({
+                 name: op,
+                 color: lastcolor,
+                 data: serieData
+                 });*/
+            });
+        }
+    }
+
+    var socket = io.connect(':8080');
+
+    // I expect this event to be triggered
+    socket.on('connect_error', function(){
+        toasty.error({
+            title: "Produccion",
+            msg: "Error de conexion",
+            timeout: 5000
+        });
+        $scope.$apply();
+    });
+
+    socket.on('disconnect', function () {
+        toasty.warning({
+            title: "Produccion",
+            msg: "Conexion finalizada"
+        });
+
+        $scope.$apply();
+    });
+
+    socket.on('connect', function(){
+        toasty.success({
+            title: "Produccion",
+            msg: "Descargando informacion"
+        });
+
+        $scope.$apply();
+
+        socket.emit('produccion', $rootScope.configprod.aoibarcode);
+    });
+
+    socket.on('getProduccion', function () {
+        cfpLoadingBar.start();
+        $scope.$apply();
+    });
+
+    socket.on('getProduccionResponse', function (data) {
+        $rootScope.aoiService = data;
+        $rootScope.userService = data.produccion.inspector;
+
+        $scope.renderPeriodChart();
+
+        if(data.produccion) {
+            $rootScope.stockerService = data.produccion.stocker;
+            if (
+                $rootScope.stockerService != undefined &&
+                $rootScope.stockerService.paneles != undefined) {
+                Stocker.autoscroll($rootScope.stockerService.paneles);
+            }
+        }
+
+        cfpLoadingBar.complete();
+        $scope.$apply();
+    });
+
+    $rootScope.restartAoiData = function(changeAoi)
+    {
+        if(changeAoi!=undefined)
+        {
+            IaCore.storage({
+                name: 'aoibarcode',
+                value: changeAoi
+            });
+            $rootScope.configprod.aoibarcode = changeAoi;
+        }
+
+        $rootScope.aoiService = {};
+        $rootScope.stockerService = {};
+        $rootScope.userService = {};
+
+        socket.emit('produccion', $rootScope.configprod.aoibarcode);
+    };
+
+
+    var onScanner = $rootScope.$on('scannerEvent:enter',function(event,data) {
+        $rootScope.UserScanned(data.value);
+        $rootScope.StockerScanned(data.value);
+        $rootScope.PanelScanned(data.value);
+    });
+
+    $rootScope.UserScanned = function(scannedValue) {
+        // ENVIA EL BARCODE
+        if(
+            (
+                scannedValue.indexOf("LOGIN") === 0 ||
+                scannedValue.indexOf("DLOGIN") === 0
+            ) &&
+            scannedValue.length > 5 &&
+            $rootScope.aoiService.produccion.barcode
+        ) {
+            var userId = scannedValue.match( /\d+/ );
+            if(userId)
+            {
+                userId = userId[0];
+            }
+
+            var userBarcode = scannedValue.replace("DLOGIN", "");
+            var userBarcode = userBarcode.replace("LOGIN", "");
+            var userName = userBarcode.replace(userId, "");
+
+            toasty.info({
+                title: "Inspector",
+                msg: "Buscando datos de inspector",
+                timeout: 5000
+            });
+
+//            userSplit = userBarcode.split('SPLIT');
+
+            var credentials = {
+                name : userName,
+                userid : userId,
+                aoibarcode: $rootScope.aoiService.produccion.barcode
+            };
+
+            var authUser = $http({method:'POST',url:'prod/user/login',params:credentials});
+
+            authUser.then(function(result)
+            {
+                result = result.data;
+                if(result) {
+                    if(result.error) {
+                        $rootScope.printError('Stocker',result,'modal');
+                    } else {
+                        console.log(result);
+                        toasty.success({
+                            title: "Inspector",
+                            msg: "Operacion completa",
+                            timeout: 5000
+                        });
+
+                        $rootScope.userService = result;
+
+                        $timeout(function() {
+                            //window.location.reload();
+                        },2000);
+                    }
+                }
+            }, function (error) {
+                if(error) {
+                    if(error.error != undefined) { error = error.error; }
+                    toasty.error({
+                        title: "Atencion",
+                        msg: error,
+                        timeout: 5000
+                    });
+                }
+            });
+        }
+    };
+
+    $rootScope.StockerScanned = function(scannedValue) {
+        scannedValue = scannedValue.toUpperCase();
+        if(Stocker.valid(scannedValue)) {
+
+            Stocker.set(
+                scannedValue,
+                $rootScope.configprod.aoibarcode
+            ).then(function(result) {
+                if(result) {
+                    if(result.error) {
+                        $rootScope.printError('Stocker',result,'modal');
+                    } else {
+                        toasty.success({
+                            title: "Stocker",
+                            msg: "Agregado correctamente",
+                            timeout: 5000
+                        });
+                    }
+                }
+                $rootScope.stockerService = {};
+            },function(result){
+                $rootScope.printError('Stocker',result);
+            });
+        }
+    };
+
+    $rootScope.PanelScanned = function(scannedValue) {
+        // Verifico si se escaneo una placa
+        if(Panel.valid(scannedValue)) {
+            $rootScope.interval("stop");
+            Aoi.cancel();
+
+            Panel.add(
+                scannedValue,
+                $rootScope.configprod.aoibarcode
+            ).then(function(result) {
+                if(result) {
+                    if(result.error) {
+                        $rootScope.printError('Panel',result,'modal');
+                    } else {
+                        toasty.success({
+                            title: "Pannel",
+                            msg: "Agregado correctamente",
+                            timeout: 5000
+                        });
+                    }
+                }
+                // Reanudo datos de AOI
+                $rootScope.getAoiData();
+                $rootScope.interval();
+            },function(result){
+                $rootScope.printError('Panel',result);
+            });
+        }
+    };
+});
+
+app.controller("prodController_ORIGINAL",function($scope,$rootScope,$http,$timeout,$interval, IaCore, Aoi, Stocker, Panel, toasty)
 {
     $rootScope.configprod = {
         refresh_time : 4,

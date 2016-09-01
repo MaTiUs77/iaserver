@@ -2,11 +2,13 @@
 
 namespace IAServer\Http\Controllers\Aoicollector\Pizarra;
 
+use Carbon\Carbon;
 use IAServer\Http\Controllers\Aoicollector\Model\Produccion;
 use IAServer\Http\Controllers\Aoicollector\Pizarra\PizarraCone\ProduccionCone;
 use IAServer\Http\Controllers\IAServer\Filter;
 use IAServer\Http\Requests;
 use IAServer\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Session;
@@ -43,9 +45,27 @@ class PizarraView extends Controller
         return self::indexGeneral();
     }
 
+    private function dateRangeFilter($sessionName)
+    {
+        // CARBON RANGE FILTER
+        $range = new \stdClass();
+        $range->desde = Carbon::now();
+        $range->hasta = Carbon::now();
+
+        Filter::dateSession($sessionName);
+        $rangeSplit = explode(' - ',Session::get($sessionName));
+        if(count($rangeSplit)==2)
+        {
+            $range->desde = Carbon::createFromFormat('d/m/Y',$rangeSplit[0]);
+            $range->hasta = Carbon::createFromFormat('d/m/Y',$rangeSplit[1]);
+        }
+        return $range;
+    }
+
     public function indexGeneral()
     {
         $pizarraFilterGeneral = Filter::makeSession('filterGeneral');
+        $range = $this->dateRangeFilter('pizarra_fecha');
 
         // Obtengo lineas de produccion
         $produccion = Produccion::vista()
@@ -65,20 +85,23 @@ class PizarraView extends Controller
         }
 
         $produccion = $produccion->get();
-
 /*
 //            ->where('numero_linea',2)
 //            ->limit(1)
             ->get();
 */
 
-        $pizarra = array();
+//        $pizarra = Cache::remember('PizarraResume', 5, function() use($produccion) {
+            $pizarra = array();
 
-        foreach($produccion as $prod)
-        {
-            $resume = new PizarraResume($prod->numero_linea);
-            $pizarra[] = $resume;
-        }
+            foreach($produccion as $prod)
+            {
+                $resume = new PizarraResume($prod->numero_linea, $range->desde, $range->hasta);
+                $pizarra[] = $resume;
+            }
+
+//            return $pizarra;
+//        });
 
         $output = compact('pizarra','pizarraFilterGeneral');
 
@@ -87,19 +110,13 @@ class PizarraView extends Controller
 
     public function indexLinea($linea)
     {
-        $resume = new PizarraResume($linea);
+        $range = $this->dateRangeFilter('pizarra_fecha');
+
+        $resume = new PizarraResume($linea,$range->desde,$range->hasta);
         $output = compact('resume');
         return Response::multiple_output($output,'aoicollector.pizarra.index');
     }
-
-    /***
-     * Obtiene lista de reportes de produccion de la fecha solicitada
-     * calcula porcentaje de produccion por hora segun lo proyectado
-     *
-     * @param $linea
-     * @param $dateEn
-     * @return mixed
-     */
+/*
     private function prepareProyectado($linea, $dateEn)
     {
         list($anio,$mes,$dia) = explode('-',$dateEn);
@@ -115,5 +132,5 @@ class PizarraView extends Controller
         $output = ProduccionCone::prepareProyectado($proyectado,$this->config);
 
         return $output;
-    }
+    }*/
 }

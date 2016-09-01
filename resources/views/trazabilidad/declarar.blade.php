@@ -12,6 +12,7 @@
                 <th>Restante</th>
                 <th>Pendiente</th>
                 <th>Cantidad a declarar</th>
+                <th>Barcode</th>
             </tr>
         </thead>
         <tbody>
@@ -22,6 +23,9 @@
                 <td>{{ $wipInfo->wip_ot->start_quantity }}</td>
                 <td>
                     <input type="number" name="cantidad" class="form-control focus" placeholder="Ingresar cantidad"/>
+                </td>
+                <td>
+                    <input type="text" name="barcode" class="form-control" placeholder="Barcode"/>
                 </td>
             </tr>
         </tbody>

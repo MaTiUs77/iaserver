@@ -130,53 +130,79 @@ class TrazaStocker extends StockerController
             }
         }
 
-        return $output;
+        return (object) $output;
     }
 
     public function stockerDetail(Stocker $stocker)
     {
         $content = $this->getStockerContent($stocker->id);
         $detalle = [];
+
         foreach($content as $stkdet)
         {
             $obj = new \stdClass();
             $obj->panel_declarado = false;
             $obj->panel_pendiente = false;
             $obj->panel_errores = false;
+            $obj->panel_count = 0;
 
             $panel  = $stkdet->joinPanel;
             $bloquesArray = $panel->joinBloques;
 
             $obj->panel = $panel;
+            $obj->panel_declarado_total = 0;
             $obj->bloques = [];
-            foreach($bloquesArray as $block)
+
+            // Si el numero de bloques, coincide con el numero de etiquetas virtuales
+            if($panel->bloques == $bloquesArray->where('etiqueta','V')->count())
             {
-                $bwip = $block->wip($stocker->op);
-                if($bwip->last!=null)
+                // Verifico en wip todos los codigos registrados con este (barcode-xx)
+                $bwip = $panel->wipSecundario();
+                $obj->panel_declarado_total = $bwip->historial->where('ebs_error_trans',null)->where('trans_ok','1')->count();
+                if($panel->bloques == $obj->panel_declarado_total)
                 {
-                    $bwip->last->declarado = $bwip->declarado;
-                    $bwip->last->pendiente = $bwip->pendiente;
-
-                    if($bwip->last->trans_ok > 1 )
-                    {
-                        $obj->panel_errores = true;
-                    }
+                    $obj->panel_declarado = true;
                 }
-                $obj->bloques[] = $bwip->last;
-            }
 
+                if($bwip->historial->where('ebs_error_trans',null)->where('trans_ok','0')->count()>0)
+                {
+                    $obj->panel_pendiente = true;
+                }
 
-            if(count($obj->bloques) == collect($obj->bloques)->where('declarado',true)->count())
+                $obj->bloques = $bwip->historial;
+            } else
             {
-                $obj->panel_declarado = true;
-            }
-            if(count($obj->bloques) == collect($obj->bloques)->where('pendiente',true)->count())
-            {
-                $obj->panel_pendiente = true;
+                foreach($bloquesArray as $block)
+                {
+                    $bwip = $block->wip($stocker->op);
+                    if($bwip->last!=null)
+                    {
+                        $bwip->last->declarado = $bwip->declarado;
+                        $bwip->last->pendiente = $bwip->pendiente;
+
+                        if($bwip->last->trans_ok > 1 )
+                        {
+                            $obj->panel_errores = true;
+                        }
+                    }
+                    $obj->bloques[] = $bwip->last;
+                }
+
+                $obj->panel_declarado_total = collect($obj->bloques)->where('declarado',true)->count() ;
+                if(count($obj->bloques) == $obj->panel_declarado_total)
+                {
+                    $obj->panel_declarado = true;
+                }
+                if(count($obj->bloques) == collect($obj->bloques)->where('pendiente',true)->count())
+                {
+                    $obj->panel_pendiente = true;
+                }
+
             }
 
             $detalle[] = $obj;
         }
+
 
         return $detalle;
     }

@@ -2,7 +2,10 @@
 
 namespace IAServer\Http\Controllers\Aoicollector\Model;
 
+use Carbon\Carbon;
+use IAServer\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class Stocker extends Model
@@ -13,6 +16,12 @@ class Stocker extends Model
     public function joinPanel()
     {
         return $this->hasOne('IAServer\Http\Controllers\Aoicollector\Model\Stocker', 'id', 'id_panel');
+    }
+
+    public static function vista()
+    {
+        $sql = self::from("aoidata.vi_stocker");
+        return $sql;
     }
 
     public static function findByIdStocker($idStocker)
@@ -72,5 +81,47 @@ class Stocker extends Model
         dd($query);
         $sql = DB::connection('iaserver')->select($query);
         return $sql;
+    }
+
+    public function liberar()
+    {
+        return self::sp_stockerReset($this);
+    }
+
+    public function sendToRouteId($id_route)
+    {
+        $traza = new StockerTraza();
+        $traza->id_stocker = $this->id;
+        $traza->id_stocker_route = $id_route;
+        $traza->created_at = Carbon::now();
+
+        $user = Auth::user();
+        if($user)
+        {
+            $traza->id_user = $user->id;
+        }
+        $traza->save();
+        return $traza;
+    }
+
+    public function lavados()
+    {
+        return StockerTraza::where('id_stocker_route',7)
+            ->where('id_stocker',$this->id);
+    }
+
+    public function inspector()
+    {
+        $inspector = null;
+
+        $inspector = User::find($this->id_user);
+        if ($inspector != null) {
+            if ($inspector->hasProfile()) {
+                $inspector->fullname = $inspector->profile->fullname();
+            } else {
+                $inspector->fullname = $inspector->name;
+            }
+        }
+        return $inspector;
     }
 }

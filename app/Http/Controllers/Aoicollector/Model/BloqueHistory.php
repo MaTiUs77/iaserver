@@ -29,7 +29,6 @@ class BloqueHistory extends Model
 
     public function wip($op)
     {
-
         $w = new Wip();
         $wip = $w->findBarcode($this->barcode, $op);
 

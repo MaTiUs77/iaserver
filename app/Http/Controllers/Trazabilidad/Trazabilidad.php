@@ -67,6 +67,16 @@ class Trazabilidad extends Controller
         {
             $wip = $objwip->findOp($op,true,true);
             $smt = SMTDatabase::findOp($op);
+
+            if($wip!=null && $smt!=null)
+            {
+                if(((int)$smt->qty != (int)$wip->wip_ot->start_quantity) && $wip->wip_ot->start_quantity!=null)
+                {
+                    $smt->qty = $wip->wip_ot->start_quantity;
+                    $smt->save();
+                }
+            }
+
             if(isset($smt->modelo)) {
                 $smt->registros = Panel::where('inspected_op',$op)->count();
                 //$controldeplacas = (object) DatosController::salida($smt->modelo,$smt->lote,$smt->panel);
@@ -104,9 +114,10 @@ class Trazabilidad extends Controller
         $wip = new Wip();
         $wipInfo = $wip->findOp($op);
         $qty = Input::get('cantidad');
+        $referencia = Input::get('barcode');
 
         $wip = new WipSerie();
-        $result = $wip->declarar('UP3',$wipInfo->wip_ot->nro_op,$wipInfo->wip_ot->codigo_producto,$qty);
+        $result = $wip->declarar('UP3',$wipInfo->wip_ot->nro_op,$wipInfo->wip_ot->codigo_producto,$qty,$referencia);
 
         $message = '';
         if($result)

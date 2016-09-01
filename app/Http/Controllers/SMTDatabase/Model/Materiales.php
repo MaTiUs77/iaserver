@@ -15,7 +15,7 @@ class Materiales extends Model
         return $this->hasMany('IAServer\Http\Controllers\SMTDatabase\Model\MaterialIndex','id_material','id');
     }
 
-    public static function findComponent($componente,$likeMode = false)
+    public static function findComponente($componente,$likeMode = false)
     {
         $sql = self::select(DB::raw("
             i.modelo,
@@ -42,6 +42,22 @@ class Materiales extends Model
     public static function findSemielaborado($semielaborado)
     {
         $sql = self::findComponent($semielaborado,true);
+        return $sql;
+    }
+
+    public static function allSemielaboradoByModelo($modelo)
+    {
+        $sql = self::select(DB::raw("
+            i.modelo,
+            i.lote,
+	        m.*
+	        "))
+            ->from("smtdatabase.materiales as m")
+            ->join( 'smtdatabase.material_index as mi', DB::raw( 'mi.id_material' ), '=', DB::raw( 'm.id' ) )
+            ->join( 'smtdatabase.ingenieria as i', DB::raw( 'i.id' ), '=', DB::raw( 'mi.id_ingenieria' ) )
+            ->where('i.modelo',$modelo)
+            ->where('m.componente','like',"4-651-%");
+
         return $sql;
     }
 }

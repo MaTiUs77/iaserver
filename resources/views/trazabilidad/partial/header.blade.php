@@ -16,7 +16,7 @@
         <!-- END BUSQUEDA -->
 
         <div class="col-lg-3">
-            <form method="POST" action="{{ route('aoicollector.stocker.trazabilidad.view.find') }}">
+            <form method="POST" action="{{ route('aoicollector.stocker.trazabilidad.view') }}">
                 <div class="input-group" >
                     <input type="text" name="element" class="form-control" placeholder="Stocker o Placa" value="{{ Input::get('element')  }}"/>
                     <span class="input-group-btn">

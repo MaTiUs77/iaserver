@@ -12,6 +12,4 @@ class SMTDatabaseView extends Controller
     public static function index() {
         return view('smtdatabase.index');
     }
-
-
 }
