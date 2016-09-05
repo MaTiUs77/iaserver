@@ -12,7 +12,7 @@
                 <div class="col-lg-4">
                     <form method="GET" action="{{ route('aoicollector.stocker.lavado.index') }}" >
                         <div class="input-group" >
-                            <input type="text" name="find" class="form-control" placeholder="Stocker" />
+                            <input type="text" name="find" class="form-control" placeholder="Ingresar codigo de stocker" />
                             <span class="input-group-btn">
                                 <button type="submit" class="btn btn-info"> Ingresar al lavado</button>
                             </span>
@@ -23,7 +23,7 @@
                 <div class="col-lg-4">
                     <form method="POST" action="{{ route('aoicollector.stocker.lavado.etiquetar') }}" >
                         <div class="input-group" >
-                            <input type="text" name="stk" class="form-control" placeholder="Stocker" />
+                            <input type="text" name="stk" class="form-control" placeholder="Ingresar codigo de stocker" />
                             <span class="input-group-btn">
                                 <button type="submit" class="btn btn-info"> Re etiquetar</button>
                             </span>

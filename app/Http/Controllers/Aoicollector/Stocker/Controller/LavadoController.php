@@ -45,9 +45,12 @@ class LavadoController extends Controller
     {
         $barcode = Input::get('stk');
 
-        $stocker = Stocker::vista()
-            ->where('barcode',$barcode)
-            ->first();
+        if($barcode!='')
+        {
+            $stocker = Stocker::vista()
+                ->where('barcode',$barcode)
+                ->first();
+        }
 
         $output = compact('stocker');
 

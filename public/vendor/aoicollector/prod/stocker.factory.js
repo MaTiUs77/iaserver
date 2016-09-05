@@ -279,7 +279,6 @@ app.factory('Panel',function($q, IaCore, toasty) {
         });
 
         var url = [
-            'prod',
             'stocker',
             'panel',
             'add',
@@ -297,7 +296,6 @@ app.factory('Panel',function($q, IaCore, toasty) {
         });
 
         var url = [
-            'prod',
             'stocker',
             'panel',
             'remove',

@@ -1,5 +1,5 @@
 <?php
-namespace IAServer\Http\Controllers\Aoicollector\Stocker;
+namespace IAServer\Http\Controllers\Aoicollector\Stocker\View;
 
 use IAServer\Http\Controllers\Aoicollector\Stocker\Controller\PanelStockerController;
 use IAServer\Http\Requests;

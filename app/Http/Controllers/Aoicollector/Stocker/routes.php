@@ -36,7 +36,7 @@ Route::group(array('prefix' => 'stocker'), function() {
             'uses' => 'Aoicollector\Stocker\Controller\LavadoController@imprimir'
         ]);
 
-        Route::post('/etiquetar', [
+        Route::match(['get', 'post'], '/etiquetar', [
             'as' => 'aoicollector.stocker.lavado.etiquetar',
             'uses' => 'Aoicollector\Stocker\Controller\LavadoController@etiquetar'
         ]);

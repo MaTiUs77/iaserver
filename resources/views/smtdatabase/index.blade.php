@@ -55,8 +55,8 @@
             </div>
 
             <div class="form-group">
-                <div class="col-sm-4 col-sm-offset-1">
-                    <input ng-required="true"  type="text" class="form-control" placeholder="Ej: 19EN33" name="modelo">
+                <div  ng-controller="TypeaheadCtrl" class="col-sm-4 col-sm-offset-1 ng-scope">
+                    <input autocomplete="off" type="text" placeholder="Ej: 19EN33" name="modelo" ng-model="selected" typeahead="item for item in items | filter:$viewValue | limitTo:8" class="form-control" ng-required="true" >
                 </div>
                 <div class="col-sm-4">
                     <input type="submit" value="Buscar" class="btn btn-primary">
@@ -66,4 +66,18 @@
     </div>
 
     @include('iaserver.common.footer')
+
+    <?php
+    $modelos = \IAServer\Http\Controllers\SMTDatabase\Model\OrdenTrabajo::select('modelo')->groupBy('modelo')->get();
+
+    ?>
+
+    <script>
+        app.controller("TypeaheadCtrl",function($scope, $rootScope, $http)
+        {
+            $scope.selected = undefined;
+            $scope.items = ['{!! join("','",array_flatten($modelos->toArray()))  !!}'];
+        });
+
+    </script>
 @endsection

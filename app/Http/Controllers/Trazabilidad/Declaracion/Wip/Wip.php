@@ -5,7 +5,6 @@ use IAServer\Http\Controllers\IAServer\Util;
 use IAServer\Http\Controllers\Trazabilidad\Declaracion\Wip\Model\XXEWipOt;
 use IAServer\Http\Requests;
 use IAServer\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Cache;
 
 class Wip extends Controller
 {
