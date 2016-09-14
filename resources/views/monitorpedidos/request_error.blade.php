@@ -2,10 +2,10 @@
 @section('body')
     <div class="container-fluid">
         <div class="row">
-            <div class="col-lg-12" align="center">
-                <a href="{{url('amr/pedidos/nuevos')}}" class="btn btn-info btn-xs btn-detail" role="button">NUEVOS</a>
-                <a href="{{url('amr/pedidos/procesados')}}" class="btn btn-success btn-xs btn-detail" role="button">PROCESADOS</a>
-            </div>
+            {{--<div class="col-lg-12" align="center">--}}
+                {{--<a href="{{url('amr/pedidos/nuevos')}}" class="btn btn-info btn-xs btn-detail" role="button">NUEVOS</a>--}}
+                {{--<a href="{{url('amr/pedidos/procesados')}}" class="btn btn-success btn-xs btn-detail" role="button">PROCESADOS</a>--}}
+            {{--</div>--}}
         </div><br><br>
         <div class="row">
             <div class="col-lg-4" align="center">
@@ -36,6 +36,7 @@
                     <th>NRO_OP</th>
                     <th>PARTNUMBER</th>
                     <th width="5%">CANT_PEDIDA</th>
+                    <th>CANT_ASIGNADA</th>
                     <th>LINEA</th>
                     <th>MAQUINA</th>
                     <th>UBICACION</th>
@@ -59,6 +60,8 @@
 
                         <td>{{$modelo->QUANTITY}}</td>
 
+                        <td>{{$modelo->QUANTITY_ASSIGNED}}</td>
+
                         <td>{{$modelo->PROD_LINE}}</td>
 
                         <td>{{$modelo->MAQUINA}}</td>
@@ -75,7 +78,7 @@
                             {{--Sin Procesar--}}
                             {{--@endif--}}
                         </td>
-                        <td width="20%">{{$modelo->ERROR_MESSAGE}}</td>
+                        <td width="15%">{{$modelo->ERROR_MESSAGE}}</td>
                         {{--<TD>--}}
 
                         {{--<button class="btn btn-default btn-xs btn-detail" ng-click="toggle('edit', XXE_WMS_COGISCAN_PEDIDOS.item_code)">pedir de nuevo</button>--}}

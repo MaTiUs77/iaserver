@@ -22,12 +22,13 @@
                         <li><a href="{{url('amr/parciales/almacen')}}">Todas las lineas</a></li>
                         <li><a href="{{url('amr/parciales/almacen/SMT - 2')}}">SMT - 2</a></li>
                         <li><a href="{{url('amr/parciales/almacen/SMT - 3')}}">SMT - 3</a></li>
+                        <li><a href="{{url('amr/parciales/almacen/SMT - 4')}}">SMT - 4</a></li>
                     </ul>
                 </div>
             </div>
             <div class="col-lg-4">
                 <label>TOTAL DE REGISTROS:@if($reserva->count() != 0)
-                        {{ $reserva->count()}} de {{\IAServer\Http\Controllers\MonitorPedidos\Model\reservas::all()->count()}}</label>
+                        {{ $reserva->count()}}</label>
                 @else <label class="alert-danger">SIN RESULTADOS</label>
                 @endif
 
@@ -73,7 +74,7 @@
                     <td>{{\IAServer\Http\Controllers\MonitorOp\GetWipOtInfo::tiempoAlmacen($r->tiempopedido)}}</td>
 
                     <td><form method="post" action="{{url('amr/entregar/'.$r->id)}}"><button class="btn btn-success btn-xs btn-detail" name="entregar">ENTREGAR</button></form>
-                        <form method="post" action="{{url('amr/cancelar/'.$r->id)}}"><button class="btn btn-danger btn-xs btn-detail" name="cancelar">CANCELAR</button></form>
+                        {{--<form method="post" action="{{url('amr/cancelar/'.$r->id)}}"><button class="btn btn-danger btn-xs btn-detail" name="cancelar">CANCELAR</button></form>--}}
                     </td>
 
                 </tr>

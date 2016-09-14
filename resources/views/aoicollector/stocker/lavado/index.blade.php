@@ -3,29 +3,17 @@
 @section('title','Stocker - Lavados')
 @section('body')
     <div class="container">
-
         @include('aoicollector.stocker.lavado.menu')
 
         @if(hasRole('stocker_lavado') || isAdmin())
             <!-- BUSQUEDA -->
             <div class="row">
                 <div class="col-lg-4">
-                    <form method="GET" action="{{ route('aoicollector.stocker.lavado.index') }}" >
-                        <div class="input-group" >
-                            <input type="text" name="find" class="form-control" placeholder="Ingresar codigo de stocker" />
-                            <span class="input-group-btn">
-                                <button type="submit" class="btn btn-info"> Ingresar al lavado</button>
-                            </span>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="col-lg-4">
                     <form method="POST" action="{{ route('aoicollector.stocker.lavado.etiquetar') }}" >
                         <div class="input-group" >
-                            <input type="text" name="stk" class="form-control" placeholder="Ingresar codigo de stocker" />
+                            <input type="text" name="stk" class="form-control" autocomplete="off" placeholder="Ingresar codigo de stocker" />
                             <span class="input-group-btn">
-                                <button type="submit" class="btn btn-info"> Re etiquetar</button>
+                                <button type="submit" class="btn btn-info"> Aceptar</button>
                             </span>
                         </div>
                     </form>
@@ -35,7 +23,8 @@
         @endif
         <br>
 
-        <h3>Lavado de Stockers</h3>
+        @if(isset($stockers) && count($stockers)>0)
+            <h3>Lavado de Stockers</h3>
             <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
@@ -74,7 +63,7 @@
                     @endforeach
                 </tbody>
             </table>
-        </div>
+        @endif
     </div>
 
     @include('iaserver.common.footer')

@@ -17,7 +17,7 @@ class WipSerie extends WipSerieCommons
      * @param int $transOk
      * @return mixed
      */
-    public function findBarcode($barcode,$op="",$transOk="",$like="")
+    public function findBarcode($barcode,$op="",$transOk="")
     {
         $serie = XXEWipITFSerie::select([
                 'id',
@@ -31,15 +31,9 @@ class WipSerie extends WipSerieCommons
                 'ebs_error_desc',
                 'ebs_error_trans',
                 'fecha_insercion']
-            )->where('organization_code','UP3');
-
-        if(empty($like))
-        {
-            $serie->where('referencia_1',$barcode);
-        } else
-        {
-            $serie->where('referencia_1','like',$like);
-        }
+            )
+            ->where('organization_code','UP3')
+            ->where('referencia_1',$barcode);
 
         if(!empty($op))
         {
@@ -54,6 +48,41 @@ class WipSerie extends WipSerieCommons
         $result = $serie->orderBy('fecha_insercion','desc')->get();
 
         //$serie = array_change_key_case($serie,CASE_LOWER);
+        return $result;
+    }
+
+    public function findBarcodeSecundario($barcode,$op="",$transOk="")
+    {
+        $serie = XXEWipITFSerie::select([
+                'id',
+                'nro_op',
+                'nro_informe',
+                'codigo_producto',
+                'cantidad',
+                'referencia_1',
+                'fecha_proceso',
+                'trans_ok',
+                'ebs_error_desc',
+                'ebs_error_trans',
+                'fecha_insercion']
+        )
+            ->where('referencia_1','like',$barcode.'-%');
+
+        if(!empty($op))
+        {
+            $serie->where('nro_op',$op);
+        }
+
+        if(is_numeric($transOk))
+        {
+            $serie->where('trans_ok',$transOk);
+        }
+
+        $serie = $serie->where('organization_code','UP3')
+            ->orderBy('fecha_insercion','desc');
+
+        $result = $serie->get();
+
         return $result;
     }
 

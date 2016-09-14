@@ -2,6 +2,7 @@
 
 namespace IAServer\Http\Controllers\Aoicollector\Model;
 
+use IAServer\Http\Controllers\Aoicollector\Inspection\VerificarDeclaracion;
 use IAServer\Http\Controllers\Trazabilidad\Declaracion\Wip\Wip;
 use Illuminate\Database\Eloquent\Model;
 
@@ -22,39 +23,22 @@ class BloqueHistory extends Model
         return $this->hasOne('IAServer\Http\Controllers\Aoicollector\Model\PanelHistory', 'id_panel_history', 'id_panel_history');
     }
 
-    public function twip()
+    /*
+    public function jTransaccionWip()
     {
         return $this->hasOne('IAServer\Http\Controllers\Aoicollector\Model\TransaccionWip', 'barcode', 'barcode');
     }
+*/
 
     public function wip($op)
     {
-        $w = new Wip();
-        $wip = $w->findBarcode($this->barcode, $op);
+        $verify = new VerificarDeclaracion();
+        return $verify->wip($this->barcode,$op);
+    }
 
-        $declarado = false;
-        $pendiente = false;
-
-        if(count($wip)>0)
-        {
-
-            if($wip->where('trans_ok',"1")->count()>0)
-            {
-                $declarado = true;
-            }
-
-            if($wip->where('trans_ok',"0")->count()>0)
-            {
-                $pendiente = true;
-            }
-        }
-
-        $output = array();
-        $output['declarado'] = $declarado;
-        $output['pendiente'] = $pendiente;
-        $output['last'] = $wip->first();
-        $output['historial'] = $wip;
-
-        return (object) $output;
+    public function twip()
+    {
+        $verify = new VerificarDeclaracion();
+        return $verify->twip($this->barcode);
     }
 }

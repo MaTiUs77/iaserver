@@ -6,11 +6,13 @@
 
         @include('aoicollector.stocker.lavado.menu')
 
-        @if(Input::get('stk'))
-
-            <h3>{{ Input::get('stk') }}</h3>
+        @if(isset($stocker))
+            <h3>{{ $stocker->barcode }}</h3>
             <button ng-show="printing" class="btn btn-info">Imprimiendo...</button>
-            <button ng-hide="printing" class="btn btn-success" ng-click="imprimirEtiqueta('{{ route('aoicollector.stocker.lavado.imprimir.etiqueta',Input::get('stk')) }}')">Imprimir 4 etiquetas</button>
+            <button ng-hide="printing" class="btn btn-success" ng-click="imprimirEtiqueta('{{ route('aoicollector.stocker.lavado.imprimir.etiqueta',[Input::get('stk'),4]) }}')">Imprimir 4 etiquetas</button>
+            <button ng-hide="printing" class="btn btn-success" ng-click="imprimirEtiqueta('{{ route('aoicollector.stocker.lavado.imprimir.etiqueta',[Input::get('stk'),3]) }}')">Imprimir 3 etiquetas</button>
+            <button ng-hide="printing" class="btn btn-success" ng-click="imprimirEtiqueta('{{ route('aoicollector.stocker.lavado.imprimir.etiqueta',[Input::get('stk'),2]) }}')">Imprimir 2 etiquetas</button>
+            <button ng-hide="printing" class="btn btn-success" ng-click="imprimirEtiqueta('{{ route('aoicollector.stocker.lavado.imprimir.etiqueta',[Input::get('stk'),1]) }}')">Imprimir 1 etiqueta</button>
             <hr>
 
             <h3>Validar etiquetas</h3>
@@ -43,13 +45,17 @@
             </div>
         @else
             @if(hasRole('stocker_lavado') || isAdmin())
+                @if(Input::get('stk'))
+                    <div class="alert alert-danger">El stocker no existe</div>
+                @endif
+
                 <div class="row">
                     <div class="col-lg-4">
                         <form method="POST" action="{{ route('aoicollector.stocker.lavado.etiquetar') }}" >
                             <div class="input-group" >
-                                <input type="text" name="stk" class="form-control" placeholder="Ingresar codigo de stocker" />
+                                <input type="text" name="stk" class="form-control" autocomplete="off" placeholder="Ingresar codigo de stocker" />
                                 <span class="input-group-btn">
-                                    <button type="submit" class="btn btn-info"> Re etiquetar</button>
+                                    <button type="submit" class="btn btn-info"> Aceptar</button>
                                 </span>
                             </div>
                         </form>
@@ -62,7 +68,7 @@
     @include('iaserver.common.footer')
 
     <script>
-            app.controller("etiquetadoController",function($scope, $rootScope, $http)
+            app.controller("etiquetadoController",function($scope, $rootScope, $http, $q)
             {
                 $scope.stk = '';
                 $scope.limit = 4;
@@ -121,10 +127,21 @@
                     }
                 };
 
+                $scope.runFinishApi = function()
+                {
+                    var uri = $scope.lavadoIndex+'/finish/'+$scope.stk;
+                    var defer = $q.defer();
+                    $http.get(uri).success(function(result) {
+                        defer.resolve(result);
+                    });
+                    return defer.promise;
+                };
+
                 $scope.finishRoute = function()
                 {
-                    $scope.stkdone = true;
-                    window.location.href = $scope.lavadoIndex;
+                    $scope.runFinishApi().then(function(response){
+                        window.location.href = $scope.lavadoIndex;
+                    });
                 }
 
                 $scope.imprimirEtiqueta = function(route)

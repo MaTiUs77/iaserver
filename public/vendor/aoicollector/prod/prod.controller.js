@@ -91,7 +91,7 @@ app.controller("prodController",function($scope,$rootScope,$http,$timeout,$inter
     socket.on('connect_error', function(){
         toasty.error({
             title: "Produccion",
-            msg: "Error de conexion",
+            msg: "Error de conexion, servidor caido",
             timeout: 5000
         });
         $scope.$apply();
@@ -107,26 +107,36 @@ app.controller("prodController",function($scope,$rootScope,$http,$timeout,$inter
     });
 
     socket.on('connect', function(){
+        socket.emit('produccion', $rootScope.configprod.aoibarcode);
+
         toasty.success({
             title: "Produccion",
             msg: "Descargando informacion"
         });
 
         $scope.$apply();
-
-        socket.emit('produccion', $rootScope.configprod.aoibarcode);
     });
 
-    socket.on('getProduccion', function () {
+    socket.on('waitForGetProduction', function () {
         cfpLoadingBar.start();
         $scope.$apply();
     });
 
+    Stocker.nodeInit(socket);
+
     socket.on('getProduccionResponse', function (data) {
-        if(data.error==undefined)
+        $rootScope.aoiService = data;
+
+        if(data.produccion.inspector!= undefined)
         {
-            $rootScope.aoiService = data;
             $rootScope.userService = data.produccion.inspector;
+        } else
+        {
+            $rootScope.userService = null;
+        }
+
+        if(data.error==undefined) {
+            $rootScope.aoiService = data;
 
             $scope.renderPeriodChart();
 
@@ -138,13 +148,17 @@ app.controller("prodController",function($scope,$rootScope,$http,$timeout,$inter
                     Stocker.autoscroll($rootScope.stockerService.paneles);
                 }
             }
-        } else
-        {
-            toasty.error({
-                title: "Produccion",
-                msg: 'ERROR: '+data.error
-            });
         }
+
+        cfpLoadingBar.complete();
+        $scope.$apply();
+    });
+
+    socket.on('getProduccionResponseError', function (message) {
+        toasty.error({
+            title: "Produccion",
+            msg: "Error: "+message
+        });
 
         cfpLoadingBar.complete();
         $scope.$apply();
@@ -168,11 +182,10 @@ app.controller("prodController",function($scope,$rootScope,$http,$timeout,$inter
         socket.emit('produccion', $rootScope.configprod.aoibarcode);
     };
 
-
     var onScanner = $rootScope.$on('scannerEvent:enter',function(event,data) {
         $rootScope.UserScanned(data.value);
-        $rootScope.StockerScanned(data.value);
-        $rootScope.PanelScanned(data.value);
+        Stocker.add(data.value);
+        Stocker.panelAdd(data.value);
     });
 
     $rootScope.UserScanned = function(scannedValue) {
@@ -218,7 +231,6 @@ app.controller("prodController",function($scope,$rootScope,$http,$timeout,$inter
                     if(result.error) {
                         $rootScope.printError('Stocker',result,'modal');
                     } else {
-                        console.log(result);
                         toasty.success({
                             title: "Inspector",
                             msg: "Operacion completa",
@@ -241,63 +253,6 @@ app.controller("prodController",function($scope,$rootScope,$http,$timeout,$inter
                         timeout: 5000
                     });
                 }
-            });
-        }
-    };
-
-    $rootScope.StockerScanned = function(scannedValue) {
-        scannedValue = scannedValue.toUpperCase();
-        if(Stocker.valid(scannedValue)) {
-
-            Stocker.set(
-                scannedValue,
-                $rootScope.configprod.aoibarcode
-            ).then(function(result) {
-                if(result) {
-                    if(result.error) {
-                        $rootScope.printError('Stocker',result,'modal');
-                    } else {
-                        toasty.success({
-                            title: "Stocker",
-                            msg: "Agregado correctamente",
-                            timeout: 5000
-                        });
-                    }
-                }
-                $rootScope.stockerService = {};
-            },function(result){
-                $rootScope.printError('Stocker',result);
-            });
-        }
-    };
-
-    $rootScope.PanelScanned = function(scannedValue) {
-        // Verifico si se escaneo una placa
-
-        if(Panel.valid(scannedValue)) {
-            //$rootScope.interval("stop");
-            //Aoi.cancel();
-
-            Panel.add(
-                scannedValue,
-                $rootScope.configprod.aoibarcode
-            ).then(function(result) {
-                if(result) {
-                    if(result.error) {
-                        $rootScope.printError('Panel',result,'modal');
-                    } else {
-                        toasty.success({
-                            title: "Pannel",
-                            msg: "Agregado correctamente",
-                            timeout: 5000
-                        });
-                    }
-                }
-                // Reanudo datos de AOI
-              //  $rootScope.getAoiData();
-                //$rootScope.interval();
-            },function(result){
-                $rootScope.printError('Panel',result);
             });
         }
     };
@@ -378,7 +333,7 @@ app.controller("prodHeaderController",function($scope, $rootScope , IaCore) {
 });
 
 // STOCKER
-app.controller("promptStockerSetController",function($scope, $rootScope , $timeout)
+app.controller("promptStockerSetController",function($scope, $rootScope, $timeout, Stocker)
 {
     var onHide = $rootScope.$on("modal:hide",function(event,modal)
     {
@@ -398,12 +353,12 @@ app.controller("promptStockerSetController",function($scope, $rootScope , $timeo
 
     $scope.$on("prompt:enter",function(event,modal)
     {
-        $rootScope.StockerScanned(modal.prompt_value);
+        Stocker.add(modal.prompt_value);
         modal.dialog.close();
     });
 });
 
-app.controller("promptStockerRemoveController",function($scope, $rootScope , $timeout, IaCore, Stocker, Aoi, toasty)
+app.controller("promptStockerRemoveController",function($scope, $rootScope, $timeout, Stocker)
 {
     var onHide = $rootScope.$on("modal:hide",function(event,modal)
     {
@@ -423,37 +378,13 @@ app.controller("promptStockerRemoveController",function($scope, $rootScope , $ti
 
     $scope.$on("prompt:enter",function(event,modal)
     {
-        scannedValue = modal.prompt_value.toUpperCase();
-        if(Stocker.valid(scannedValue)) {
-           // $rootScope.interval("stop");
-           // Aoi.cancel();
-
-            Stocker.remove(scannedValue).then(function(result) {
-                if(result) {
-                    if(result.error) {
-                        $rootScope.printError('Liberar Stocker',result,'modal');
-                    } else {
-                        toasty.success({
-                            title: "Stocker",
-                            msg: "Liberado correctamente",
-                            timeout: 5000
-                        });
-                    }
-                }
-                // Reanudo datos de AOI
-                //$rootScope.getAoiData();
-                //$rootScope.interval();
-            },function(result){
-                $rootScope.printError('Liberar Stocker',result);
-            });
-        }
-
+        Stocker.remove(modal.prompt_value);
         modal.dialog.close();
     });
 });
 
 // PANEL
-app.controller("promptStockerAddPanelController",function($scope, $rootScope , $timeout)
+app.controller("promptStockerAddPanelController",function($scope, $rootScope, $timeout,Stocker)
 {
     var onHide = $rootScope.$on("modal:hide",function(event,modal)
     {
@@ -473,12 +404,12 @@ app.controller("promptStockerAddPanelController",function($scope, $rootScope , $
 
     $scope.$on("prompt:enter",function(event,modal)
     {
-        $rootScope.PanelScanned(modal.prompt_value);
+        Stocker.panelAdd(modal.prompt_value);
         modal.dialog.close();
     });
 });
 
-app.controller("promptStockerRemovePanelController",function($scope, $rootScope , $timeout,  Panel, Aoi, toasty)
+app.controller("promptStockerRemovePanelController",function($scope, $rootScope, $timeout, Stocker)
 {
     var onHide = $rootScope.$on("modal:hide",function(event,modal)
     {
@@ -498,33 +429,7 @@ app.controller("promptStockerRemovePanelController",function($scope, $rootScope 
 
     $scope.$on("prompt:enter",function(event,modal)
     {
-        scannedValue = modal.prompt_value.toUpperCase();
-        if(Panel.valid(scannedValue)) {
-            //$rootScope.interval("stop");
-            //Aoi.cancel();
-
-            Panel.remove(scannedValue).then(function(result) {
-                if(result) {
-                    if(result.error) {
-                        $rootScope.printError('Liberar Panel',result,'modal');
-                    } else {
-                        toasty.success({
-                            title: "Panel",
-                            msg: "Removido correctamente",
-                            timeout: 5000
-                        });
-                    }
-                }
-                // Reanudo datos de AOI
-                //$rootScope.getAoiData();
-                //$rootScope.interval();
-            },function(result){
-                if(result) {
-                    $rootScope.printError('Liberar Panel',result);
-                }
-            });
-        }
-
+        Stocker.panelRemove(modal.prompt_value);
         modal.dialog.close();
     });
 });

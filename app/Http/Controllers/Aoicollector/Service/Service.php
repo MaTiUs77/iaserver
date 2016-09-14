@@ -45,7 +45,7 @@ class Service extends Controller
 
         $this->debug->put(join(' | ',$message));
 
-        $this->updateTransaccionWipPendientes();
+//        $this->updateTransaccionWipPendientes();
     }
 
     public function process($lista,$modo='current')
@@ -459,7 +459,7 @@ class Service extends Controller
 
     public static function updateTransaccionWipPendientes()
     {
-        $pendientes = TransaccionWip::where('trans_code',0)->get();
+        $pendientes = TransaccionWip::where('trans_ok',0)->get();
 
         foreach($pendientes as $pendiente)
         {
@@ -467,7 +467,7 @@ class Service extends Controller
             $estado = $serie->findByIdTraza($pendiente->trans_id);
             if(isset($estado->trans_ok))
             {
-                $pendiente->trans_code = $estado->trans_ok;
+                $pendiente->trans_ok = $estado->trans_ok;
                 $pendiente->trans_det = $estado->trans_ok_det->description;
                 $pendiente->save();
             }

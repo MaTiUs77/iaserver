@@ -132,10 +132,12 @@ class Produccion extends Model
                         if(count($locateInspectedOpInfo )>0)
                         {
                             $prod->smt = $locateInspectedOpInfo->first()->smt;
+                            $prod->controldeplacas = $locateInspectedOpInfo->first()->controldeplacas;
                         } else
                         {
                             $smt = SMTDatabase::findOp($prod->op);
                             $prod->smt = $smt;
+                            $prod->controldeplacas = DatosController::salidaByOp($prod->op);
                         }
                     }
                 }
@@ -247,7 +249,7 @@ class Produccion extends Model
         return $sql->get();
     }
 
-    public static function addSmtToAllInspectedOpByMachine(Collection $inspected, $placas=false)
+    public static function addSmtToAllInspectedOpByMachine(Collection $inspected)
     {
         foreach($inspected as $insop)
         {
@@ -261,13 +263,8 @@ class Produccion extends Model
                     $div = 1;
                 }
                 $smt->porcentaje = number_format((($smt->prod_aoi / $div) * 100), 1, '.', '');
-
-                if ($placas) {
-                    $controldeplacas = (object)DatosController::salida($smt->modelo, $smt->lote, $smt->panel);
-                    $insop->controldeplacas = $controldeplacas;
-                }
-
                 $insop->smt = $smt;
+                $insop->controldeplacas = DatosController::salidaByOp($insop->inspected_op);
             }
         }
 

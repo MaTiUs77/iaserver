@@ -50,8 +50,6 @@ class StockerView extends TrazaStockerView
             return response()->view('errors.exception', ['mensaje'=> "Error al ejecutar Redis"], 500);
         }*/
 
-
-
         return Response::multiple_output($output);
     }
 
@@ -66,8 +64,15 @@ class StockerView extends TrazaStockerView
             {*/
                 //--------------- Datos de stocker declarado ----------------
                 $output = $this->findStocker($stockerBarcode);
-                $output->smt =  SMTDatabase::findOp($output->stocker->op);
-                $output->detalle = $this->stockerDeclaredDetail($output->stocker);
+                if(isset($output->stocker))
+                {
+                    $output->smt =  SMTDatabase::findOp($output->stocker->op);
+                    $output->contenido = $this->stockerDeclaredDetail($output->stocker);
+                } else
+                {
+                    $output->error = 'El codigo de stocker no existe';
+                }
+
                 //-----------------------------------------------------------
 /*
                 if($output->detalle != null)

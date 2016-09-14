@@ -29,19 +29,29 @@
             <td>{{ $bloque->etiqueta == 'E' ? 'Fisica' : 'Virtual' }}</td>
 
             <td>
-                @if(isset($bloque->twip->trans_code))
-                    @if($bloque->twip->trans_code==0)
-                        <button class="btn btn-xs btn-warning" tooltip-placement="left" tooltip="En proceso..."><span class="glyphicon glyphicon-hand-right"></span></button>
+                <?php
+                    $verify = new \IAServer\Http\Controllers\Aoicollector\Inspection\VerificarDeclaracion();
+                    $twip = (object) $verify->bloqueEnTransaccionWip($bloque->barcode);
+                ?>
+                    @if(isset($twip) && isset($twip->last))
+                        @if($twip->declarado)
+                            <i class="fa fa-thumbs-o-up text-success" tooltip-placement="left" tooltip="Declarado"></i>
+                        @else
+                            @if($twip->errores)
+                                <i class="fa fa-thumbs-o-down text-danger" tooltip-placement="left" tooltip="Declarado con errores"></i>
+                            @endif
+
+                            @if($twip->pendiente)
+                                <i class="fa fa-clock-o text-info" tooltip-placement="left" tooltip="Pendiente"></i>
+                            @endif
+
+                            @if(!$twip->errores && !$twip->pendiente)
+                                <i class="fa fa-exclamation-circle text-warning" tooltip-placement="left" tooltip="Declaracion parcial"></i>
+                            @endif
+                        @endif
+                    @else
+                        <i class="fa fa-eye text-info" tooltip-placement="left" tooltip="Sin verificar"></i>
                     @endif
-                    @if($bloque->twip->trans_code==1)
-                        <button class="btn btn-xs btn-success" tooltip-placement="left" tooltip="{{ $bloque->twip->trans_det }}"><span class="glyphicon glyphicon-thumbs-up"></span></button>
-                    @endif
-                    @if($bloque->twip->trans_code>1)
-                        <button class="btn btn-xs btn-danger" tooltip-placement="left" tooltip="{{ $bloque->twip->trans_det }}"><span class="glyphicon glyphicon-thumbs-down"></span></button>
-                    @endif
-                @else
-                    <button class="btn btn-xs btn-default" tooltip-placement="left" tooltip="Sin declarar"><span class="glyphicon glyphicon-thumbs-down"></span></button>
-                @endif
             </td>
         </tr>
     @endforeach

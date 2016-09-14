@@ -1,15 +1,12 @@
 <?php
 namespace IAServer\Http\Controllers\Aoicollector\Stocker\Controller;
 
+use Carbon\Carbon;
 use IAServer\Http\Controllers\Aoicollector\Model\Stocker;
 use IAServer\Http\Controllers\Controller;
-use IAServer\Http\Controllers\SMTDatabase\Model\OrdenTrabajo;
-use IAServer\Http\Controllers\Trazabilidad\Declaracion\Wip\WipSerie;
 use IAServer\Http\Requests;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Validator;
 
 class LavadoController extends Controller
 {
@@ -22,9 +19,21 @@ class LavadoController extends Controller
             Auth::logout();
         }
 
-        if (Input::get('find')) {
+        $stockers = Stocker::vista()
+            ->where('id_stocker_route', 7)
+            ->whereDate('created_at', '=', Carbon::today()->toDateString())
+            ->get();
+
+        $output = compact('stocker', 'stockers');
+        return view('aoicollector.stocker.lavado.index', $output);
+    }
+
+    public function finishClean($barcode)
+    {
+        if($barcode!='')
+        {
             $stocker = Stocker::vista()
-                ->where('barcode', Input::get('find'))
+                ->where('barcode',$barcode)
                 ->first();
 
             if ($stocker != null) {
@@ -33,12 +42,8 @@ class LavadoController extends Controller
             }
         }
 
-        $stockers = Stocker::vista()
-            ->where('id_stocker_route', 7)
-            ->get();
-
-        $output = compact('stocker', 'stockers');
-        return view('aoicollector.stocker.lavado.index', $output);
+        $output = compact('stocker');
+        return $output;
     }
 
     public function etiquetar()
@@ -57,12 +62,12 @@ class LavadoController extends Controller
         return view('aoicollector.stocker.lavado.etiquetar', $output);
     }
 
-    public function imprimir($barcode)
+    public function imprimir($barcode,$qty)
     {
         $etiquetas = new EtiquetasController();
-        $output = $etiquetas->zebraPrint($barcode);
-        dd($output);
+        $output = $etiquetas->zebraPrint($barcode,$qty);
 
-        return view('aoicollector.stocker.lavado.index',$output);
+        return $output;
+//        return view('aoicollector.stocker.lavado.index',$output);
     }
 }

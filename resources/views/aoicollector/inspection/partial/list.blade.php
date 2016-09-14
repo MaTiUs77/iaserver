@@ -90,50 +90,51 @@
                     <td>{{  \IAServer\Http\Controllers\IAServer\Util::dateToEs($panel->created_date) }}</td>
                     <td>{{ $panel->created_time }}</td>
                     <td>
+                        <?php
+                        $verify = new \IAServer\Http\Controllers\Aoicollector\Inspection\VerificarDeclaracion();
+                        $twip = (object) $verify->bloqueEnTransaccionWip($panel->panel_barcode);
+                        ?>
 
-                        @if($panel->twip)
-                            @if($panel->twip->trans_code == 1)
-                                <i style="color: #49bc00;" class="fa fa-thumbs-o-up fa-2x" tooltip-placement="left" tooltip="Declaracion: {{ $panel->twip->trans_det }}"></i>
+                        @if(isset($twip) && isset($twip->last))
+                            @if($twip->declarado)
+                                <i class="fa fa-thumbs-o-up text-success" tooltip-placement="left" tooltip="Declarado"></i>
                             @else
-                                <i class="fa fa-thumbs-o-down"  tooltip-placement="left" tooltip="{{ $panel->twip->trans_code }}:{{ $panel->twip->trans_det }}"></i>
+                                @if($twip->error)
+                                    <i class="fa fa-thumbs-o-down text-danger" tooltip-placement="left" tooltip="Declarado con errores"></i>
+                                @endif
+
+                                @if($twip->pendiente)
+                                    <i class="fa fa-clock-o text-info" tooltip-placement="left" tooltip="Pendiente"></i>
+                                @endif
+
+                                @if(!$twip->errores && !$twip->pendiente)
+                                    <i class="fa fa-exclamation-circle text-warning" tooltip-placement="left" tooltip="Declaracion parcial"></i>
+                                @endif
                             @endif
                         @else
-                            <i class="fa fa-thumbs-o-down" tooltip-placement="left" tooltip="Sin declarar"></i>
+                            <i class="fa fa-eye text-info" tooltip-placement="left" tooltip="Sin verificar"></i>
                         @endif
 
-                        <!-- Deshabilito la opcion de verificar el barcode declarado en la interfaz -->
-                        @if(true==false)
-                            @if($panel->wip()->last->trans_ok == 1 && empty($panel->wip()->last->ebs_error_trans))
-                                <i style="color: #49bc00;" class="fa fa-thumbs-o-up fa-2x" tooltip-placement="left" tooltip="Declarado en la interfaz"></i>
+                        @if($maquina->cogiscan=='T')
+                            <?php
+                                $cogiscan = $panel->cogiscan();
+                            ?>
+                            @if(isset($cogiscan['attributes']['message']))
+                                <i class="fa fa-exclamation-triangle text-danger" tooltip="Cogiscan: {{ $cogiscan['attributes']['message'] }}"></i>
                             @else
-                                <i style="color: #ec0006;" class="fa fa-thumbs-o-down fa-2x" tooltip-placement="left" tooltip="{{ $panel->wip()->last->trans_ok }}:{{ $panel->wip()->last->ebs_error_trans }}"></i>
-                            @endif
-                        @else
-                            <!--
-                                <i class="fa fa-thumbs-o-down" tooltip-placement="left" tooltip="Sin declarar"></i>
-                            -->
-                        @endif
+                                @if(isset($cogiscan['Product']['attributes']['operation']))
+                                    @if($cogiscan['Product']['attributes']['operation'] == 'Depanelization')
+                                        <i class="fa fa-send text-info" tooltip="Ruta: {{ $cogiscan['Product']['attributes']['operation'] }}, Estado: {{ $cogiscan['Product']['attributes']['status'] }}"></i>
+                                    @else
+                                        <i class="fa fa-road text-success" tooltip="Ruta: {{ $cogiscan['Product']['attributes']['operation'] }}, Estado: {{ $cogiscan['Product']['attributes']['status'] }}"></i>
+                                    @endif
 
-                            @if($maquina->cogiscan=='T')
-                                <?php
-                                    $cogiscan = $panel->cogiscan();
-                                ?>
-                                @if(isset($cogiscan['attributes']['message']))
-                                    <i class="fa fa-exclamation-triangle text-danger" tooltip="Cogiscan: {{ $cogiscan['attributes']['message'] }}"></i>
-                                @else
-                                    @if(isset($cogiscan['Product']['attributes']['operation']))
-                                        @if($cogiscan['Product']['attributes']['operation'] == 'Depanelization')
-                                            <i class="fa fa-send text-info" tooltip="Ruta: {{ $cogiscan['Product']['attributes']['operation'] }}, Estado: {{ $cogiscan['Product']['attributes']['status'] }}"></i>
-                                        @else
-                                            <i class="fa fa-road text-success" tooltip="Ruta: {{ $cogiscan['Product']['attributes']['operation'] }}, Estado: {{ $cogiscan['Product']['attributes']['status'] }}"></i>
-                                        @endif
-
-                                        @if(isset($cogiscan['attributes']['quarantineLocked']) && $cogiscan['attributes']['quarantineLocked'] == "true")
-                                            <i class="fa fa-bomb text-danger" tooltip="Placa en cuarentena"></i>
-                                        @endif
+                                    @if(isset($cogiscan['attributes']['quarantineLocked']) && $cogiscan['attributes']['quarantineLocked'] == "true")
+                                        <i class="fa fa-bomb text-danger" tooltip="Placa en cuarentena"></i>
                                     @endif
                                 @endif
                             @endif
+                        @endif
 
                         @if($panel->created_date != $panel->firstime)
                             <i class="fa fa-clock-o" tooltip-placement="left" tooltip="Primera inspeccion: {{ $panel->firstime }}"></i>

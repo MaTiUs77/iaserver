@@ -12,7 +12,7 @@ class EtiquetasController extends Controller
     public $zebra_port = 9100;
     public $zebra_prn = 'zebra/stocker';
 
-    public function zebraPrint($stockerBarcode)
+    public function zebraPrint($stockerBarcode,$qty)
     {
         $output = "";
 
@@ -23,7 +23,8 @@ class EtiquetasController extends Controller
         if($stocker != null)
         {
             $params = [
-                $stocker->barcode
+                $stocker->barcode,
+                $qty
             ];
 
             $zebra = new Zebra($this->zebra_ip, $this->zebra_port, $this->zebra_prn);

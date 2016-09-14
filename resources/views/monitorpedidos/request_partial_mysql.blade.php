@@ -2,13 +2,13 @@
 @section('body')
     <?php
     $self = url('amr/parciales/almacen'); //Obtenemos la página en la que nos encontramos
-    header("refresh:600; url=$self"); //Refrescamos cada 300 segundos
+    header("refresh:400; url=$self"); //Refrescamos cada 300 segundos
     ?>
     {{--FORMULARIO DE BUSQUEDA--}}
     <div  class="container-fluid">
-
+<div class="input-group-lg">as</div>
         <div class="row">
-                <div class="col-lg-4" align="center">
+                <div class="col-lg-5" align="center">
                     <form class="navbar-form navbar-left" role="search" method="GET" action="{{url ('amr/parciales/almacen')}}">
 
                         <div class="form-group">
@@ -18,20 +18,27 @@
                         <button type="submit" class="btn btn-info"><i class="fa fa-search" aria-hidden="true"></i> Buscar</button>
                     </form>
                 </div>
-            <div class="col-lg-4">
+
+            <div class="col-lg-2">
                 <div class="dropdown">
                     <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Buscar por linea
                         <span class="caret"></span></button>
                     <ul class="dropdown-menu">
                         <li><a href="{{url('amr/parciales/almacen')}}">Todas las lineas</a></li>
+                        <li><a href="{{url('amr/parciales/almacen/SMT - 1')}}">SMT - 1</a></li>
                         <li><a href="{{url('amr/parciales/almacen/SMT - 2')}}">SMT - 2</a></li>
                         <li><a href="{{url('amr/parciales/almacen/SMT - 3')}}">SMT - 3</a></li>
+                        <li><a href="{{url('amr/parciales/almacen/SMT - 4')}}">SMT - 4</a></li>
+                        <li><a href="{{url('amr/parciales/almacen/SMT - 5')}}">SMT - 5</a></li>
+                        <li><a href="{{url('amr/parciales/almacen/SMT - 6')}}">SMT - 6</a></li>
                     </ul>
                 </div>
             </div>
-                <div class="col-lg-4">
+
+                <div class="col-lg-5" align="center">
+
                     <label>TOTAL DE REGISTROS:@if($reserva->count() != 0)
-                            {{ $reserva->count()}} de {{\IAServer\Http\Controllers\MonitorPedidos\Model\reservas::all()->count()}}</label>
+                            {{ $reserva->count()}}</label>
                     @else <label class="alert-danger">SIN RESULTADOS</label>
                     @endif
 
@@ -83,23 +90,33 @@
                     {{--</button>--}}
 
                 @endforeach
-                    {{--{{dd($reserva)}}--}}
+
                     @foreach($pedido as $modelo)
+
                         <?php
-                            $lpn = \IAServer\Http\Controllers\MonitorPedidos\CogiscanPedidos::lpnInDb2Tools($modelo->codMat);
+
+                        $partnumber = $modelo->codMat;
+                        $maquina = $modelo->MAQUINA;
+                        $linea = $modelo->PROD_LINE;
+                        $ubicacion = $modelo->UBICACION;
+                        $op = $modelo->op;
+                        $id = $modelo->id;
+                        $cant = $modelo->cantASolic;
+
+                        $lpn = \IAServer\Http\Controllers\MonitorPedidos\CogiscanPedidos::lpnInDb2Tools($partnumber,$maquina,$linea,$ubicacion,$op,$id,$cant);
+//                        dump($partnumber);
                         ?>
 
                     @foreach($lpn as $totalLpn)
                     <tr>
-                        {{--{{dd($totalLpn)}}--}}
+
                         <?php $existeReserva = \IAServer\Http\Controllers\MonitorPedidos\CogiscanPedidos::existInReserva($modelo->PROD_LINE,$modelo->MAQUINA,$modelo->UBICACION,$totalLpn->field2,$totalLpn->field1,$modelo->id);?>
 
                         @if($existeReserva == 1)
 
                         <?php
-//                            dd($existeReserva);
                             $reservas = new \IAServer\Http\Controllers\MonitorPedidos\CogiscanPedidos();
-                            $insertReserva = $reservas->insertReserva($modelo->op,$modelo->PROD_LINE,$modelo->MAQUINA,$modelo->UBICACION,$totalLpn->field2,$totalLpn->field1,$totalLpn->field5,$modelo->id,$modelo->timestamp);
+                            $insertReserva = $reservas->insertReserva($modelo->op,$modelo->PROD_LINE,$modelo->MAQUINA,$modelo->UBICACION,$totalLpn->field2,$totalLpn->field1,$totalLpn->field5,$modelo->id,$modelo->timestamp, $totalLpn->id_instruction);
                         ?>
                             @else
                     </tr>

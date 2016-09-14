@@ -7,11 +7,13 @@
                 <span ng-hide="aoiService.produccion.linea">Seleccionar linea</span>
             </a>
 
+            <!--
             <a href="" class="btn btn-default" ng-show="userService.id">
                Inspector:  <b>@{{ userService.fullname }}</b>
             </a>
+            !-->
 
-            <div class="btn-group" ng-show="userService.id" >
+            <div class="btn-group">
                 <div class="btn-group" ng-show="aoiService.produccion.op" >
                     <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
                         Stocker <span class="caret"></span>
@@ -35,7 +37,7 @@
             </div>
         </div>
 
-        <div class="navbar-left" ng-show="userService.fullname">
+        <div class="navbar-left">
             <table><tbody><tr>
                     <td>
                         <h4> &nbsp;&nbsp; Declaracion: </h4>
@@ -60,7 +62,7 @@
                 </tr></tbody></table>
         </div>
 
-        <div class="navbar-right" ng-show="userService.id">
+        <div class="navbar-right">
             <a ng-show="aoiService.produccion.op" ng-href="{{ url('aoicollector/prod/removeop') }}/@{{ aoiService.produccion.barcode }}" class="btn btn-danger">Remover op</a>
         </div>
     </div>

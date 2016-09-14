@@ -2,6 +2,7 @@
 
 namespace IAServer\Http\Controllers\Aoicollector\Model;
 
+use IAServer\Http\Controllers\Aoicollector\Inspection\VerificarDeclaracion;
 use IAServer\Http\Controllers\Cogiscan\Cogiscan;
 use IAServer\Http\Controllers\SMTDatabase\SMTDatabase;
 use IAServer\Http\Controllers\Trazabilidad\Declaracion\Wip\Wip;
@@ -21,6 +22,11 @@ class PanelHistory extends Model
     public function maquina()
     {
         return $this->hasOne('IAServer\Http\Controllers\Aoicollector\Model\Maquina', 'id', 'id_maquina');
+    }
+
+    public function joinBloques()
+    {
+        return $this->hasMany('IAServer\Http\Controllers\Aoicollector\Model\BloqueHistory', 'id_panel_history', 'id_panel_history');
     }
 
     public function twip()
@@ -388,50 +394,6 @@ class PanelHistory extends Model
             ->get();
     }
 
-    public function wip()
-    {
-        $w = new Wip();
-        $wip = $w->findBarcode($this->panel_barcode, $this->inspected_op);
-
-        $declarado = false;
-        $pendiente = false;
-
-        if(count($wip)>0)
-        {
-            $findTransOk1= array_first($wip, function ($index,$obj) {
-                if($obj->trans_ok == 1)
-                {
-                    return $obj;
-                }
-            });
-
-            if(count($findTransOk1)==1)
-            {
-                $declarado = true;
-            }
-
-            $findTransOk0= array_first($wip, function ($index,$obj) {
-                if($obj->trans_ok == 0)
-                {
-                    return $obj;
-                }
-            });
-
-            if(count($findTransOk0)==1)
-            {
-                $pendiente = true;
-            }
-        }
-
-        $output = array();
-        $output['declarado'] = $declarado;
-        $output['pendiente'] = $pendiente;
-        $output['last'] = $wip->first();
-        $output['historial'] = $wip;
-
-        return (object) $output;
-    }
-
     public function cogiscan()
     {
         $cogiscanService= new Cogiscan();
@@ -459,5 +421,15 @@ class PanelHistory extends Model
         unset($smt->qty);
 
         return $smt;
+    }
+
+    function isSecundario()
+    {
+        if($this->bloques == $this->joinBloques()->where('etiqueta','V')->count()) {
+            return true;
+        } else
+        {
+            return false;
+        }
     }
 }

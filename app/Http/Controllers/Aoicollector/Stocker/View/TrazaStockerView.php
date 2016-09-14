@@ -14,10 +14,10 @@ class TrazaStockerView extends TrazaStocker
 
         if(isset($find->stocker))
         {
-            $detalle = $this->stockerDeclaredDetail($find->stocker);
+            $contenido = $this->stockerDeclaredDetail($find->stocker);
         }
 
-        $output = compact('find','detalle');
+        $output = compact('find','contenido');
 
         return view('trazabilidad.stocker.index', $output);
     }

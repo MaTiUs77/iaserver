@@ -100,7 +100,8 @@ class FindInspection extends Controller
             }
             if($this->withWip)
             {
-                $moreInfo->wip = $panel->wip();
+                $verify = new VerificarDeclaracion();
+                $moreInfo->wip = $verify->bloqueEnInterfazWip($panel->panel_barcode,$panel->inspected_op);
             }
 
             return $moreInfo;

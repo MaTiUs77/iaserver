@@ -73,6 +73,20 @@
     </div>
     <div class="clearfix visible-sm-block"></div>
 
+    <!-- Resumen de inspecciones IAServer -->
+    <div class="col-sm-6 col-md-6 col-lg-3">
+        <blockquote>
+            <h3>
+                Resumen de IAServer
+            </h3>
+            <small>Placas en AOI: <span class="glyphicon glyphicon-info-sign" tooltip-placement="right" tooltip="Cada vez que se inspecciona un bloque, este contador se incrementa"></span></small>
+            @{{ aoiService.produccion.smt.prod_aoi }}
+
+            <small>Control de placas: <span class="glyphicon glyphicon-info-sign" tooltip-placement="right" tooltip="Placas despachadas"></span></small>
+            @{{ aoiService.produccion.controldeplacas }}
+        </blockquote>
+    </div>
+
     <!-- Resumen de declaraciones WIP -->
     <div class="col-sm-6 col-md-6 col-lg-3" ng-if="aoiService.produccion.sfcs.declara==1">
         <blockquote>
@@ -83,26 +97,6 @@
         <small>Declaradas:</small>  @{{ aoiService.produccion.wip.transactions.declaradas }}
         <small>Pendientes:</small>  @{{ aoiService.produccion.wip.transactions.pendientes }}
         <small>Errores:</small>  @{{ aoiService.produccion.wip.transactions.errores }}
-        </blockquote>
-    </div>
-
-    <!-- Resumen de inspecciones IAServer -->
-    <div class="col-sm-6 col-md-6 col-lg-3">
-        <blockquote>
-            <h3>
-                Resumen de IAServer
-            </h3>
-            <small>Cantidad de lote: <span class="glyphicon glyphicon-info-sign" tooltip-placement="right" tooltip="Cantidad de lote en SMTDatabase"></span></small>
-            @{{ aoiService.produccion.smt.qty }}
-
-            <small>Paneles en Aoi: <span class="glyphicon glyphicon-info-sign" tooltip-placement="right" tooltip="Cantidad de paneles con @{{ aoiService.produccion.op }}, si se cambio manualmente la OP por otra, la diferencia se veria reflejada con el contador incremental"></span></small>
-            @{{ aoiService.produccion.smt.registros }}
-
-            <small>Contador incremental: <span class="glyphicon glyphicon-info-sign" tooltip-placement="right" tooltip="Cada vez que se inspecciona un bloque, este contador se incrementa"></span></small>
-            @{{ aoiService.produccion.smt.prod_aoi }}
-
-            <small>Control de placas: <span class="glyphicon glyphicon-info-sign" tooltip-placement="right" tooltip="En control de placas, el modelo,lote y panel, debe coincidir para tener el dato correcto de salida"></span></small>
-            @{{ aoiService.produccion.controldeplacas.salidas }}
         </blockquote>
     </div>
 

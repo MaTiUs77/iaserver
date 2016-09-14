@@ -1,8 +1,5 @@
-app.factory('Stocker',function($q, IaCore, toasty) {
-    var timeout = 10;
-    var runinng;
-    var result;
-    var httpget;
+app.factory('Stocker',function($q, $rootScope, IaCore, toasty, Panel) {
+    var socket;
 
     var barcode_length = 8;
     var panel_barcode_length = 10;
@@ -14,27 +11,87 @@ app.factory('Stocker',function($q, IaCore, toasty) {
 
     var interfaz = {};
 
-    interfaz.handlehttp = function(url) {
-        result = $q.defer();
-        if(!runinng)
-        {
-            runinng = true;
-            httpget = IaCore.http({
-                url: url.join('/'),
-                method: 'GET',
-                timeout: timeout
-            });
+    interfaz.nodeInit = function(_socket)
+    {
+        socket = _socket;
 
-            httpget.result.promise.then(function(data) {
-                runinng = false;
-                result.resolve(data);
-            },function(error) {
-                runinng = false;
-                result.reject(error);
-            });
-        }
-        return result.promise;
+        socket.on('stockerAddResponse', function (result,toastId) {
+            toasty.clear(toastId);
+
+            if(result) {
+                if(result.error) {
+                    $rootScope.printError('Stocker',result,'modal');
+                } else {
+                    toasty.success({
+                        title: "Stocker",
+                        msg: "Agregado correctamente",
+                        timeout: 2000
+                    });
+
+                    $rootScope.stockerService = result;
+                }
+            }
+            $rootScope.$digest();
+        });
+
+        socket.on('stockerRemoveResponse', function (result,toastId) {
+            toasty.clear(toastId);
+
+            if(result) {
+                if(result.error) {
+                    $rootScope.printError('Stocker',result,'modal');
+                } else {
+                    toasty.success({
+                        title: "Stocker",
+                        msg: "Libreado correctamente",
+                        timeout: 2000
+                    });
+
+                    $rootScope.stockerService = {};
+                }
+            }
+            $rootScope.$digest();
+        });
+
+        socket.on('panelAddResponse', function (result,toastId) {
+            toasty.clear(toastId);
+
+            if(result) {
+                if(result.error) {
+                    $rootScope.printError('Panel',result,'modal');
+                } else {
+                    toasty.success({
+                        title: "Panel",
+                        msg: "Agregado correctamente",
+                        timeout: 2000
+                    });
+
+                    $rootScope.stockerService = result;
+                }
+            }
+            $rootScope.$digest();
+        });
+
+        socket.on('panelRemoveResponse', function (result,toastId) {
+            toasty.clear(toastId);
+
+            if(result) {
+                if(result.error) {
+                    $rootScope.printError('Panel',result,'modal');
+                } else {
+                    toasty.success({
+                        title: "Panel",
+                        msg: "Removido correctamente",
+                        timeout: 2000
+                    });
+
+                    $rootScope.stockerService = result;
+                }
+            }
+            $rootScope.$digest();
+        });
     };
+
     interfaz.autoscroll = function(pos) {
         var container = $('#stocker_box div.panel_trace');
         var scrollTo = $('#panel_'+pos);
@@ -44,11 +101,12 @@ app.factory('Stocker',function($q, IaCore, toasty) {
             });
         }
     };
-    interfaz.valid = function(stocker_barcode) {
-        if(stocker_barcode) {
+
+    interfaz.valid = function(stkbarcode) {
+        if(stkbarcode) {
             if(
-                strStartsWith(stocker_barcode.toUpperCase(),'STK') &&
-                stocker_barcode.length==barcode_length
+                strStartsWith(stkbarcode.toUpperCase(),'STK') &&
+                stkbarcode.length==barcode_length
             ) {
                 return true;
             } else {
@@ -58,209 +116,78 @@ app.factory('Stocker',function($q, IaCore, toasty) {
             return false;
         }
     };
-    interfaz.set = function(stocker_barcode,aoi_barcode) {
-        new_stocker_barcode = stocker_barcode.toUpperCase();
 
-        toasty.info({
-            title: "Stocker",
-            msg: "Agregando "+stocker_barcode,
-            timeout: 5000
-        });
-
-        var url = [
-            'stocker',
-            'prod',
-            'set',
-            new_stocker_barcode,
-            aoi_barcode
-        ];
-
-        return interfaz.handlehttp(url);
-    };
-    interfaz.remove = function(stocker_barcode) {
-        stocker_barcode = stocker_barcode.toUpperCase();
-
-        toasty.info({
-            title: "Stocker",
-            msg: "Liberando "+stocker_barcode,
-            timeout: 5000
-        });
-        var url = [
-            'stocker',
-            'prod',
-            'remove',
-            stocker_barcode
-        ];
-
-        return interfaz.handlehttp(url);
-    };
-
-    /*
-    interfaz.info = function(stocker_barcode) {
-        var url = [
-            'service',
-            'aoicollector',
-            'stocker',
-            stocker_barcode
-        ];
-        return $http.get(Framework.url(url),{
-            ignoreLoadingBar: true
-        }).then(function(response) {
-            if (typeof response.data === 'object') {
-                return response.data.service;
-            }
-        });
-    };
-    interfaz.infoAll = function(op,aoi_barcode) {
-        var url = [
-            'service',
-            'aoicollector',
-            'stocker',
-            'all',
-            aoi_barcode,
-            op
-        ];
-        return $http.get(Framework.url(url),{
-            ignoreLoadingBar: true
-        }).then(function(response) {
-            if (typeof response.data === 'object') {
-                return response.data.service;
-            }
-        });
-    };
-    interfaz.config = function(modelo_id, stocker_barcode,xstocker, xpanel) {
-        var url = [
-            'service',
-            'aoicollector',
-            'stocker',
-            stocker_barcode
-        ];
-        var params = {
-            "modelo_id":modelo_id,
-            "stocker_por":xstocker,
-            "declara_por":xpanel
-        };
-        return $http.put(Framework.url(url), JSON.stringify(params),{
-            ignoreLoadingBar: true
-        }).then(function(response) {
-            if (typeof response.data === 'object') {
-                return response.data.service;
-            }
-        });
-    };
-
-
-    interfaz.panelValid = function(panel_barcode) {
-        if(panel_barcode) {
-            if(
-                $.isNumeric( panel_barcode )
-                &&
-                (
-                panel_barcode.length==panel_barcode_length ||
-                panel_barcode.length==panelsony_barcode_length
-                )
-            ) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
+    interfaz.add = function(stkbarcode) {
+        stkbarcode = stkbarcode.toUpperCase();
+        if (interfaz.valid(stkbarcode)) {
+            toasty.wait({
+                title: "Stocker",
+                msg: "Agregando stocker a produccion",
+                timeout: false,
+                onAdd: function(){
+                    socket.emit('stockerAdd',stkbarcode,this.id);
+                }
+            });
         }
     };
-    interfaz.panelRemove = function(panel_barcode) {
-        var url = [
-            'service',
-            'aoicollector',
-            'stocker',
-            'panel',
-            'remove',
-            panel_barcode
-        ];
-        return $http.get(Framework.url(url),{
-            ignoreLoadingBar: true
-        }).then(function(response) {
-            if (typeof response.data === 'object') {
-                return response.data;
-            }
-        });
-    };
-    interfaz.panelAdd = function(panel_barcode,aoi_barcode,manual) {
-        var mode = 'add';
-        switch (manual) {
-            case 1:
-                mode = 'addmanualaoi';
-                break;
-            case 2:
-                mode = 'addmanual';
-                break;
+
+    interfaz.remove = function(stkbarcode) {
+        stkbarcode = stkbarcode.toUpperCase();
+        if (interfaz.valid(stkbarcode)) {
+            toasty.wait({
+                title: "Stocker",
+                msg: "Liberando de produccion",
+                timeout: false,
+                onAdd: function(){
+                    socket.emit('stockerRemove',stkbarcode,this.id);
+                }
+            });
         }
-        var url = [
-            'service',
-            'aoicollector',
-            'stocker',
-            'panel',
-            mode,
-            panel_barcode,
-            aoi_barcode
-        ];
-        return $http.get(Framework.url(url),{
-            ignoreLoadingBar: true
-        }).then(function(response) {
-            if (typeof response.data === 'object') {
-                return response.data;
-            }
-        });
     };
-*/
+
+    interfaz.panelAdd = function(panelbarcode) {
+        if(Panel.valid(panelbarcode)) {
+            toasty.wait({
+                title: "Panel",
+                msg: "Agregando panel al stocker",
+                timeout: false,
+                onAdd: function(){
+                    socket.emit('panelAdd',panelbarcode,this.id);
+                }
+            });
+        }
+    };
+
+    interfaz.panelRemove = function(panelbarcode) {
+        if(Panel.valid(panelbarcode)) {
+            toasty.wait({
+                title: "Panel",
+                msg: "Removiendo panel de stocker",
+                timeout: false,
+                onAdd: function(){
+                    socket.emit('panelRemove',panelbarcode,this.id);
+                }
+            });
+        }
+    };
+
     return interfaz;
 });
 
-app.factory('Panel',function($q, IaCore, toasty) {
-    var barcode_length = 8;
+app.factory('Panel',function() {
     var panel_barcode_length = 10;
     var panelsony_barcode_length = 19;
 
-    var timeout = 10,
-        runinng,
-        result,
-        httpget;
-
-    var strStartsWith = function (str, prefix) {
-        return str.indexOf(prefix) === 0;
-    };
-
     var interfaz = {};
 
-    interfaz.handlehttp = function(url) {
-        result = $q.defer();
-        if(!runinng)
-        {
-            runinng = true;
-            httpget = IaCore.http({
-                url: url.join('/'),
-                method: 'GET',
-                timeout: timeout
-            });
-
-            httpget.result.promise.then(function(data) {
-                runinng = false;
-                result.resolve(data);
-            },function(error) {
-                runinng = false;
-                result.reject(error);
-            });
-        }
-        return result.promise;
-    };
-    interfaz.valid = function(panel_barcode) {
-        if (panel_barcode) {
+    interfaz.valid = function(panelbarcode) {
+        if (panelbarcode) {
             if (
-                $.isNumeric(panel_barcode)
+                $.isNumeric(panelbarcode)
                 &&
                 (
-                    panel_barcode.length == panel_barcode_length ||
-                    panel_barcode.length == panelsony_barcode_length
+                    panelbarcode.length == panel_barcode_length ||
+                    panelbarcode.length == panelsony_barcode_length
                 )
             ) {
                 return true;
@@ -270,39 +197,6 @@ app.factory('Panel',function($q, IaCore, toasty) {
         } else {
             return false;
         }
-    };
-    interfaz.add = function(panel_barcode,aoi_barcode) {
-        toasty.info({
-            title: "Panel",
-            msg: "Agregando "+panel_barcode,
-            timeout: 5000
-        });
-
-        var url = [
-            'stocker',
-            'panel',
-            'add',
-            panel_barcode,
-            aoi_barcode
-        ];
-
-        return interfaz.handlehttp(url);
-    };
-    interfaz.remove = function(panel_barcode) {
-        toasty.info({
-            title: "Panel",
-            msg: "Removiendo "+panel_barcode,
-            timeout: 5000
-        });
-
-        var url = [
-            'stocker',
-            'panel',
-            'remove',
-            panel_barcode
-        ];
-
-        return interfaz.handlehttp(url);
     };
 
     return interfaz;

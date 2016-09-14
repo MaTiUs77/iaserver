@@ -80,7 +80,7 @@ class CogiscanDB2 extends Controller
         $output = array();
         exec($cmd,$output);
         $output = implode("",$output);
-
+		
         return self::toJson($output);
     }
     private function toJson($xml)

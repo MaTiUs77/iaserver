@@ -90,28 +90,28 @@
                             <td>{{ $inspection->panel->created_date }}</td>
                             <td>{{ $inspection->panel->created_time }}</td>
                             <td>
-
-                                @if($inspection->panel->twip)
-                                    @if($inspection->panel->twip->trans_code == 1)
-                                        <i style="color: #49bc00;" class="fa fa-thumbs-o-up fa-2x" tooltip-placement="left" tooltip="Declaracion: {{ $inspection->panel->twip->trans_det }}"></i>
+                                <?php
+                                    $verify = new \IAServer\Http\Controllers\Aoicollector\Inspection\VerificarDeclaracion();
+                                    $twip = (object)  $verify->bloqueEnTransaccionWip($inspection->panel->panel_barcode);
+                                ?>
+                                    @if(isset($twip) && isset($twip->last))
+                                    @if($twip->declarado)
+                                        <i class="fa fa-thumbs-o-up text-success" tooltip-placement="left" tooltip="Declarado"></i>
                                     @else
-                                        <i class="fa fa-thumbs-o-down"  tooltip-placement="left" tooltip="{{ $inspection->panel->twip->trans_code }}:{{ $inspection->panel->twip->trans_det }}"></i>
+                                        @if($twip->error)
+                                            <i class="fa fa-thumbs-o-down text-danger" tooltip-placement="left" tooltip="Declarado con errores"></i>
+                                        @endif
+
+                                        @if($twip->pendiente)
+                                            <i class="fa fa-clock-o text-info" tooltip-placement="left" tooltip="Pendiente"></i>
+                                        @endif
+
+                                        @if(!$twip->errores && !$twip->pendiente)
+                                            <i class="fa fa-exclamation-circle text-warning" tooltip-placement="left" tooltip="Declaracion parcial"></i>
+                                        @endif
                                     @endif
                                 @else
-                                    <i class="fa fa-thumbs-o-down" tooltip-placement="left" tooltip="Sin declarar"></i>
-                                @endif
-
-                                <!-- Deshabilito la opcion de verificar el barcode declarado en la interfaz -->
-                                @if(true==false)
-                                    @if($inspection->wip->declarado)
-                                        @if($inspection->wip->last->trans_ok == 1 && empty($inspection->wip->last->ebs_error_trans))
-                                            <i style="color: #49bc00;" class="fa fa-thumbs-o-up fa-2x" tooltip-placement="left" tooltip="Declarado en la interfaz"></i>
-                                        @else
-                                            <i class="fa fa-thumbs-o-down"  tooltip-placement="left" tooltip="{{ $inspection->wip->last->trans_ok }}:{{ $inspection->wip->last->ebs_error_trans }}"></i>
-                                        @endif
-                                    @else
-                                        <i class="fa fa-thumbs-o-down" tooltip-placement="left" tooltip="Sin declarar"></i>
-                                    @endif
+                                    <i class="fa fa-eye text-info" tooltip-placement="left" tooltip="Sin verificar"></i>
                                 @endif
 
                                 @if(isset($inspection->panel->joinProduccion->cogiscan_traza) && $inspection->panel->joinProduccion->cogiscan_traza==1)

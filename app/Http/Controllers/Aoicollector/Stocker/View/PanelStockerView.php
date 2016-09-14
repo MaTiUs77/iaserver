@@ -24,4 +24,10 @@ class PanelStockerView extends PanelStockerController
         $output = $this->removePanel($panelBarcode);
         return Response::multiple_output($output);
     }
+
+    public function view_declarePanel($panelBarcode)
+    {
+        $output = $this->declarePanel($panelBarcode);
+        return Response::multiple_output($output);
+    }
 }

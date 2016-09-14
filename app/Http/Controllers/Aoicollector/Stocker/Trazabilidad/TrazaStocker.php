@@ -2,9 +2,11 @@
 namespace IAServer\Http\Controllers\Aoicollector\Stocker\Trazabilidad;
 
 use IAServer\Http\Controllers\Aoicollector\Inspection\FindInspection;
+use IAServer\Http\Controllers\Aoicollector\Inspection\VerificarDeclaracion;
 use IAServer\Http\Controllers\Aoicollector\Model\PanelHistory;
 use IAServer\Http\Controllers\Aoicollector\Model\Produccion;
 use IAServer\Http\Controllers\Aoicollector\Model\Stocker;
+use IAServer\Http\Controllers\Aoicollector\Model\TransaccionWip;
 use IAServer\Http\Controllers\Aoicollector\Stocker\Controller\StockerController;
 use IAServer\Http\Requests;
 use Illuminate\Support\Facades\Input;
@@ -31,6 +33,7 @@ class TrazaStocker extends StockerController
     // Localiza un stocker segun su barcode
     public function findStocker($barcode)
     {
+        $barcode = strtoupper($barcode);
         $output = array();
         if($this->isValidStockerBarcode($barcode)) {
             $stocker = $this->stockerInfoByBarcode($barcode);
@@ -38,52 +41,60 @@ class TrazaStocker extends StockerController
                 $error = $stocker->error;
                 $output = compact('error');
             } else {
+                $trazabilidad = $this->getStockerTraza($stocker->id);
+
                 if(isset($stocker->aoi_barcode))
                 {
                     $linea = Produccion::barcode($stocker->aoi_barcode)->linea;
-                    $trazabilidad = $this->getStockerTraza($stocker->id);
-
-                    $output = compact('linea','stocker','trazabilidad');
-                } else
-                {
-                    $error = "El stocker se encuentra en el limbo";
-                    $output = compact('error');
                 }
+
+                $output = compact('linea','stocker','trazabilidad');
             }
         } else
         {
             $error = "El stocker no existe";
             $output = compact('error');
         }
+
         return (object) $output;
     }
 
     public function stockerDeclaredDetail(Stocker $stocker)
     {
-        $paneles = $this->stockerDetail($stocker);
+        $content = $this->getStockerContent($stocker->id);
 
-        $stocker_declarado = false;
-        $stocker_pendiente = false;
-        $stocker_errores = false;
+        $o = new StockerContent();
 
-        if($stocker->paneles == collect($paneles)->where('panel_declarado',true)->count())
+        foreach($content as $stkdet)
         {
-            $stocker_declarado = true;
+            $fi = new FindInspection();
+            $panel = $fi->barcode($stkdet->joinPanel->panel_barcode);
+            $panel = $panel->last->panel;
+
+            $addPanel = new \stdClass();
+            $addPanel->panel = $panel;
+
+            if($panel->isSecundario())
+            {
+                $verify = new VerificarDeclaracion();
+                $interfazWip = $verify->panelSecundarioEnInterfazWip($panel);
+
+                $addPanel->declaracion = $interfazWip->declaracion;
+            } else
+            {
+                $verify = new VerificarDeclaracion();
+                $interfazWip = $verify->panelEnInterfazWip($panel);
+
+                $addPanel->declaracion = $interfazWip->declaracion;
+                $addPanel->bloques = $interfazWip->bloques;
+            }
+
+            $o->paneles[] = $addPanel;
         }
 
-        if($stocker->paneles == collect($paneles)->where('panel_pendiente',true)->count())
-        {
-            $stocker_pendiente = true;
-        }
+        $o->process($stocker->unidades);
 
-        if($stocker->paneles == collect($paneles)->where('panel_errores',true)->count())
-        {
-            $stocker_errores = true;
-        }
-
-        $output = compact('stocker_declarado','stocker_pendiente','stocker_errores','paneles');
-
-        return (object) $output;
+        return $o;
     }
 
     public function locatePanelInStocker($panelBarcode)
@@ -135,8 +146,7 @@ class TrazaStocker extends StockerController
 
     public function stockerDetail(Stocker $stocker)
     {
-        $content = $this->getStockerContent($stocker->id);
-        $detalle = [];
+        /*$detalle = [];
 
         foreach($content as $stkdet)
         {
@@ -149,22 +159,22 @@ class TrazaStocker extends StockerController
             $panel  = $stkdet->joinPanel;
             $bloquesArray = $panel->joinBloques;
 
-            $obj->panel = $panel;
+            //$obj->panel = $panel;
             $obj->panel_declarado_total = 0;
             $obj->bloques = [];
 
             // Si el numero de bloques, coincide con el numero de etiquetas virtuales
-            if($panel->bloques == $bloquesArray->where('etiqueta','V')->count())
+            if($panel->isSecundario())
             {
                 // Verifico en wip todos los codigos registrados con este (barcode-xx)
                 $bwip = $panel->wipSecundario();
-                $obj->panel_declarado_total = $bwip->historial->where('ebs_error_trans',null)->where('trans_ok','1')->count();
+                $obj->panel_declarado_total = $bwip->historial->where('trans_ok','1')->count();
                 if($panel->bloques == $obj->panel_declarado_total)
                 {
                     $obj->panel_declarado = true;
                 }
 
-                if($bwip->historial->where('ebs_error_trans',null)->where('trans_ok','0')->count()>0)
+                if($bwip->historial->where('trans_ok','0')->count()>0)
                 {
                     $obj->panel_pendiente = true;
                 }
@@ -174,18 +184,38 @@ class TrazaStocker extends StockerController
             {
                 foreach($bloquesArray as $block)
                 {
-                    $bwip = $block->wip($stocker->op);
-                    if($bwip->last!=null)
-                    {
-                        $bwip->last->declarado = $bwip->declarado;
-                        $bwip->last->pendiente = $bwip->pendiente;
+                    $verify = new VerificarDeclaracion();
+                    $twip = $verify->bloqueEnTransaccionWip($block->barcode);
 
-                        if($bwip->last->trans_ok > 1 )
+                    if($twip != null && $twip->declarado)
+                    {
+                        $obj->bloques[] = $twip;
+                    } else
+                    {
+                        $bwip = $verify->bloqueDePanel($block->barcode,$stocker->op);
+                        if($bwip->last!=null)
                         {
-                            $obj->panel_errores = true;
+                            if(isset($bwip->last->id))
+                            {
+                                $twip = new TransaccionWip();
+                                $twip->barcode = $block->barcode;
+                                $twip->trans_id = $bwip->last->id;
+                                $twip->trans_ok = $bwip->last->trans_ok;
+                                $twip->trans_det = null;
+                                $twip->id_panel = $block->id;
+                                $twip->save();
+                            }
+
+                            $bwip->last->declarado = $bwip->declarado;
+                            $bwip->last->pendiente = $bwip->pendiente;
+
+                            if($bwip->last->trans_ok > 1 )
+                            {
+                                $obj->panel_errores = true;
+                            }
                         }
+                        $obj->bloques[] = $bwip->last;
                     }
-                    $obj->bloques[] = $bwip->last;
                 }
 
                 $obj->panel_declarado_total = collect($obj->bloques)->where('declarado',true)->count() ;
@@ -197,13 +227,11 @@ class TrazaStocker extends StockerController
                 {
                     $obj->panel_pendiente = true;
                 }
-
             }
 
             $detalle[] = $obj;
         }
 
-
-        return $detalle;
+        return $detalle;*/
     }
 }

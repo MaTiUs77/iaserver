@@ -89,15 +89,29 @@ class Wip extends Controller
      * @param string $trans_ok
      * @return mixed
      */
-    public function findBarcode($barcode, $op="", $trans_ok="",$like="")
+    public function findBarcode($barcode, $op="", $trans_ok="")
     {
         $serie = new WipSerie();
         $history = new WipSerieHistory();
 
-        $wip_serie = $serie->findBarcode($barcode,$op,$trans_ok,$like);
+        $wip_serie = $serie->findBarcode($barcode,$op,$trans_ok);
         if(!count($wip_serie))
         {
-            $wip_serie = $history->findBarcode($barcode,$op,$trans_ok,$like);
+            $wip_serie = $history->findBarcode($barcode,$op,$trans_ok);
+        }
+
+        return $wip_serie;
+    }
+
+    public function findBarcodeSecundario($barcode, $op="",$trans_ok="")
+    {
+        $serie = new WipSerie();
+        $history = new WipSerieHistory();
+
+        $wip_serie = $serie->findBarcodeSecundario($barcode,$op,$trans_ok);
+        if(!count($wip_serie))
+        {
+            $wip_serie = $history->findBarcodeSecundario($barcode,$op,$trans_ok);
         }
 
         return $wip_serie;

@@ -2,6 +2,7 @@
 
 namespace IAServer\Http\Controllers\Aoicollector\Model;
 
+use IAServer\Http\Controllers\Aoicollector\Inspection\VerificarDeclaracion;
 use IAServer\Http\Controllers\Cogiscan\Cogiscan;
 use IAServer\Http\Controllers\SMTDatabase\SMTDatabase;
 use IAServer\Http\Controllers\Trazabilidad\Declaracion\Wip\Wip;
@@ -23,71 +24,6 @@ class Panel extends Model
     public function joinBloques()
     {
         return $this->hasMany('IAServer\Http\Controllers\Aoicollector\Model\BloqueHistory', 'id_panel_history', 'last_history_inspeccion_panel');
-    }
-
-    public function wip()
-    {
-        $w = new Wip();
-        $wip = $w->findBarcode($this->panel_barcode, $this->inspected_op);
-
-        $declarado = false;
-        $pendiente = false;
-
-        if(count($wip)>0)
-        {
-
-            if($wip->where('ebs_error_trans',null)->where('trans_ok','1')->count()>0)
-            {
-                $declarado = true;
-            }
-
-            if($wip->where('ebs_error_trans',null)->where('trans_ok','0')->count()>0)
-            {
-                $pendiente = true;
-            }
-        }
-
-        $output = array();
-        $output['declarado'] = $declarado;
-        $output['pendiente'] = $pendiente;
-        $output['last'] = $wip->first();
-        $output['historial'] = $wip;
-
-        return (object) $output;
-    }
-
-    public function wipSecundario()
-    {
-        $w = new Wip();
-        $like = $this->panel_barcode.'-%';
-
-        $wip = $w->findBarcode($this->panel_barcode, $this->inspected_op,"",$like);
-
-        $declarado = false;
-        $pendiente = false;
-
-        if(count($wip)>0)
-        {
-
-            if($wip->where('ebs_error_trans',null)->where('trans_ok','1')->count()>0)
-            {
-                $declarado = true;
-            }
-
-            if($wip->where('ebs_error_trans',null)->where('trans_ok','0')->count()>0)
-            {
-                $pendiente = true;
-            }
-        }
-
-        $output = array();
-        $output['declarado'] = $declarado;
-        $output['pendiente'] = $pendiente;
-        $output['last'] = $wip->first();
-        $output['historial'] = $wip;
-
-
-        return (object) $output;
     }
 
     public function cogiscan()
@@ -119,13 +55,13 @@ class Panel extends Model
         return $smt;
     }
 
-    public function bloqueWip()
+    function isSecundario()
     {
-        $arr = [];
-        foreach($this->joinBloques as $bloqueHistory)
+        if($this->bloques == $this->joinBloques()->where('etiqueta','V')->count()) {
+            return true;
+        } else
         {
-            $arr[] = $bloqueHistory->wip($this->inspected_op);
+            return false;
         }
-        return $arr;
     }
 }

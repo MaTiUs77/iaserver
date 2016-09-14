@@ -2,35 +2,67 @@
 
 namespace IAServer\Http\Controllers\Aoicollector\Stocker\Controller;
 
+use IAServer\Http\Controllers\Aoicollector\Inspection\FindInspection;
+use IAServer\Http\Controllers\Aoicollector\Inspection\VerificarDeclaracion;
 use IAServer\Http\Controllers\Aoicollector\Model\Produccion;
 use IAServer\Http\Controllers\Aoicollector\Model\Stocker;
 use IAServer\Http\Controllers\Aoicollector\Model\StockerDetalle;
 use IAServer\Http\Controllers\Aoicollector\Service\Service;
+use IAServer\Http\Controllers\Trazabilidad\Declaracion\Wip\Wip;
 use IAServer\Http\Requests;
 
 class PanelStockerController extends StockerController
 {
     public function removePanel($panelBarcode)
     {
-        $webservice = new Service();
-        $service = (object) $webservice->barcodeStatus($panelBarcode);
-        $panel = null;
+        $find = new FindInspection();
+        $panel = (object) $find->barcode($panelBarcode);
+
         $output = array();
 
-        if(isset($service->aoi->panel)) {
-            $panel = $service->aoi->panel;
+        if(!isset($panel->error)) {
+            $panel = $panel->last->panel;
             $stocker = StockerDetalle::where('id_panel',$panel->id)->first();
             if(isset($stocker->id))
             {
                 $stocker->delete();
-                $output = array('done'=>'Panel removido');
+//                $output = array('done'=>'Panel removido');
+                $output = $this->stockerInfoById($stocker->id);
             } else
             {
                 $output = array('error'=>'El panel no fue previamente agregado a un stocker');
             }
         } else
         {
-            $output = array('error'=>'El panel solicitado no existe en la base de datos');
+            $output = $panel;
+        }
+
+        if(is_array($output))  { $output = (object) $output; }
+        return $output;
+    }
+
+    public function declarePanel($panelBarcode)
+    {
+        $find = new FindInspection();
+        $panel = (object) $find->barcode($panelBarcode);
+
+        $output = array();
+
+        if(!isset($panel->error)) {
+            $panel = $panel->last->panel;
+            $stockerDet = StockerDetalle::where('id_panel',$panel->id)->first();
+            $stocker = Stocker::where('id',$stockerDet->id_stocker)->first();
+            $bloques = $panel->joinBloques;
+            if(isset($stocker->semielaborado))
+            {
+                foreach ($bloques as $bloque) {
+                    $w = new Wip();
+                    $output[] = $w->declarar('UP3', $panel->inspected_op, $stocker->semielaborado,1,$bloque->barcode);
+                }
+            }
+        } else
+        {
+            $output = $panel;
         }
 
         if(is_array($output))  { $output = (object) $output; }
@@ -42,43 +74,50 @@ class PanelStockerController extends StockerController
         $output = array();
         $stocker = null;
 
+        // Verifica que exista stocker en produccion
         $produccion = Produccion::barcode($aoibarcode);
         if(isset($produccion->id_stocker))
         {
+            // Obtiene datos de stocker
             $stocker = $this->stockerInfoById($produccion->id_stocker);
 
-            $webservice = new Service();
-            $service = (object) $webservice->barcodeStatus($panelBarcode);
-            $panel = null;
+            // Busca datos del panel
+            $find = new FindInspection();
+            $panelInfo = (object) $find->barcode($panelBarcode);
 
-            if(isset($service->aoi->panel))
+            if(!isset($panelInfo->error))
             {
-                $panel = $service->aoi->panel;
+                // Ultimos datos del panel, ya que puede haber sido inspeccionado multiples veces
+                $panel = $panelInfo->last->panel;
+
+                // Si la OP coincide con la OP del Stocker
                 if(isset($stocker->op) && isset($panel->inspected_op)) {
                     if($stocker->op == $panel->inspected_op)
                     {
+                        // Solo se aceptan paneles OK
                         if($panel->revision_ins == 'OK')
                         {
-                            if($service->aoi->analisis->despachar)
+                            if($panelInfo->last->analisis->despachar)
                             {
                                 $output = $this->handle_stockerAddPanel($panel,$stocker);
                             } else
                             {
                                 $output = array('error'=>'No se leyeron correctamente las etiquetas del panel, es necesaria una nueva inspeccion');
                             }
+                        } else
+                        {
+                            $output = array('error'=>'El panel se detecto (NG), no se permite el ingreso al stocker. Es requerida una nueva inspeccion.');
                         }
                     } else {
-                        $output = array('error'=>'El panel solicitado tiene '.$panel->inspected_op.', no es igual'.$stocker->op.' configurado en el stocker');
+                        $output = array('error'=>'La '.$panel->inspected_op.' del panel no coincide con la '.$stocker->op.' del stocker');
                     }
                 }
             } else {
-                $output = array('error'=>'No se localizo el codigo del panel '.$panelBarcode.' en la base de datos');
+                $output = $panelInfo;
             }
         } else {
             $output = array('error'=>'No hay Stocker definido en produccion');
         }
-
-        if(is_array($output))  { $output = (object) $output; }
 
         return $output;
     }

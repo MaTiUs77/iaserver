@@ -102,6 +102,7 @@ class StockerController extends Controller
     {
         $stocker = StockerTraza::where('id_stocker',$idStocker)
             ->orderBy('created_at','desc')
+            ->take(5)
             ->get();
         return $stocker;
     }
@@ -147,7 +148,7 @@ class StockerController extends Controller
                         if(isset($response->error)) {
                             $output = $response;
                         } else {
-                            $output = head($response);
+                            $output = $this->stockerInfoById($stocker->id);
                         }
                     }
                 }

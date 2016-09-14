@@ -31,9 +31,14 @@ Route::group(array('prefix' => 'stocker'), function() {
             'uses' => 'Aoicollector\Stocker\Controller\LavadoController@index'
         ]);
 
-        Route::get('/imprimir/{etiqueta}', [
+        Route::get('/imprimir/{etiqueta}/{qty}', [
             'as' => 'aoicollector.stocker.lavado.imprimir.etiqueta',
             'uses' => 'Aoicollector\Stocker\Controller\LavadoController@imprimir'
+        ]);
+
+        Route::get('/finish/{etiqueta}', [
+            'as' => 'aoicollector.stocker.lavado.imprimir.etiqueta.finish',
+            'uses' => 'Aoicollector\Stocker\Controller\LavadoController@finishClean'
         ]);
 
         Route::match(['get', 'post'], '/etiquetar', [
@@ -78,6 +83,11 @@ Route::group(array('prefix' => 'stocker'), function() {
         Route::get('/remove/{panelbarcode}', [
             'as' => 'aoicollector.stocker.panel.view.remove',
             'uses' => 'Aoicollector\Stocker\View\PanelStockerView@view_removePanel'
+        ]);
+
+        Route::get('/declare/{panelbarcode}', [
+            'as' => 'aoicollector.stocker.panel.view.declare',
+            'uses' => 'Aoicollector\Stocker\View\PanelStockerView@view_declarePanel'
         ]);
     });
 

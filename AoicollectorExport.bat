@@ -7,7 +7,7 @@ GOTO :eof
 
 :subroutine
  set /a hasta+=5
-echo php artisan AoicollectorStat:export %1 %hasta% %fecha%
+php artisan AoicollectorStat:export %1 %hasta% %fecha%
 
 TIMEOUT /T 600 /nobreak > NUL
  GOTO :eof
