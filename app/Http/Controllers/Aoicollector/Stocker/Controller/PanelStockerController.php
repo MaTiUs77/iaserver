@@ -50,14 +50,14 @@ class PanelStockerController extends StockerController
 
         if(!isset($panel->error)) {
             $panel = $panel->last->panel;
-            $stockerDet = StockerDetalle::where('id_panel',$panel->id)->first();
-            $stocker = Stocker::where('id',$stockerDet->id_stocker)->first();
             $bloques = $panel->joinBloques;
-            if(isset($stocker->semielaborado))
+            $w = new Wip();
+            $opinfo = $w->otInfo($panel->inspected_op);
+
+            if(isset($opinfo))
             {
                 foreach ($bloques as $bloque) {
-                    $w = new Wip();
-                    $output[] = $w->declarar('UP3', $panel->inspected_op, $stocker->semielaborado,1,$bloque->barcode);
+                    $output[] = $w->declarar('UP3', $panel->inspected_op, $opinfo->codigo_producto,1,$bloque->barcode);
                 }
             }
         } else

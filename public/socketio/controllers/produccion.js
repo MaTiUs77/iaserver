@@ -4,12 +4,13 @@ var moment = require('moment');
 
 var util = require('./util');
 var stocker = require('./stocker');
+var config = require('./config');
 
 var app;
-var host = 'arushde04';
-var port = 80;
-var timeout = 5000;
-var interval = 5000;
+var host = config.default.host;
+var port = config.default.port;
+var timeout = config.default.timeout;
+var interval = 4000;
 
 var prodcache = [];
 
@@ -46,7 +47,10 @@ function socketConnected(socket) {
 
 function info(socket) {
 	socket.emit('waitForGetProduction',true);
-	var uripath = '/iaserver/public/aoicollector/prod/info/'+socket.aoibarcode+'?json'; //?filter=1&stocker=0&json';
+	var uripath = config.default.rootPath +
+		'public/aoicollector/prod/info/'+socket.aoibarcode+'?json'; //?filter=1&stocker=0&json';
+
+	console.log(host,port,uripath);
 
 	util.webPromise(host,port,uripath,timeout).then(function (response) {
 		console.log("Info",socket.aoibarcode,'complete');

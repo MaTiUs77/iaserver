@@ -1,10 +1,8 @@
-@extends('angular')
+@extends('adminlte/theme')
 @section('ng','app')
 @section('title','Stocker - Re etiquetar')
 @section('body')
     <div class="container" ng-controller="etiquetadoController" ng-init="lavadoIndex = '{{ route('aoicollector.stocker.lavado.index') }}'">
-
-        @include('aoicollector.stocker.lavado.menu')
 
         @if(isset($stocker))
             <h3>{{ $stocker->barcode }}</h3>

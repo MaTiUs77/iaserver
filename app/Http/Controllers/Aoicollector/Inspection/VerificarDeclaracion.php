@@ -61,6 +61,52 @@ class VerificarDeclaracion extends Controller
         return $this;
     }
 
+    public function panelEnTransaccionesWipOrCheckInterfazWip($panel)
+    {
+        $jbloques = clone $panel;
+        foreach($jbloques->joinBloques as $bloque)
+        {
+            $verify = new VerificarDeclaracion();
+            $interfaz = $verify->bloqueEnTransaccionWip($bloque->barcode);
+
+            $addBloque = new \stdClass();
+            $addBloque->bloque = $bloque;
+            if(isset($interfaz->twip))
+            {
+                $addBloque->declaracion = $interfaz->declaracion;
+                $addBloque->twip = $interfaz->twip;
+            } else
+            {
+                $verify = new VerificarDeclaracion();
+                $interfaz = $verify->bloqueEnInterfazWip($bloque->barcode,$panel->inspected_op);
+                $addBloque->declaracion = $interfaz->declaracion;
+                $addBloque->wip = $interfaz->wip;
+
+                // Si existe registro Wip, lo replico en TransaccionesWip
+                if(isset($interfaz->wip->id))
+                {
+                    $twip = new TransaccionWip();
+                    $twip->barcode = $bloque->barcode;
+                    $twip->trans_id = $interfaz->wip->id;
+                    $twip->trans_ok = $interfaz->wip->trans_ok;
+                    $twip->trans_det = null;
+                    $twip->id_panel = $panel->id;
+                    $twip->save();
+                }
+            }
+
+            $this->bloques[] = $addBloque;
+        }
+
+        $this->declaracion->declarado_total = collect($this->bloques)->sum('declaracion.declarado_total');
+        $this->declaracion->pendiente_total = collect($this->bloques)->sum('declaracion.pendiente_total');
+        $this->declaracion->error_total = collect($this->bloques)->sum('declaracion.error_total');
+
+        $this->declaracion->process($panel->bloques);
+
+        return $this;
+    }
+
     public function bloqueEnInterfazWip($barcode,$op)
     {
         $w = new Wip();
@@ -80,33 +126,18 @@ class VerificarDeclaracion extends Controller
         return $this;
     }
 
-    public function bloqueEnTransaccionWip($barcode) {
-
+    public function bloqueEnTransaccionWip($barcode)
+    {
         $twip = TransaccionWip::where('barcode',$barcode)->orderBy('created_at','desc')->first();
-
         if($twip != null) {
-            $twip->declarado = false;
-            $twip->pendiente = false;
-            $twip->error = false;
+            $this->declaracion->declarado_total = ($twip->trans_ok == 1) ? 1 : 0;
+            $this->declaracion->pendiente_total = ($twip->trans_ok == 0) ? 1 : 0;
+            $this->declaracion->error_total = ($twip->trans_ok != 0 && $twip->trans_ok != 1 ) ? 1 : 0;
 
-            if ($twip->trans_ok == 1) {
-                $twip->declarado = true;
-            }
+            $this->declaracion->process(1);
 
-            if ($twip->trans_ok == 0) {
-                $twip->pendiente = true;
-            }
-
-            if ($twip->trans_ok > 1) {
-                $twip->error = true;
-            }
-
-            $this->declarado = ($twip->declarado==null) ? false : $twip->declarado;
-            $this->pendiente = ($twip->pendiente==null) ? false : $twip->pendiente;
-            $this->error = ($twip->error==null) ? false : $twip->error;
-            $this->last = $twip;
+            $this->twip = $twip;
         }
-
         return $this;
     }
 }

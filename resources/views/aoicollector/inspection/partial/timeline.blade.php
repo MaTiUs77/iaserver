@@ -92,26 +92,26 @@
                             <td>
                                 <?php
                                     $verify = new \IAServer\Http\Controllers\Aoicollector\Inspection\VerificarDeclaracion();
-                                    $twip = (object)  $verify->bloqueEnTransaccionWip($inspection->panel->panel_barcode);
+                                    $twip = (object) $verify->bloqueEnTransaccionWip($inspection->panel->panel_barcode);
                                 ?>
-                                    @if(isset($twip) && isset($twip->last))
-                                    @if($twip->declarado)
+                                @if(isset($twip->twip))
+                                    @if($twip->declaracion->declarado)
                                         <i class="fa fa-thumbs-o-up text-success" tooltip-placement="left" tooltip="Declarado"></i>
                                     @else
-                                        @if($twip->error)
+                                        @if($twip->declaracion->error)
                                             <i class="fa fa-thumbs-o-down text-danger" tooltip-placement="left" tooltip="Declarado con errores"></i>
                                         @endif
 
-                                        @if($twip->pendiente)
+                                        @if($twip->declaracion->pendiente)
                                             <i class="fa fa-clock-o text-info" tooltip-placement="left" tooltip="Pendiente"></i>
                                         @endif
 
-                                        @if(!$twip->errores && !$twip->pendiente)
+                                        @if(!$twip->declaracion->error && !$twip->declaracion->pendiente)
                                             <i class="fa fa-exclamation-circle text-warning" tooltip-placement="left" tooltip="Declaracion parcial"></i>
                                         @endif
                                     @endif
                                 @else
-                                    <i class="fa fa-eye text-info" tooltip-placement="left" tooltip="Sin verificar"></i>
+                                    <i class="fa fa-exclamation-circle text-danger" tooltip-placement="left" tooltip="Sin declarar"></i>
                                 @endif
 
                                 @if(isset($inspection->panel->joinProduccion->cogiscan_traza) && $inspection->panel->joinProduccion->cogiscan_traza==1)

@@ -3,9 +3,12 @@ namespace IAServer\Http\Controllers\Aoicollector\Stocker\Controller;
 
 use Carbon\Carbon;
 use IAServer\Http\Controllers\Aoicollector\Model\Stocker;
+use IAServer\Http\Controllers\Aoicollector\Model\StockerRoute;
+use IAServer\Http\Controllers\Aoicollector\Model\StockerTraza;
 use IAServer\Http\Controllers\Controller;
 use IAServer\Http\Requests;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
 
 class LavadoController extends Controller
@@ -24,7 +27,8 @@ class LavadoController extends Controller
             ->whereDate('created_at', '=', Carbon::today()->toDateString())
             ->get();
 
-        $output = compact('stocker', 'stockers');
+        $lavados = $this->lavadosPorDia();
+        $output = compact('stocker', 'stockers','lavados');
         return view('aoicollector.stocker.lavado.index', $output);
     }
 
@@ -69,5 +73,17 @@ class LavadoController extends Controller
 
         return $output;
 //        return view('aoicollector.stocker.lavado.index',$output);
+    }
+
+    public function lavadosPorDia()
+    {
+        $lavados = StockerTraza::select(DB::raw('
+            COUNT(id_stocker_route) as lavados,
+            DATE(created_at) AS fecha
+        '))->
+        where('id_stocker_route',7)
+        ->groupBy(DB::raw('DATE(created_at)'))->get();
+
+        return $lavados;
     }
 }

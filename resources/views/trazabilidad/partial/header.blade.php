@@ -1,7 +1,6 @@
+<!-- HEADER -->
 <div class="well" style="height: 70px;">
-
     <div class="row">
-
         <!-- BUSQUEDA -->
         <div class="col-lg-3">
             <form method="POST" action="{{ route('trazabilidad.find.op') }}" >
@@ -26,5 +25,5 @@
             </form>
         </div>
     </div>
-
 </div>
+<!-- END HEADER -->

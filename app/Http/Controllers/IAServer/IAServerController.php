@@ -11,6 +11,13 @@ class IAServerController extends Controller
 {
     public function index()
     {
+        $root = IAServerController::IAServerMenu();
+        $output = compact('root');
+        return view('iaserver.home', $output);
+    }
+
+    public static function IAServerMenu()
+    {
         $all_menu = Menu::orderBy('titulo')->get();
 
         $root = array();
@@ -43,7 +50,7 @@ class IAServerController extends Controller
             }
         }
 
-        return view('iaserver.home', compact('root'));
+        return $root;
     }
 
     public function logo()

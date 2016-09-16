@@ -2,6 +2,8 @@
 
 namespace IAServer\Http\Controllers\Aoicollector\Model;
 
+use IAServer\Http\Controllers\Aoicollector\Stocker\Controller\StockerController;
+use IAServer\Http\Controllers\Aoicollector\Stocker\Trazabilidad\TrazaStocker;
 use IAServer\Http\Controllers\Controldeplacas\DatosController;
 use IAServer\Http\Controllers\SMTDatabase\SMTDatabase;
 use IAServer\Http\Controllers\Trazabilidad\Declaracion\Wip\Wip;
@@ -161,7 +163,10 @@ class Produccion extends Model
 
                     // Adhiero informacion de stockers
                     if ($option->stocker) {
-                        $stocker = Stocker::find($prod->id_stocker);
+                        $stkctrl = new TrazaStocker();
+                        $prod->stocker = $stkctrl->stockerInfoById($prod->id_stocker);
+                        //$prod->contenido = $stkctrl->stockerDeclaredDetail($prod->stocker);
+                        /*$stocker = Stocker::find($prod->id_stocker);
 
                         if (isset($stocker->id)) {
                             $stocker->paneles = StockerDetalle::where('id_stocker', $prod->id_stocker)->count();
@@ -170,7 +175,7 @@ class Produccion extends Model
                             }
                         }
 
-                        $prod->stocker = $stocker;
+                        $prod->stocker = $stocker;*/
                     }
 
                     // Adhiero todos los stockers asignados a esa OP
@@ -263,6 +268,7 @@ class Produccion extends Model
                     $div = 1;
                 }
                 $smt->porcentaje = number_format((($smt->prod_aoi / $div) * 100), 1, '.', '');
+                $smt->restantes = $smt->prod_aoi - $smt->qty;
                 $insop->smt = $smt;
                 $insop->controldeplacas = DatosController::salidaByOp($insop->inspected_op);
             }

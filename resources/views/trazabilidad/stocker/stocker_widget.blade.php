@@ -4,9 +4,9 @@
     <div class="row">
         <div class="col-lg-3">
             <blockquote>
-                <small>Declarado</small>
+                <small>Declaracion</small>
                 @if($contenido->declaracion->declarado)
-                    <span class="label label-success">Si</span>
+                    <span class="label label-success">Declarado</span>
                 @else
                     @if($contenido->declaracion->error)
                         <span class="label label-danger">Error en declaraciones</span>
@@ -18,6 +18,10 @@
 
                     @if($contenido->declaracion->parcial)
                         <span class="label label-warning">Declaracion parcial</span>
+                    @endif
+
+                    @if(!$contenido->declaracion->parcial && !$contenido->declaracion->pendiente && !$contenido->declaracion->error)
+                        <span class="label label-danger">Sin declarar</span>
                     @endif
                 @endif
 
@@ -53,7 +57,7 @@
             </blockquote>
         </div>
 
-            <div class="col-lg-9">
+        <div class="col-lg-9">
             <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
@@ -67,6 +71,7 @@
                         <th>Bloques</th>
                         <th>Fecha</th>
                         <th>Hora</th>
+                        <!-- <th><a href="" class="btn btn-xs btn-block btn-info">Verificar</a></th> -->
                     </tr>
                 </thead>
                 <tbody>
@@ -86,7 +91,6 @@
                             <td>{{ $panel->bloques }}</td>
                             <td>{{ $panel->created_date }}</td>
                             <td>{{ $panel->created_time }}</td>
-
                             <td>
                                 <?php
                                     //$cogiscanService= new \IAServer\Http\Controllers\Cogiscan\Cogiscan();
@@ -128,10 +132,12 @@
 
                                     @if(!$declaracion->parcial && !$declaracion->pendiente && !$declaracion->error)
                                         <i class="fa fa-exclamation-circle fa-2x text-danger" tooltip-placement="left" tooltip="Sin declarar"></i>
-                                        @if(isAdmin())
-                                            <a href="{{ route('aoicollector.stocker.panel.view.declare', $panel->panel_barcode) }}" target="_blank">Declarar</a>
-                                        @endif
                                     @endif
+                                @endif
+                            </td>
+                            <td>
+                                @if(isAdmin())
+                                    <a href="{{ route('aoicollector.stocker.panel.view.declare', $panel->panel_barcode) }}" class="btn btn-info" target="_blank">Re-declarar</a>
                                 @endif
                             </td>
                         </tr>

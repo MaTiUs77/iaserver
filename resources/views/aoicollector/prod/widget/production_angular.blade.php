@@ -67,8 +67,6 @@
                     <small>Cantidad de lote: <span class="glyphicon glyphicon-info-sign" tooltip-placement="right" tooltip="Cantidad de lote segun SMTDatabase"></span></small> @{{ aoiService.produccion.smt.qty }}
                     <small>Cantidad declarada: <span class="glyphicon glyphicon-info-sign" tooltip-placement="right" tooltip="Declaraciones segun Transacciones en WIP_SERIE"></span></small> @{{ aoiService.produccion.wip.transactions.declaradas  }}
                 </div>
-
-
             </blockquote>
     </div>
     <div class="clearfix visible-sm-block"></div>
@@ -95,8 +93,10 @@
         </h3>
         <small>Solicitudes:</small> @{{ aoiService.produccion.wip.transactions.solicitudes }}
         <small>Declaradas:</small>  @{{ aoiService.produccion.wip.transactions.declaradas }}
-        <small>Pendientes:</small>  @{{ aoiService.produccion.wip.transactions.pendientes }}
-        <small>Errores:</small>  @{{ aoiService.produccion.wip.transactions.errores }}
+        <small>Pendientes:</small>
+            <span ng-class="{'label label-warning': (aoiService.produccion.wip.transactions.pendientes>0)}">@{{ aoiService.produccion.wip.transactions.pendientes }}</span>
+            <small>Errores:</small>
+            <span ng-class="{'label label-danger': (aoiService.produccion.wip.transactions.errores>0)}">@{{ aoiService.produccion.wip.transactions.errores }}</span>
         </blockquote>
     </div>
 
@@ -106,8 +106,8 @@
         <tr style="text-align: center;">
             <th>DB</th>
             <th>Solicitudes</th>
-            <th>Trans_Ok</th>
-            <th>Detalle</th>
+            <th>Codigo</th>
+            <th>Detalle de codigo</th>
             <th>Ebs Trans Error</th>
         </tr>
         </thead>
@@ -116,7 +116,9 @@
             <td>WIP_SERIE</td>
             <td>@{{ n.total }}</td>
             <td>
-                @{{ n.trans_ok }}
+                <span class="label label-success" ng-if="n.trans_ok == 1">@{{ n.trans_ok }}</span>
+                <span class="label label-danger" ng-if="n.trans_ok > 1">@{{ n.trans_ok }}</span>
+                <span class="label label-warning" ng-if="n.trans_ok == 0">@{{ n.trans_ok }}</span>
             </td>
             <td>@{{ n.description }}</td>
             <td>@{{ n.ebs_error_trans }}</td>

@@ -55,42 +55,16 @@ class StockerView extends TrazaStockerView
 
     public function view_stockerInfoDeclared($stockerBarcode)
     {
-        /*
-        try
+        //--------------- Datos de stocker declarado ----------------
+        $output = $this->findStocker($stockerBarcode);
+        if(isset($output->stocker))
         {
-            $onRedis = \LRedis::get($stockerBarcode.'.declared');
-
-            if($onRedis == null)
-            {*/
-                //--------------- Datos de stocker declarado ----------------
-                $output = $this->findStocker($stockerBarcode);
-                if(isset($output->stocker))
-                {
-                    $output->smt =  SMTDatabase::findOp($output->stocker->op);
-                    $output->contenido = $this->stockerDeclaredDetail($output->stocker);
-                } else
-                {
-                    $output->error = 'El codigo de stocker no existe';
-                }
-
-                //-----------------------------------------------------------
-/*
-                if($output->detalle != null)
-                {
-                    if($output->detalle->stocker_declarado)
-                    {
-                        \LRedis::set($output->stocker->barcode.'.declared', json_encode($output));
-                        \LRedis::expire($output->stocker->barcode, 50);
-                    }
-                }
-            } else
-            {
-                $output = json_decode($onRedis);
-            }
-        } catch(\Exception $e)
+            $output->smt =  SMTDatabase::findOp($output->stocker->op);
+            $output->contenido = $this->stockerDeclaredDetail($output->stocker);
+        } else
         {
-            return response()->view('errors.exception', ['mensaje'=> "Error al ejecutar Redis"], 500);
-        }*/
+            $output->error = 'El codigo de stocker no existe';
+        }
 
         return Response::multiple_output($output);
     }

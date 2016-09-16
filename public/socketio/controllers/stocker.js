@@ -1,9 +1,10 @@
 var http = require('http');
 var util = require('./util');
+var config = require('./config');
 
-var host = 'arushde04';
-var port = 80;
-var timeout = 5000;
+var host = config.default.host;
+var port = config.default.port;
+var timeout = config.default.timeout;
 
 function init(socket) {
 	console.log("Stocker","Init");
@@ -30,7 +31,8 @@ function init(socket) {
 }
 
 function add(socket,stkbarcode,toastId) {
-	var uripath = '/iaserver/public/aoicollector/stocker/prod/set/'+stkbarcode+'/'+socket.aoibarcode+'?json=1';
+	var uripath = config.default.rootPath +
+		'public/aoicollector/stocker/prod/set/'+stkbarcode+'/'+socket.aoibarcode+'?json=1';
 	util.webPromise(host,port,uripath,timeout).then(function (response) {
 		console.log("STK ADD Complete");
 		socket.emit('stockerAddResponse', response, toastId);
@@ -46,7 +48,8 @@ function add(socket,stkbarcode,toastId) {
 }
 
 function remove(socket,stkbarcode,toastId) {
-	var uripath = '/iaserver/public/aoicollector/stocker/prod/remove/'+stkbarcode+'?json=1';
+	var uripath = config.default.rootPath +
+		'public/aoicollector/stocker/prod/remove/'+stkbarcode+'?json=1';
 	util.webPromise(host,port,uripath,timeout).then(function (response) {
 		console.log("STK REMOVE Complete");
 		socket.emit('stockerRemoveResponse', response, toastId);
@@ -62,7 +65,8 @@ function remove(socket,stkbarcode,toastId) {
 }
 
 function info(stkbarcode) {
-	var uripath = '/iaserver/public/aoicollector/stocker/info/'+stkbarcode;
+	var uripath = config.default.rootPath +
+		'public/aoicollector/stocker/info/'+stkbarcode;
 
 	util.webPromise(host,port,uripath,timeout).then(function (response) {
 		console.log("StockerInfo complete");
@@ -78,7 +82,8 @@ function info(stkbarcode) {
 }
 
 function panelAdd(socket,panelbarcode) {
-	var uripath = '/iaserver/public/aoicollector/stocker/panel/add/'+panelbarcode+'/'+socket.aoibarcode+'?json=1';
+	var uripath = config.default.rootPath +
+		'public/aoicollector/stocker/panel/add/'+panelbarcode+'/'+socket.aoibarcode+'?json=1';
 	util.webPromise(host,port,uripath,timeout).then(function (response) {
 			console.log("Panel ADD Complete");
 			socket.emit('panelAddResponse', response);
@@ -94,7 +99,8 @@ function panelAdd(socket,panelbarcode) {
 }
 
 function panelRemove(socket,panelbarcode) {
-	var uripath = '/iaserver/public/aoicollector/stocker/panel/remove/'+panelbarcode+'?json=1';
+	var uripath = config.default.rootPath +
+		'public/aoicollector/stocker/panel/remove/'+panelbarcode+'?json=1';
 	util.webPromise(host,port,uripath,timeout).then(function (response) {
 			console.log("Panel REMOVE Complete");
 			socket.emit('panelRemoveResponse', response);

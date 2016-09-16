@@ -83,7 +83,8 @@ class TrazaStocker extends StockerController
             } else
             {
                 $verify = new VerificarDeclaracion();
-                $interfazWip = $verify->panelEnInterfazWip($panel);
+                $interfazWip = $verify->panelEnTransaccionesWipOrCheckInterfazWip($panel);
+                //$interfazWip = $verify->panelEnInterfazWip($panel);
 
                 $addPanel->declaracion = $interfazWip->declaracion;
                 $addPanel->bloques = $interfazWip->bloques;
@@ -142,96 +143,5 @@ class TrazaStocker extends StockerController
         }
 
         return (object) $output;
-    }
-
-    public function stockerDetail(Stocker $stocker)
-    {
-        /*$detalle = [];
-
-        foreach($content as $stkdet)
-        {
-            $obj = new \stdClass();
-            $obj->panel_declarado = false;
-            $obj->panel_pendiente = false;
-            $obj->panel_errores = false;
-            $obj->panel_count = 0;
-
-            $panel  = $stkdet->joinPanel;
-            $bloquesArray = $panel->joinBloques;
-
-            //$obj->panel = $panel;
-            $obj->panel_declarado_total = 0;
-            $obj->bloques = [];
-
-            // Si el numero de bloques, coincide con el numero de etiquetas virtuales
-            if($panel->isSecundario())
-            {
-                // Verifico en wip todos los codigos registrados con este (barcode-xx)
-                $bwip = $panel->wipSecundario();
-                $obj->panel_declarado_total = $bwip->historial->where('trans_ok','1')->count();
-                if($panel->bloques == $obj->panel_declarado_total)
-                {
-                    $obj->panel_declarado = true;
-                }
-
-                if($bwip->historial->where('trans_ok','0')->count()>0)
-                {
-                    $obj->panel_pendiente = true;
-                }
-
-                $obj->bloques = $bwip->historial;
-            } else
-            {
-                foreach($bloquesArray as $block)
-                {
-                    $verify = new VerificarDeclaracion();
-                    $twip = $verify->bloqueEnTransaccionWip($block->barcode);
-
-                    if($twip != null && $twip->declarado)
-                    {
-                        $obj->bloques[] = $twip;
-                    } else
-                    {
-                        $bwip = $verify->bloqueDePanel($block->barcode,$stocker->op);
-                        if($bwip->last!=null)
-                        {
-                            if(isset($bwip->last->id))
-                            {
-                                $twip = new TransaccionWip();
-                                $twip->barcode = $block->barcode;
-                                $twip->trans_id = $bwip->last->id;
-                                $twip->trans_ok = $bwip->last->trans_ok;
-                                $twip->trans_det = null;
-                                $twip->id_panel = $block->id;
-                                $twip->save();
-                            }
-
-                            $bwip->last->declarado = $bwip->declarado;
-                            $bwip->last->pendiente = $bwip->pendiente;
-
-                            if($bwip->last->trans_ok > 1 )
-                            {
-                                $obj->panel_errores = true;
-                            }
-                        }
-                        $obj->bloques[] = $bwip->last;
-                    }
-                }
-
-                $obj->panel_declarado_total = collect($obj->bloques)->where('declarado',true)->count() ;
-                if(count($obj->bloques) == $obj->panel_declarado_total)
-                {
-                    $obj->panel_declarado = true;
-                }
-                if(count($obj->bloques) == collect($obj->bloques)->where('pendiente',true)->count())
-                {
-                    $obj->panel_pendiente = true;
-                }
-            }
-
-            $detalle[] = $obj;
-        }
-
-        return $detalle;*/
     }
 }
