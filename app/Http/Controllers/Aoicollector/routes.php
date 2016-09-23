@@ -14,3 +14,5 @@ Route::group(['prefix' => 'aoicollector'], function()
 });
 
 
+include('Api/routes.php');
+

@@ -18,6 +18,8 @@ function local() { cfg.default = localhost; };
 function prod() { cfg.default = produccion; };
 
 cfg.default = produccion;
+cfg.local = local;
+cfg.prod = prod;
 
 module.exports = cfg;
 

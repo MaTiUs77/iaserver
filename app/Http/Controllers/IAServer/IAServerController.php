@@ -6,6 +6,7 @@ use IAServer\Http\Controllers\IAServer\Model\Menu;
 use IAServer\Http\Requests;
 use IAServer\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Input;
 
 class IAServerController extends Controller
 {
@@ -14,6 +15,18 @@ class IAServerController extends Controller
         $root = IAServerController::IAServerMenu();
         $output = compact('root');
         return view('iaserver.home', $output);
+    }
+
+    public function logout()
+    {
+        Auth::logout();
+        return redirect()->back();
+    }
+
+    public function attemptLogin()
+    {
+        Auth::attempt(['name' => Input::get('name'), 'password' => Input::get('password')]);
+        return redirect()->back();
     }
 
     public static function IAServerMenu()

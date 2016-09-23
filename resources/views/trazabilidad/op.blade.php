@@ -75,6 +75,57 @@
         ])
     @endif
 
+    @if(isAdmin())
+    <div class="box box-primary">
+        <div class="box-header with-border">
+            <h3 class="box-title">Inconsistencias en declaraciones</h3>
+        </div>
+        <!-- /.box-header -->
+        <div class="box-body">
+            <?php
+            $iaPluck = collect($enIa)->pluck('barcode');
+            $wipPluck = collect($enWip)->pluck('barcode');
+            ?>
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <strong><i class="fa fa-file-text-o margin-r-5"></i>No existen en Wip</strong>
+                    @foreach($iaPluck as $barcode)
+                        @if(!empty($barcode))
+                            <ul style="list-style: none;">
+                                @if(!$wipPluck->contains($barcode))
+                                    <li>{{ $barcode  }}
+                                        <ul style="list-style: none;">
+                                            <li><small>Sin declarar</small></li>
+                                        </ul>
+                                    </li>
+                                @endif
+                            </ul>
+                        @endif
+                    @endforeach
+                </div>
+                <div class="col-sm-6">
+                    <strong><i class="fa fa-file-text-o margin-r-5"></i>Declarados pero no existen en IAServer</strong>
+                    @foreach($wipPluck as $barcode)
+                        <ul style="list-style: none;">
+                            @if(!$iaPluck->contains($barcode))
+                                <li>{{ $barcode  }}
+                                    <ul style="list-style: none;">
+                                        <li>no hay datos de la placa</li>
+                                    </ul>
+                                </li>
+                            @endif
+                        </ul>
+                    @endforeach
+                </div>
+            </div>
+
+        </div>
+        <!-- /.box-body -->
+    </div>
+    @endif
+
+
     @else
     <h3>No hay registros de declaraciones para la op solicitada</h3>
 @endif

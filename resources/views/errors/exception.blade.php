@@ -1,5 +1,5 @@
 @include('errors.default',
     [
-        'titulo'=>'Error (Exception)',
+        'codigo'=>500,
         'mensaje'=>$mensaje
     ])

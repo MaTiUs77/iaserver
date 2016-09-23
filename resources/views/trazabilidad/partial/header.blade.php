@@ -2,7 +2,7 @@
 <div class="well" style="height: 70px;">
     <div class="row">
         <!-- BUSQUEDA -->
-        <div class="col-lg-3">
+        <div class="col-sm-6">
             <form method="POST" action="{{ route('trazabilidad.find.op') }}" >
                 <div class="input-group" >
                     <input type="text" name="op" class="form-control" placeholder="Ingresar op" value="{{ Input::get('op')  }}"/>
@@ -14,7 +14,7 @@
         </div>
         <!-- END BUSQUEDA -->
 
-        <div class="col-lg-3">
+        <div class="col-sm-6">
             <form method="POST" action="{{ route('aoicollector.stocker.trazabilidad.view') }}">
                 <div class="input-group" >
                     <input type="text" name="element" class="form-control" placeholder="Stocker o Placa" value="{{ Input::get('element')  }}"/>

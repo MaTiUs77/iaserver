@@ -47,18 +47,27 @@
                     <div class="alert alert-danger">El stocker no existe</div>
                 @endif
 
-                <div class="row">
-                    <div class="col-lg-4">
-                        <form method="POST" action="{{ route('aoicollector.stocker.lavado.etiquetar') }}" >
-                            <div class="input-group" >
-                                <input type="text" name="stk" class="form-control" autocomplete="off" placeholder="Ingresar codigo de stocker" />
-                                <span class="input-group-btn">
-                                    <button type="submit" class="btn btn-info"> Aceptar</button>
-                                </span>
+                    <div class="box box-success">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Nuevo lavado</h3>
+                        </div>
+
+                        <div class="box-body chart-responsive">
+
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <form method="POST" action="{{ route('aoicollector.stocker.lavado.etiquetar') }}" >
+                                        <div class="input-group" >
+                                            <input type="text" name="stk" class="form-control" autocomplete="off" placeholder="Ingresar codigo de stocker" />
+                                            <span class="input-group-btn">
+                                                <button type="submit" class="btn btn-info"> Aceptar</button>
+                                            </span>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
-                        </form>
+                        </div>
                     </div>
-                </div>
             @endif
         @endif
     </div>

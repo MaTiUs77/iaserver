@@ -75,6 +75,21 @@ class VerificarDeclaracion extends Controller
             {
                 $addBloque->declaracion = $interfaz->declaracion;
                 $addBloque->twip = $interfaz->twip;
+
+                if($interfaz->twip->trans_ok != 1)
+                {
+                    $retryVerify = new VerificarDeclaracion();
+                    $retryInterfaz = $retryVerify->bloqueEnInterfazWip($bloque->barcode,$panel->inspected_op);
+                    $addBloque->declaracion = $retryInterfaz->declaracion;
+                    $addBloque->wip = $retryInterfaz->wip;
+
+                    // Si existe registro Wip, lo replico en TransaccionesWip
+                    if(isset($retryInterfaz->wip->id) && $retryInterfaz->wip->trans_ok > 0)
+                    {
+                        $interfaz->twip->trans_ok = $retryInterfaz->wip->trans_ok;
+                        $interfaz->twip->save();
+                    }
+                }
             } else
             {
                 $verify = new VerificarDeclaracion();

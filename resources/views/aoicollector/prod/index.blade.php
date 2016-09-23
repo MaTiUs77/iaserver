@@ -42,7 +42,6 @@
         </div>
     </div>
 
-
     {!! IAScript('assets/socket.io/socket.io.js') !!}
 
     @include('aoicollector.prod.partial.footer')

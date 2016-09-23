@@ -14,7 +14,11 @@ Route::group(['prefix' => 'auth'], function() {
     // LOGIN
     Route::get('/login', 'Auth\AuthController@showLoginForm');
     Route::post('/login', 'Auth\AuthController@login');
-    Route::get('/logout', 'Auth\AuthController@logout');
+//    Route::get('/logout', 'Auth\AuthController@logout');
+
+    Route::post('/atlogin',  ['as' =>'iaserver.atlogin', 'uses' => 'IAServer\IAServerController@attemptLogin']);
+    Route::get('/logout',  ['as' =>'iaserver.logout', 'uses' => 'IAServer\IAServerController@logout']);
+
     // REGISTER
     Route::get('/register', 'Auth\AuthController@showRegistrationForm');
     Route::post('/register', 'Auth\AuthController@register');

@@ -1,4 +1,4 @@
-@extends('angular')
+@extends('adminlte/theme')
 @section('ng','app')
 @section('title','Administracion')
 @section('bodytag',' ng-controller="IAAbm" ')

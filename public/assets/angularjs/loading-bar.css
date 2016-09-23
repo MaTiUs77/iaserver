@@ -31,6 +31,7 @@
   transition: width 350ms;
 
   background: #dd0015;
+  border-bottom: 1px solid #ffb6ac;
   position: fixed;
   z-index: 10002;
   top: 0;

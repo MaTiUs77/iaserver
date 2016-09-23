@@ -2,9 +2,12 @@ var http = require('http');
 var _ = require('underscore');
 var moment = require('moment');
 
-var util = require('./util');
+var blu = require('./blu');
 var stocker = require('./stocker');
 var config = require('./config');
+var log = require('./logcolor');
+
+//config.local();
 
 var app;
 var host = config.default.host;
@@ -21,7 +24,7 @@ function socketConnected(socket) {
 	stocker.init(socket);
 
 	socket.on('disconnect', function () {
-		console.log('Salio de produccion',aoibarcode);
+		log.notify(['Socket disconnected',aoibarcode]);
 		clearInterval(produccionInterval);
 	});
 
@@ -48,25 +51,30 @@ function socketConnected(socket) {
 function info(socket) {
 	socket.emit('waitForGetProduction',true);
 	var uripath = config.default.rootPath +
-		'public/aoicollector/prod/info/'+socket.aoibarcode+'?json'; //?filter=1&stocker=0&json';
+		'public/aoicollector/prod/info/'+socket.aoibarcode+'?json'; //?filter=1&stocker=0&allstocker=0&json';
 
-	console.log(host,port,uripath);
+	log.debug([host,port,uripath]);
 
-	util.webPromise(host,port,uripath,timeout).then(function (response) {
-		console.log("Info",socket.aoibarcode,'complete');
+	blu.webPromise(host,port,uripath,timeout).then(function (response) {
+
+		log.debug([socket.aoibarcode,'complete']);
 		socket.emit('getProduccionResponse', response);
+
 		setMachineCache(socket.aoibarcode,response);
 	}).error(function (e) {
-		console.log('error',e);
+
+		log.error(['error',e]);
+
 		socket.emit('getProduccionResponseError', e );
 	}).catch(function (e) {
-		console.log('catch',e);
+		log.error(['error',e]);
+
 		socket.emit('getProduccionResponseError', e );
 	});
 }
 
 function subscribe(socket) {
-	console.log('Subscribe',socket.aoibarcode);
+	log.info('Subscribe '+ socket.aoibarcode);
 	socket.join(socket.aoibarcode);
 	routeMachineCache(socket.aoibarcode);
 }

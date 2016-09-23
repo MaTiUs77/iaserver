@@ -1,46 +1,17 @@
-@extends('angular')
-@section('title',$titulo)
-@section('head')
-    <style>
-        html, body {
-            height: 100%;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            color: #B0BEC5;
-            display: table;
-            font-weight: 100;
-            font-family: 'Verdana';
-        }
-
-        .container {
-            width: 100%;
-            text-align: center;
-            display: table-cell;
-            vertical-align: middle;
-        }
-
-        .content {
-            text-align: center;
-            display: inline-block;
-        }
-
-        .title {
-            font-size: 72px;
-            margin-bottom: 40px;
-        }
-    </style>
-
-@endsection
+@extends('adminlte/theme')
+@section('title',"Error $codigo")
 @section('body')
 
-    <div class="container">
-        <div class="content">
-            <div class="title">{{ $titulo }}</div>
-            <h3>{{ $mensaje }}</h3>
+    <div class="error-page">
+        @if(isset($codigo))
+            <h2 class="headline text-red">{{ $codigo }}</h2>
+        @endif
+
+        <div class="error-content">
+            <h3><i class="fa fa-warning text-red"></i> Opss! algo salio mal!</h3>
+            <p>
+               {{ $mensaje }}
+            </p>
         </div>
     </div>
 

@@ -85,7 +85,7 @@
     <section class="content">
         <div class="box">
             <div class="box-body">
-                @yield('body')
+              @yield('body')
             </div>
         </div>
     </section>

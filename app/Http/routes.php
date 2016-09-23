@@ -18,5 +18,3 @@ require('Controllers/Ipc/routes.php');
 require('Controllers/Email/routes.php');
 
 require('Controllers/Redis/routes.php');
-
-Route::get('/flor', 'Flor\FlorView@index');

@@ -1,35 +1,6 @@
-app.controller("prodController",function($scope,$rootScope,$http,$timeout,$interval, IaCore, Aoi, Stocker, Panel, toasty, cfpLoadingBar)
+app.controller("prodChartController",function($rootScope)
 {
-    $rootScope.configprod = {
-        refresh_time : 4,
-        aoibarcode : IaCore.storage({name:'aoibarcode'})
-    };
-
-    $rootScope.aoiService = {};
-    $rootScope.stockerService = {};
-    $rootScope.userService = {};
-
-    $rootScope.printError = function(title,result,modal)
-    {
-        if(result.error!=undefined) { result = result.error; }
-
-        if(result) {
-            switch (modal) {
-                case 'modal':
-                    IaCore.modalError($scope, result);
-                    break;
-                default:
-                    toasty.error({
-                        title: title,
-                        msg: result,
-                        timeout: 5000
-                    });
-                    break;
-            }
-        }
-    };
-
-    $scope.renderPeriodChart = function()
+    $rootScope.renderPeriodChart = function()
     {
         if($rootScope.aoiService.produccion.period!=undefined)
         {
@@ -84,6 +55,37 @@ app.controller("prodController",function($scope,$rootScope,$http,$timeout,$inter
             });
         }
     }
+});
+
+app.controller("prodController",function($scope,$rootScope,$http,$timeout,$interval, IaCore, Aoi, Stocker, Panel, toasty, cfpLoadingBar)
+{
+    $rootScope.configprod = {
+        aoibarcode : IaCore.storage({name:'aoibarcode'})
+    };
+
+    $rootScope.aoiService = {};
+    $rootScope.stockerService = {};
+    $rootScope.userService = {};
+
+    $rootScope.printError = function(title,result,modal)
+    {
+        if(result.error!=undefined) { result = result.error; }
+
+        if(result) {
+            switch (modal) {
+                case 'modal':
+                    IaCore.modalError($scope, result);
+                    break;
+                default:
+                    toasty.error({
+                        title: title,
+                        msg: result,
+                        timeout: 5000
+                    });
+                    break;
+            }
+        }
+    };
 
     var socket = io.connect(':8080');
 
@@ -138,7 +140,13 @@ app.controller("prodController",function($scope,$rootScope,$http,$timeout,$inter
         if(data.error==undefined) {
             $rootScope.aoiService = data;
 
-            $scope.renderPeriodChart();
+            try
+            {
+                $rootScope.renderPeriodChart();
+            } catch (err)
+            {
+                console.error(err);
+            }
 
             if(data.produccion) {
                 $rootScope.stockerService = data.produccion.stocker;
@@ -151,7 +159,10 @@ app.controller("prodController",function($scope,$rootScope,$http,$timeout,$inter
         }
 
         cfpLoadingBar.complete();
-        $scope.$apply();
+
+        $rootScope.$digest();
+
+//        $scope.$apply();
     });
 
     socket.on('getProduccionResponseError', function (message) {

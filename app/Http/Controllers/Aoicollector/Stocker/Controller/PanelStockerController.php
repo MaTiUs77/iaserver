@@ -22,12 +22,13 @@ class PanelStockerController extends StockerController
 
         if(!isset($panel->error)) {
             $panel = $panel->last->panel;
-            $stocker = StockerDetalle::where('id_panel',$panel->id)->first();
-            if(isset($stocker->id))
+            $stockerDetalle = StockerDetalle::where('id_panel',$panel->id)->first();
+            if(isset($stockerDetalle->id))
             {
-                $stocker->delete();
+                $stockerId = $stockerDetalle->id_stocker;
+                $stockerDetalle->delete();
 //                $output = array('done'=>'Panel removido');
-                $output = $this->stockerInfoById($stocker->id);
+                $output = $this->stockerInfoById($stockerId);
             } else
             {
                 $output = array('error'=>'El panel no fue previamente agregado a un stocker');

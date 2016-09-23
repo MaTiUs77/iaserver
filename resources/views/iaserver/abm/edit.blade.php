@@ -1,4 +1,4 @@
-@extends('angular')
+@extends('adminlte/theme')
 @section('ng','app')
 @section('title','Editar usuario')
 @section('body')

@@ -44,6 +44,4 @@ Route::group(['prefix' => 'service'], function() {
         'as' => 'aoicollector.service',
         'uses' => 'Aoicollector\Service\ServiceView@view_barcodeStatus'
     ]);
-
-
 });

@@ -8,14 +8,12 @@
         <div class="alert alert-info">{{ Session::get('message') }}</div>
     @endif
 
-    @if(isset($stockers) && count($stockers)>0)
-        <div class="box box-primary">
+        <div class="box box-success">
             <div class="box-header with-border">
                 <h3 class="box-title">Lavados de la jornada</h3>
             </div>
 
             <div class="box-body chart-responsive">
-
                 @if(hasRole('stocker_lavado') || isAdmin())
                 <!-- BUSQUEDA -->
                 <div class="row">
@@ -34,47 +32,51 @@
                 @endif
                 <br>
 
-                <table class="table table-bordered table-striped">
-            <thead>
-                <tr>
-                    <th>Stocker</th>
-                    <th>Ruta</th>
-                    <th>Lavados</th>
-                    <th>Operador</th>
-                    <th>Fecha</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($stockers as $item)
-                    <tr>
-                        <td>{{ $item->barcode }}</td>
-                        <td>
-                            @if($item->name==null)
-                                <div class="label label-danger">Sin ruta</div>
-                            @else
-                                <div class="label label-{{ $item->id_stocker_route == 2 ? 'primary' : 'success' }}">{{ $item->name }}</div>
-                            @endif
-                        </td>
-                        <td>{{ $item->lavados()->count() }}</td>
-                        <td>
-                            <?php
-                                $inspector = $item->inspector();
-                            ?>
-                            @if(isset($inspector))
-                                {{ $inspector->fullname  }}
-                            @else
-                                Desconocido
-                            @endif
-                        </td>
-                        <td>{{ $item->created_at ? $item->created_at  : 'Desconocido' }}</td>
+                @if(isset($stockers) && count($stockers)>0)
+                    <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Stocker</th>
+                            <th>Ruta</th>
+                            <th>Lavados</th>
+                            <th>Operador</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($stockers as $item)
+                            <tr>
+                                <td>{{ $item->barcode }}</td>
+                                <td>
+                                    @if($item->name==null)
+                                        <div class="label label-danger">Sin ruta</div>
+                                    @else
+                                        <div class="label label-{{ $item->id_stocker_route == 2 ? 'primary' : 'success' }}">{{ $item->name }}</div>
+                                    @endif
+                                </td>
+                                <td>{{ $item->lavados()->count() }}</td>
+                                <td>
+                                    <?php
+                                        $inspector = $item->inspector();
+                                    ?>
+                                    @if(isset($inspector))
+                                        {{ $inspector->fullname  }}
+                                    @else
+                                        Desconocido
+                                    @endif
+                                </td>
+                                <td>{{ $item->created_at ? $item->created_at  : 'Desconocido' }}</td>
 
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                @else
+                    <p>No hay lavados en la jornada</p>
+                @endif
+
             </div>
         </div>
-    @endif
 
     <!-- AREA CHART -->
     <div class="box box-info">

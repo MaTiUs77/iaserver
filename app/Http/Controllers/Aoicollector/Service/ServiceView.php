@@ -22,7 +22,7 @@ class ServiceView extends Service
         $panel->withCogiscan = true;
         $panel->onlyLast = true;
         $panel->withWip = $withWip;
-        //$panel->withDetail = true;
+//        $panel->withDetail = true;
 
         $output = $panel->barcode($barcode);
 

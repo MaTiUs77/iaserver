@@ -15,12 +15,12 @@ class LavadoController extends Controller
 {
     public function index()
     {
-        Auth::attempt(['name' => Input::get('name'), 'password' => Input::get('password')]);
+      //  Auth::attempt(['name' => Input::get('name'), 'password' => Input::get('password')]);
 
-        if(Input::get('logout'))
+/*        if(Input::get('logout'))
         {
             Auth::logout();
-        }
+        }*/
 
         $stockers = Stocker::vista()
             ->where('id_stocker_route', 7)

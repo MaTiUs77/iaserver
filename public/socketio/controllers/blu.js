@@ -31,7 +31,7 @@ function webPromise(host,port,uripath,timeout) {
 	});
 }
 
-var util = {
+var blu = {
 	webPromise: webPromise
 }
-module.exports = util;
+module.exports = blu;

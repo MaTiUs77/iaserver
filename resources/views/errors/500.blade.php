@@ -1,5 +1,5 @@
 @include('errors.default',
     [
-        'titulo'=>'Error (500)',
+        'codigo'=> 500,
         'mensaje'=>'No hay conexion'
     ])

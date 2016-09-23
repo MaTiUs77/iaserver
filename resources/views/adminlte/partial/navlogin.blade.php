@@ -34,7 +34,7 @@
             <!-- Menu Footer-->
             <li class="user-footer">
                 <div class="pull-right">
-                    <a href="{{ route('aoicollector.stocker.lavado.index','logout=1') }}" class="btn btn-default btn-flat">Finalizar</a>
+                    <a href="{{ route('iaserver.logout') }}" class="btn btn-default btn-flat">Finalizar</a>
                 </div>
             </li>
           @else
@@ -42,7 +42,7 @@
                     <div class="box-header with-border">
                         <h3 class="box-title">Ingresar credenciales</h3>
                     </div>
-                    <form method="POST" class="form-horizontal" action="{{ route('aoicollector.stocker.lavado.index') }}">
+                    <form method="POST" class="form-horizontal" action="{{ route('iaserver.atlogin') }}">
                         <div class="box-body">
                             <div class="form-group">
                                 <label for="inputUser" class="col-sm-3 control-label">Usuario</label>

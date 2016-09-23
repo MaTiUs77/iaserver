@@ -138,8 +138,19 @@ class Produccion extends Model
                         } else
                         {
                             $smt = SMTDatabase::findOp($prod->op);
-                            $prod->smt = $smt;
-                            $prod->controldeplacas = DatosController::salidaByOp($prod->op);
+
+                            if (isset($smt->modelo)) {
+                                $smt->registros = Panel::where('inspected_op', $prod->op)->count();
+
+                                $div = $smt->qty;
+                                if ($div == 0) {
+                                    $div = 1;
+                                }
+                                $smt->porcentaje = number_format((($smt->prod_aoi / $div) * 100), 1, '.', '');
+                                $smt->restantes = $smt->prod_aoi - $smt->qty;
+                                $prod->smt = $smt;
+                                $prod->controldeplacas = DatosController::salidaByOp($prod->op);
+                            }
                         }
                     }
                 }
@@ -162,36 +173,26 @@ class Produccion extends Model
                     }
 
                     // Adhiero informacion de stockers
+                    $stkctrl = new TrazaStocker();
                     if ($option->stocker) {
                         $stkctrl = new TrazaStocker();
                         $prod->stocker = $stkctrl->stockerInfoById($prod->id_stocker);
-                        //$prod->contenido = $stkctrl->stockerDeclaredDetail($prod->stocker);
-                        /*$stocker = Stocker::find($prod->id_stocker);
-
-                        if (isset($stocker->id)) {
-                            $stocker->paneles = StockerDetalle::where('id_stocker', $prod->id_stocker)->count();
-                            if (isset($stocker->paneles)) {
-                                $stocker->unidades = $stocker->bloques * $stocker->paneles;
-                            }
-                        }
-
-                        $prod->stocker = $stocker;*/
                     }
 
                     // Adhiero todos los stockers asignados a esa OP
                     if ($option->allstocker) {
                         $allstocker = Stocker::where('op', $prod->op)->get();
 
+                        $stockerList = [];
+
                         if (count($allstocker) > 0) {
                             foreach ($allstocker as $stk) {
-                                $stk->paneles = StockerDetalle::where('id_stocker', $stk->id)->count();
-                                if (isset($stk->paneles)) {
-                                    $stk->unidades = $stk->bloques * $stk->paneles;
-                                }
+                                $stkctrl = new TrazaStocker();
+                                $stockerList[] = $stkctrl->stockerInfoById($stk->id);
                             }
                         }
 
-                        $prod->allstocker = $allstocker;
+                        $prod->allstocker = $stockerList;
                     }
 
                     // Arhiero informacion de periodo de inspecciones
