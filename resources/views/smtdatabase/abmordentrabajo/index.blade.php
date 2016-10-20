@@ -39,7 +39,8 @@
             <th>Panel</th>
             <th>Lote</th>
             <th>Qty</th>
-            <th>Placas inspeccionadas</th>
+            <th>Placas AOI</th>
+            <th>Placas Manual</th>
         </tr>
         </thead>
             <tbody>
@@ -54,6 +55,7 @@
                         <td>{{ $orden->lote }}</td>
                         <td>{{ $orden->qty }}</td>
                         <td>{{ $orden->prod_aoi }}</td>
+                        <td>{{ $orden->prod_man }}</td>
                     </tr>
                 @endforeach
             </tbody>

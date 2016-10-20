@@ -35,6 +35,8 @@
                 <th>Panel</th>
                 <th>Lote</th>
                 <th>Qty</th>
+                <th>Placas AOI</th>
+                <th>Placas Manual</th>
                 <th></th>
             </tr>
             </thead>
@@ -44,7 +46,9 @@
                 <td><input type="text" class="form-control" name="modelo" placeholder="Modelo" value="{{ $orden->modelo }}"></td>
                 <td><input type="text" class="form-control" name="panel" placeholder="Panel" value="{{ $orden->panel }}"></td>
                 <td><input type="text" class="form-control" name="lote" placeholder="Lote" value="{{ $orden->lote }}"></td>
-                <td><input type="text" class="form-control" name="qty" placeholder="Cantidad producida" value="{{ $orden->qty }}"></td>
+                <td><input type="text" class="form-control" name="qty" placeholder="Cantidad a producir" value="{{ $orden->qty }}"></td>
+                <td><input type="text" class="form-control" name="prod_aoi" placeholder="Placas inspeccionadas en AOI" value="{{ $orden->prod_aoi }}"></td>
+                <td><input type="text" class="form-control" name="prod_man" placeholder="Placas inspeccionadas en modo Manual" value="{{ $orden->prod_man }}"></td>
                 <td>
                     <button id="submit" name="submit" type="submit" class="btn btn-success">
                         <i class="fa fa-save"></i> Guardar

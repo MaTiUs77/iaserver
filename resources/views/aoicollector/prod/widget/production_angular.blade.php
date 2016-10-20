@@ -64,9 +64,9 @@
 
                 <div class="row">
                     <div class="col-md-3" ng-show="aoiService.produccion.smt.prod_aoi != aoiService.produccion.smt.qty">
-                         <span style="font-size:25px;height: 56px;line-height: 56px;" class="info-box-icon" ng-class="aoiService.produccion.smt.prod_aoi > aoiService.produccion.smt.qty ? 'bg-yellow' : 'bg-red'">
+                         <span style="font-size:25px;height: 56px;line-height: 56px;" class="info-box-icon" ng-class="aoiService.produccion.smt.prod_aoi > aoiService.produccion.smt.qty ? 'bg-green' : 'bg-red'">
                             <span ng-if="aoiService.produccion.smt.prod_aoi > aoiService.produccion.smt.qty">
-                                @{{ aoiService.produccion.smt.prod_aoi - aoiService.produccion.smt.qty }}
+                                +@{{ aoiService.produccion.smt.prod_aoi - aoiService.produccion.smt.qty }}
                             </span>
 
                             <span ng-if="aoiService.produccion.smt.prod_aoi < aoiService.produccion.smt.qty">
@@ -125,7 +125,7 @@
         </div>
     </div>
 
-    <div class="col-sm-4">
+    <div class="col-sm-4" ng-hide="aoiService.produccion.sfcs.declara==0">
         <div class="box box-solid" ng-class="aoiService.produccion.wip.active ? 'box-primary' : 'box-danger'">
             <div class="box-header with-border">
                 <h3 class="box-title">EBS <small style="color: #ffffff;">Declaraciones</small></h3>
@@ -215,7 +215,9 @@
             <td>WIP_SERIE_HISTORY</td>
             <td>@{{ n.total }}</td>
             <td>
-                @{{ n.trans_ok }}
+				<span class="label label-success" ng-if="n.trans_ok == 1">@{{ n.trans_ok }}</span>
+                <span class="label label-danger" ng-if="n.trans_ok > 1">@{{ n.trans_ok }}</span>
+                <span class="label label-warning" ng-if="n.trans_ok == 0">@{{ n.trans_ok }}</span>
             </td>
             <td>@{{ n.description }}</td>
             <td>@{{ n.ebs_error_trans }}</td>

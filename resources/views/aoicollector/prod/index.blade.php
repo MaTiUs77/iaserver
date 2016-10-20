@@ -1,6 +1,7 @@
 @extends('adminlte/theme')
 @section('ng','app')
 @section('title','Aoicollector - Produccion')
+@section('mini',false)
 @section('body')
 @section('bodytag','ng-controller="scannerController" ng-keydown="scannerEvent($event)"')
     <style>

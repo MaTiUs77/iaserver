@@ -18,3 +18,4 @@ require('Controllers/Ipc/routes.php');
 require('Controllers/Email/routes.php');
 
 require('Controllers/Redis/routes.php');
+require('Controllers/ServerMonitor/routes.php');

@@ -100,6 +100,7 @@ class Cogiscan extends Controller
     /////////////////////////////////////////////////////////////////////////////
     //                          COGISCAN WEBSERVICES
     /////////////////////////////////////////////////////////////////////////////
+
     public function queryItem($itemId)
     {
         $param = [
@@ -109,6 +110,43 @@ class Cogiscan extends Controller
             </Parameters>
         '];
 
+        $cmd = new CogiscanCommand($param);
+
+        return $cmd->result();
+    }
+    public function releaseProduct($modelo,$route,$op,$sn1,$sn2)
+    {
+
+           $param = ['releaseProduct',
+                  '<Parameters>
+                      <Parameter name="assembly">'.$modelo.'</Parameter>
+                      <Parameter name="revision">A</Parameter>
+                      <Parameter name="route">'.$route.'</Parameter>
+                      <Parameter name="batchId">'.$op.'</Parameter>
+                      <Parameter name="maxReleaseQty">2</Parameter>
+                      <Parameter name="allowReRelease">false</Parameter>
+                      <Parameter name="barcode">'.$sn1.'</Parameter>
+                      <Parameter name="barcode">'.$sn2.'</Parameter>
+                    </Parameters>'];
+
+        $cmd = new CogiscanCommand($param);
+
+        return $cmd->result();
+    }
+
+    public function startOperation($productId, $operationName, $toolId="")
+    {
+        if(!empty($toolId)) {
+            $toolId = '<Parameter name="toolId">'.$toolId.'</Parameter>';
+        }
+        $param = [
+            'startOperation',
+            '<Parameters>
+                <Parameter name="productId">'.$productId.'</Parameter>
+                <Parameter name="operationName">'.$operationName.'</Parameter>
+                '.$toolId.'
+            </Parameters>
+        '];
         $cmd = new CogiscanCommand($param);
 
         return $cmd->result();
@@ -145,7 +183,7 @@ class Cogiscan extends Controller
         return $cmd->result();
     }
 
-    public function setProcessStepStatus($itemInstanceId, $processStepId, $status)
+    public function setProcessStepStatus($itemInstanceId, $processStepId, $status, $codeDefect = "", $description = "")
     {
         $param = [
             'setProcessStepStatus',
@@ -155,7 +193,11 @@ class Cogiscan extends Controller
                         itemInstanceId="'.$itemInstanceId.'"
                         processStepId="'.$processStepId.'"
                         status="'.$status.'"
-                    />
+                    >
+                    <Indictment
+                    indictmentId="'.$codeDefect.'"
+                    description="'.$description.'"/>
+                    </ProcessStepStatus>
                 </Extensions>
             </Parameters>
         '];
@@ -300,5 +342,27 @@ class Cogiscan extends Controller
         }
 
         return $cogiscan;
+    }
+
+    public function aoicollectorPassed($panelBarcode)
+    {
+        $start = $this->startOperation($panelBarcode,'AOI');
+        sleep(1);
+        $set = $this->setProcessStepStatus($panelBarcode,'AOI','PASSED');
+        sleep(1);
+        $end = $this->endOperation($panelBarcode,'AOI');
+
+        return compact('start','set','end');
+    }
+
+    public function aoicollectorFailed($panelBarcode,$ipcError,$descripcion='Default')
+    {
+        $start = $this->startOperation($panelBarcode,'AOI');
+        sleep(1);
+        $set = $this->setProcessStepStatus($panelBarcode,'AOI','FAILED',$ipcError,$descripcion);
+        sleep(1);
+        $end = $this->endOperation($panelBarcode,'AOI');
+
+        return compact('start','set','end');
     }
 }

@@ -15,4 +15,13 @@ class XXE_WMS_COGISCAN_PEDIDOS extends Model
     {
         return $this->belongsToMany('XXE_WMS_COGISCAN_PEDIDO_LPNS');
     }
+
+    public function XXE_WIP_OT()
+    {
+        return $this->belongsToMany('XXE_WIP_OT');
+    }
+    public function XXE_WMS_COGISCAN_WIP()
+    {
+        return $this->belongsToMany('XXE_WMS_COGISCAN_PEDIDOS');
+    }
 }

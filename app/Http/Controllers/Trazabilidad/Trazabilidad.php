@@ -65,7 +65,7 @@ class Trazabilidad extends Controller
         if(!empty($op))
         {
 
-            $enIa = DB::connection('iaserver')->select(DB::raw("
+            /*$enIa = DB::connection('iaserver')->select(DB::raw("
         select
             hib.*
             from aoidata.inspeccion_panel ip
@@ -75,8 +75,10 @@ class Trazabilidad extends Controller
             "));
             $enWip = DB::connection('traza')->select(DB::raw("
         select REFERENCIA_1 as barcode from XXE_WIP_ITF_SERIE
-        where NRO_OP = '$op'"));
+        where NRO_OP = '$op'"));*/
 
+            $enIa = [];
+            $enWip = [];
 
             $wip = $objwip->findOp($op,true,true);
             $smt = SMTDatabase::findOp($op);

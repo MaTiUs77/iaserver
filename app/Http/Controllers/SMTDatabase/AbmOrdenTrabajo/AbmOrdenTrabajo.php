@@ -67,6 +67,8 @@ class AbmOrdenTrabajo extends Controller
             'panel' => 'required',
             'lote' => 'required',
             'qty' => 'numeric|required',
+            'prod_aoi' => 'numeric|required',
+            'prod_man' => 'numeric|required',
         );
 
         $validator = Validator::make(Input::all(), $rules);

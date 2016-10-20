@@ -5,6 +5,7 @@ namespace IAServer\Http\Controllers\IAServer;
 use Carbon\Carbon;
 use IAServer\Http\Requests;
 use IAServer\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Session;
 
 class Util extends Controller
 {
@@ -93,6 +94,23 @@ class Util extends Controller
     public static function dateToEs($en_date_string)
     {
         return Carbon::createFromFormat('Y-m-d', $en_date_string )->format('d-m-Y');
+    }
+
+    public static function dateRangeFilterEs($sessionName)
+    {
+        // CARBON RANGE FILTER
+        $range = new \stdClass();
+        $range->desde = Carbon::now();
+        $range->hasta = Carbon::now();
+
+        Filter::dateSession($sessionName);
+        $rangeSplit = explode(' - ',Session::get($sessionName));
+        if(count($rangeSplit)==2)
+        {
+            $range->desde = Carbon::createFromFormat('d/m/Y',$rangeSplit[0]);
+            $range->hasta = Carbon::createFromFormat('d/m/Y',$rangeSplit[1]);
+        }
+        return $range;
     }
 
     public static function array_to_xml($the_array, &$xml_obj) {

@@ -126,6 +126,7 @@ class VerificarDeclaracion extends Controller
     {
         $w = new Wip();
         $wip = $w->findBarcode($barcode, $op);
+        $this->wip = null;
 
         if(count($wip)>0)
         {
@@ -134,9 +135,8 @@ class VerificarDeclaracion extends Controller
             $this->declaracion->error_total = $wip->where('trans_ok','<>','0')->count() + $wip->where('trans_ok','<>','1')->count();
 
             $this->declaracion->process(1);
+            $this->wip = $wip->first();
         }
-
-        $this->wip = $wip->first();
 
         return $this;
     }
@@ -153,6 +153,7 @@ class VerificarDeclaracion extends Controller
 
             $this->twip = $twip;
         }
+
         return $this;
     }
 }

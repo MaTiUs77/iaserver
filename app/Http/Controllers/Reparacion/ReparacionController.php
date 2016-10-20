@@ -29,45 +29,49 @@ class ReparacionController extends Controller
     public function getReporte() {
 
         // Crea una session para filtro de fecha
-        $defaultFrom = Carbon::now()->format('d-m-Y');
-        $defaultTo = Carbon::now()->format('d-m-Y');
-        Filter::makeSession('from_session',$defaultFrom);
-        Filter::makeSession('to_session',$defaultTo);
-
+        $range = Util::dateRangeFilterEs('reparacion_fecha');
         Filter::makeSession('id_sector',25);
 
-        // Obtengo la fecha, y cambio el formato 16-09-2015 -> 2015-09-16
-        $fechaFrom = Util::dateToEn(Session::get('from_session'));
-        $fechaTo = Util::dateToEn(Session::get('to_session'));
+        $id_sector = Session::get('id_sector');
 
-        $reparacion = Historial::listarSector(Session::get('id_sector'), $fechaFrom, $fechaTo)->get();
+        if(is_numeric($id_sector) && $id_sector>0) {
 
-        $resumen = new \stdClass();
-        $resumen->rechazos = $reparacion->where('estado','P')->count();
-        $resumen->reparaciones = $reparacion->where('estado','R')->count();
-        $resumen->pendientes = $reparacion->where('estado','P')->where('historico','actual')->count();
-        $resumen->scrap = $reparacion->where('estado','S')->count();
-        $resumen->bonepile = $reparacion->where('estado','B')->count();
-        $resumen->analisis = $reparacion->where('estado','A')->count();
+            $reparacion = Historial::listarSector(
+                $id_sector,
+                $range->desde->toDateString(),
+                $range->hasta->toDateString()
+            )->get();
 
-        $causas = $reparacion->groupBy('causa');
-        $defectos = $reparacion->groupBy('defecto');
-        $referencias = $reparacion->groupBy('referencia');
-        $acciones = $reparacion->groupBy('accion');
-        $origenes = $reparacion->groupBy('origen');
-        $reparadores = $reparacion->groupBy('nombre_completo');
-        $turnos = $reparacion->groupBy('turno');
+            $resumen = new \stdClass();
+            $resumen->rechazos = $reparacion->where('estado', 'P')->count();
+            $resumen->reparaciones = $reparacion->where('estado', 'R')->count();
+            $resumen->pendientes = $reparacion->where('estado', 'P')->where('historico', 'actual')->count();
+            $resumen->scrap = $reparacion->where('estado', 'S')->count();
+            $resumen->bonepile = $reparacion->where('estado', 'B')->count();
+            $resumen->analisis = $reparacion->where('estado', 'A')->count();
 
-        $stats = new \stdClass();
-        $stats->defectos = collect($this->extendHistorialCollection($defectos))->sortByDesc('rechazos');
-        $stats->causas = collect($this->extendHistorialCollection($causas))->sortByDesc('rechazos');
-        $stats->referencias = collect($this->extendHistorialCollection($referencias))->sortByDesc('rechazos');
-        $stats->acciones = collect($this->extendHistorialCollection($acciones))->sortByDesc('rechazos');
-        $stats->origenes = collect($this->extendHistorialCollection($origenes))->sortByDesc('rechazos');
-        $stats->reparadores = collect($this->extendHistorialCollection($reparadores))->sortByDesc('rechazos');
-        $stats->turnos = collect($this->extendHistorialCollection($turnos))->sortByDesc('rechazos');
+            $causas = $reparacion->groupBy('causa');
+            $defectos = $reparacion->groupBy('defecto');
+            $referencias = $reparacion->groupBy('referencia');
+            $acciones = $reparacion->groupBy('accion');
+            $origenes = $reparacion->groupBy('origen');
+            $reparadores = $reparacion->groupBy('nombre_completo');
+            $turnos = $reparacion->groupBy('turno');
 
-        $output = compact('reparacion','resumen','stats');
+            $stats = new \stdClass();
+            $stats->defectos = collect($this->extendHistorialCollection($defectos))->sortByDesc('rechazos');
+            $stats->causas = collect($this->extendHistorialCollection($causas))->sortByDesc('rechazos');
+            $stats->referencias = collect($this->extendHistorialCollection($referencias))->sortByDesc('rechazos');
+            $stats->acciones = collect($this->extendHistorialCollection($acciones))->sortByDesc('rechazos');
+            $stats->origenes = collect($this->extendHistorialCollection($origenes))->sortByDesc('rechazos');
+            $stats->reparadores = collect($this->extendHistorialCollection($reparadores))->sortByDesc('rechazos');
+            $stats->turnos = collect($this->extendHistorialCollection($turnos))->sortByDesc('rechazos');
+        } else
+        {
+            $id_sector = null;
+        }
+
+        $output = compact('id_sector','resumen','stats','reparacion');
 
         return Response::multiple_output($output,'reparacion.index');
     }
@@ -77,9 +81,9 @@ class ReparacionController extends Controller
         foreach($collection as $key => $items)
         {
             $collection[$key] = new \stdClass();
+            $collection[$key]->rechazos = $items->where('estado','P')->count();
             $collection[$key]->reparados = $items->where('estado','R')->count();
             $collection[$key]->pendientes =  $items->where('estado','P')->where('historico','actual')->count();
-            $collection[$key]->rechazos = $items->where('estado','P')->count();
             $collection[$key]->scrap = $items->where('estado','S')->count();
             $collection[$key]->bonepile = $items->where('estado','B')->count();
             $collection[$key]->analisis = $items->where('estado','A')->count();

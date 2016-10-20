@@ -7,8 +7,9 @@ var stocker = require('./stocker');
 var config = require('./config');
 var log = require('./logcolor');
 
-//config.local();
+config.local();
 
+//var produccionWatcher;
 var app;
 var host = config.default.host;
 var port = config.default.port;
@@ -19,7 +20,7 @@ var prodcache = [];
 
 function socketConnected(socket) {
 	var produccionInterval;
-
+	
 	// Crea las rutas socket para stockers
 	stocker.init(socket);
 
@@ -31,9 +32,9 @@ function socketConnected(socket) {
 	socket.on('produccion', function (_aoibarcode) {
 		clearInterval(produccionInterval);
 
-		aoibarcode = _aoibarcode.toUpperCase();
-		if(aoibarcode!=undefined)
+		if(_aoibarcode!=undefined)
 		{
+			aoibarcode = _aoibarcode.toUpperCase();
 			socket.aoibarcode = aoibarcode;
 			subscribe(socket);
 
@@ -48,10 +49,24 @@ function socketConnected(socket) {
 	});
 }
 
+/*
 function info(socket) {
+	log.verbose(['REQUEST',socket.aoibarcode]);
+
+	var cache = produccionWatcher.getProdCache(socket.aoibarcode);
+
+	if(cache!=undefined)
+	{
+		socket.emit('getProduccionResponse', cache.output);
+	}
+}
+*/
+
+function info(socket) {
+
 	socket.emit('waitForGetProduction',true);
 	var uripath = config.default.rootPath +
-		'public/aoicollector/prod/info/'+socket.aoibarcode+'?json'; //?filter=1&stocker=0&allstocker=0&json';
+		'public/aoicollector/prod/info/'+socket.aoibarcode+'?json';//filter=1&allstocker=1&json';
 
 	log.debug([host,port,uripath]);
 
@@ -107,14 +122,15 @@ function routeProduccionCache() {
 }
 
 function routeMachineCache(aoibarcode) {
-	app.get('/' + aoibarcode, function (req, res) {
-		var finded = _.findWhere(prodcache, {aoibarcode: 'IMAIRE'});
+	app.get('/produccion/' + aoibarcode, function (req, res) {
+		var finded = _.findWhere(prodcache, {aoibarcode: aoibarcode});
 		res.send(finded);
 	});
 }
 
-function init(_app) {
+function init(_app, _produccionWatcher) {
 	app = _app;
+	produccionWatcher = _produccionWatcher;
 	routeProduccionCache();
 }
 

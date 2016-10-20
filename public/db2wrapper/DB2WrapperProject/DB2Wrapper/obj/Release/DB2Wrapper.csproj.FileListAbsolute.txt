@@ -12,3 +12,4 @@ C:\wamp\www\iaserver_laravel_svn\public\db2wrapper\DB2WrapperProject\DB2Wrapper\
 C:\wamp\www\iaserver_laravel_svn\public\db2wrapper\DB2WrapperProject\DB2Wrapper\bin\Release\IBM.Data.DB2.Entity.dll
 C:\wamp\www\iaserver_laravel_svn\public\db2wrapper\DB2WrapperProject\DB2Wrapper\obj\Release\DB2Wrapper.exe
 C:\wamp\www\iaserver_laravel_svn\public\db2wrapper\DB2WrapperProject\DB2Wrapper\obj\Release\DB2Wrapper.pdb
+C:\wamp\www\iaserver_laravel_svn\public\db2wrapper\DB2WrapperProject\DB2Wrapper\obj\Release\DB2Wrapper.csprojResolveAssemblyReference.cache

@@ -3,6 +3,7 @@
 namespace IAServer\Http\Controllers\MonitorPedidos;
 
 use Carbon\Carbon;
+use IAServer\Http\Controllers\Email\Email;
 use IAServer\Http\Controllers\IAServer\Filter;
 use IAServer\Http\Controllers\IAServer\Util;
 use IAServer\Http\Controllers\MonitorOp\GetWipOtInfo;
@@ -10,8 +11,12 @@ use IAServer\Http\Controllers\MonitorPedidos\Model\amr_deltamonitor;
 use IAServer\Http\Controllers\MonitorPedidos\Model\cgs_materialrequest;
 use IAServer\Http\Controllers\MonitorPedidos\Model\ins_result;
 use IAServer\Http\Controllers\MonitorPedidos\Model\logs_pedidos;
+use IAServer\Http\Controllers\MonitorPedidos\Model\pedidos_rechazados;
 use IAServer\Http\Controllers\MonitorPedidos\Model\reserva_history;
 use IAServer\Http\Controllers\MonitorPedidos\Model\reservas;
+use IAServer\Http\Controllers\MonitorPedidos\Model\XXE_WIP_OT;
+use IAServer\Http\Controllers\MonitorPedidos\Model\XXE_WMS_COGISCAN_PEDIDO_LPNS;
+use IAServer\Http\Controllers\MonitorPedidos\Model\XXE_WMS_COGISCAN_WIP;
 use IAServer\Http\Controllers\P2i\Model\Carga;
 use Illuminate\Http\Request;
 use IAServer\Http\Controllers\P2i\Model\General;
@@ -21,6 +26,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
 //use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
@@ -57,7 +63,7 @@ class CogiscanPedidos extends Controller
     {
         $carbon = new Carbon();
         $carbon = Carbon::yesterday();
-//        dd($carbon);
+
             if(trim($item_code) != NULL){
 
                 return XXE_WMS_COGISCAN_PEDIDOS::SELECT(DB::RAW('PEDIDOS.*,PEDIDOS_LPNS.LPN,PEDIDOS_LPNS.LPN_QUANTITY'))
@@ -101,12 +107,14 @@ class CogiscanPedidos extends Controller
         $newInsert->cantTareas = "0";
         $newInsert->cantTransfer = "0";
         $newInsert->estadoLinea = "0";
-        $newInsert->linDest = strtoupper($request->input('prod_line'));
+        $newInsert->linDest = "0";
         $newInsert->ubicacionOrigen = "5";
         $newInsert->status = "127";
         $newInsert->delta = "0";
         $newInsert->insertId = "0";
-
+        $newInsert->PROD_LINE = strtoupper($request->input('prod_line'));
+        $newInsert->MAQUINA = strtoupper($request->input('maquina'));
+        $newInsert->UBICACION = strtoupper($request->input('ubicacion'));
         $newInsert->save();
 
         $newid = $newInsert->id;
@@ -303,7 +311,6 @@ dd($id);
 //            dump($lpn,$id,$messages);
             return 0;
         }else{
-//            dump($lpn,$id,'insertar');
             return 1;
         }
     }
@@ -325,6 +332,7 @@ dd($id);
                 return false;
 
             }else {
+
             $lpns = ins_result::WHERE('field2', $item_code)
                 ->where('field5','LIKE','%'.$string.'%')
                 ->where('id_instruction',15)
@@ -333,13 +341,18 @@ dd($id);
 
             if($lpns->isEmpty())
             {
-                $lpns = ins_result::WHERE('field2', $item_code)
+
+                $lpns1 = ins_result::WHERE('field2', $item_code)
                     ->where('id_instruction',13)
                     ->orderby('field6', 'desc')
                     ->get();
-                if($lpns->isEmpty())
+                if($lpns1->isEmpty())
                 {
-//
+                    $ifExistInLogs = logs_pedidos::WHERE('INSERT_ID',$id)
+                        ->GET();
+
+                    if($ifExistInLogs->isEmpty())
+                    {
 //                    $newUpdate = cgs_materialrequest::find($id);
 //                    $newUpdate->ubicacionOrigen = "2";
 //                    $newUpdate->status = "2";
@@ -365,26 +378,32 @@ dd($id);
 //
 //                    $newrequest->save();
 
-                    $logs = new logs_pedidos();
 
-                    $logs->OP_NUMBER = strtoupper($op);
-                    $logs->ORGANIZATION_CODE = "UP3";
-                    $logs->OPERATION_SEQ = "1";
-                    $logs->ITEM_CODE = strtoupper($item_code);
-                    $logs->ITEM_UOM_CODE = "EA";
-                    $logs->QUANTITY = strtoupper($cant);
-                    $logs->PROD_LINE = strtoupper($linea);
-                    $logs->MAQUINA = strtoupper($maquina);
-                    $logs->UBICACION = strtoupper($ubicacion);
-                    $logs->STATUS = "NEW";
-                    $logs->INSERT_ID = $id;
+                        $logs = new logs_pedidos();
 
-                    $logs->save();
+                        $logs->OP_NUMBER = strtoupper($op);
+                        $logs->ORGANIZATION_CODE = "UP3";
+                        $logs->OPERATION_SEQ = "1";
+                        $logs->ITEM_CODE = strtoupper($item_code);
+                        $logs->ITEM_UOM_CODE = "EA";
+                        $logs->QUANTITY = strtoupper($cant);
+                        $logs->PROD_LINE = strtoupper($linea);
+                        $logs->MAQUINA = strtoupper($maquina);
+                        $logs->UBICACION = strtoupper($ubicacion);
+                        $logs->STATUS = "NEW";
+                        $logs->INSERT_ID = $id;
 
-                    return redirect('amr/parciales');
+                        $logs->save();
+
+                        return $lpns = collect([]);
+                    }
+                    else
+                    {
+                        return $lpns = collect([]);
+                    }
 
                 }else{
-                    return $lpns;
+                    return $lpns1;
                 }
             }else{
                 return $lpns;
@@ -424,6 +443,7 @@ dd($id);
         }else
         {
 
+
             $carbon = new Carbon();
             $carbon = $carbon::now();
 
@@ -443,7 +463,6 @@ dd($id);
         }
 
     }
-
     public function getRequestXLinea($prod_line)
     {
         $carbon = new Carbon();
@@ -464,7 +483,6 @@ dd($id);
             return "ingrese alguna linea";
         }
     }
-
     public function getRequestPartNumber($partnumber,$columna)
     {
 
@@ -483,7 +501,6 @@ dd($id);
             ->get();
         }
     }
-
     public function getRequestDeltaMonitor($partnumber)
     {
         return amr_deltamonitor::where('rawMaterialId',$partnumber)
@@ -516,5 +533,71 @@ dd($id);
             ->where('timestamp', '>', $carbon)
             ->orderby('id_pedido', 'desc')
             ->get();
+    }
+    public function getTrazaPedidos($insert_id)
+    {
+
+        return cgs_materialrequest::where('id',$insert_id)
+            ->orderby('id','desc')
+            ->get();
+    }
+    public function trazabilidad($id)
+    {
+
+        $item_code = XXE_WMS_COGISCAN_PEDIDOS::where('INSERT_ID',$id)
+            ->get();
+        $partnumber = $item_code->FIRST()->ITEM_CODE;
+
+        return $result = XXE_WMS_COGISCAN_PEDIDOS::SELECT(DB::RAW('CGS_PEDIDOS.INSERT_ID
+       ,CGS_WIP.QUANTITY_PER_ASSEMBLY
+       ,CGS_WIP.REQUIRED_QUANTITY
+       ,CGS_WIP.QUANTITY_ISSUED
+       ,WIP_OT.START_QUANTITY
+       ,WIP_OT.QUANTITY_COMPLETED
+       ,WIP_OT.SEGMENT1
+       ,WIP_OT.DESCRIPTION'))
+            ->FROM('XXE_WMS_COGISCAN_PEDIDOS AS CGS_PEDIDOS')
+            ->LEFTJOIN('XXE_WMS_COGISCAN_WIP AS CGS_WIP','CGS_PEDIDOS.OP_NUMBER','=','CGS_WIP.OP_NUMBER')
+            ->LEFTJOIN('XXE_WIP_OT AS WIP_OT','CGS_PEDIDOS.OP_NUMBER','=', 'WIP_OT.WIP_ENTITY_NAME')
+            ->WHERE('CGS_PEDIDOS.INSERT_ID','=',$id)
+            ->WHERE('CGS_WIP.MATERIAL','=',$partnumber)
+            ->GET();
+
+    }
+    public static function pedidosRechazados($rechazos)
+    {
+
+        foreach ($rechazos as $r)
+        {
+            $pedido = pedidos_rechazados::WHERE('INSERT_ID',$r->INSERT_ID)
+                    ->get();
+            if($pedido->isEmpty()) {
+                $newinsert = new pedidos_rechazados();
+                $newinsert->OP_NUMBER = $r->OP_NUMBER;
+                $newinsert->ORGANIZATION_CODE = $r->ORGANIZATION_CODE;
+                $newinsert->OPERATION_SEQ = $r->OPERATION_SEQ;
+                $newinsert->ITEM_CODE = $r->ITEM_CODE;
+                $newinsert->ITEM_UOM_CODE = $r->ITEM_UOM_CODE;
+                $newinsert->QUANTITY = $r->QUANTITY;
+                $newinsert->QUANTITY_ASSIGNED = $r->QUANTITY_ASSIGNED;
+                $newinsert->PROD_LINE = $r->PROD_LINE;
+                $newinsert->MAQUINA = $r->MAQUINA;
+                $newinsert->UBICACION = $r->UBICACION;
+                $newinsert->STATUS = $r->STATUS;
+                $newinsert->ERROR_MESSAGE = $r->ERROR_MESSAGE;
+                $newinsert->LAST_UPDATE_DATE = $r->LAST_UPDATE_DATE;
+                $newinsert->INSERT_ID = $r->INSERT_ID;
+
+                $newinsert->save();
+
+                $mail = new Email();
+                $mail->send("AMR","josemaria.casarotto@newsan.com.ar","ATENCION: Pedido Rechazado->".$r->ITEM_CODE,['data'=>$r],"emails.pedidorechazado");
+                $mail->send("AMR","adrianaisabel.vidal@newsan.com.ar","ATENCION: Pedido Rechazado->".$r->ITEM_CODE,['data'=>$r],"emails.pedidorechazado");
+                $mail->send("AMR","claudia.garcia@newsan.com.ar","ATENCION: Pedido Rechazado->".$r->ITEM_CODE,['data'=>$r],"emails.pedidorechazado");
+                $mail->send("AMR","mirtadelina.castillo@newsan.com.ar","ATENCION: Pedido Rechazado->".$r->ITEM_CODE,['data'=>$r],"emails.pedidorechazado");
+                $mail->send("AMR","diego.maidana@newsan.com.ar","ATENCION: Pedido Rechazado->".$r->ITEM_CODE,['data'=>$r],"emails.pedidorechazado");
+            }
+        }
+        return redirect(url('/amr/parciales'));
     }
 }

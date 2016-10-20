@@ -1,6 +1,7 @@
 @extends('monitorpedidos.index')
+{{--@section('ng','trazapedido')--}}
 @section('body')
-    <div class="container-fluid">
+    <div class="container-fluid" >
         <div class="row">
             {{--<div class="col-lg-12" align="center">--}}
                 {{--<a href="{{url('amr/pedidos/nuevos')}}" class="btn btn-info btn-xs btn-detail" role="button">NUEVOS</a>--}}
@@ -28,7 +29,7 @@
                 {{--<button id="btn-add" class="btn btn-danger btn-xs" ng-click="toggle('add',0)"><i class="fa fa-plus" aria-hidden="true"></i> Nuevo PartNumber</button>--}}
             {{--</div>--}}
         </div>
-        <div class="container-fluid">
+        <div class="container-fluid table-responsive">
 
             <table class="table table-hover">
                 <thead>
@@ -54,7 +55,7 @@
 
                     <tr>
 
-                        <td><a class="btn btn-primary">{{$modelo->OP_NUMBER}}</a></td>
+                        <td><button id_pedido = "{{$modelo->INSERT_ID}}" route="{{url('amr/traza_pedido/'.$modelo->INSERT_ID)}}" class="btn btn-primary" ng-click="getInspectionBlocks($event);">{{$modelo->OP_NUMBER}}</button></td>
 
                         <td>{{$modelo->ITEM_CODE}}</td>
 

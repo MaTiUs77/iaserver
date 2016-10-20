@@ -31,7 +31,7 @@ class IAServerController extends Controller
 
     public static function IAServerMenu()
     {
-        $all_menu = Menu::orderBy('titulo')->get();
+        $all_menu = Menu::orderBy('titulo','asc')->get();
 
         $root = array();
         foreach($all_menu as $menu)
@@ -39,7 +39,7 @@ class IAServerController extends Controller
             // Por defecto se muestran las opciones del menu
             $print_menu = true;
 
-            // Muestra u Oculta las opciones que no coincidan con nuestro permiso
+            // Muestra / Oculta las opciones que no coincidan con nuestro permiso
             $permisos = explode(',',$menu->permiso);
             if(!empty($menu->permiso))
             {

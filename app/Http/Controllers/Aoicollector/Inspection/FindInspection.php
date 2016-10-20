@@ -17,7 +17,105 @@ class FindInspection extends Controller
     public $withSmt = false;
     public $withCogiscan = false;
     public $onlyLast = false;
+    public $withHistory = false;
 
+    public function barcode($barcode)
+    {
+        $db = 'current';
+
+        // El barcode es valido??
+        if(is_numeric($barcode)) {
+            // Buscar en BloqueHistory, retorna los resultados en orden descendiente
+            // la primer inspeccion seria la ultima en el array de resultados
+            $placa = BloqueHistory::buscar($barcode);
+
+            if(count($placa)>0)
+            {
+                $result = new \stdClass();
+                $result->first = $this->panelDataHandler($placa->last());
+                $result->last = $this->panelDataHandler($placa->first());
+
+                if($this->withHistory ) {
+                    $result->historial = null;
+
+                    foreach ($placa as $history) {
+                        $result->historial[] = $this->panelDataHandler($history);
+                    }
+                }
+
+                return $result;
+            } else
+            {
+                // Sera una placa secundaria? Ya busque en bloques, ahora busco en paneles.
+                $panel = PanelHistory::buscarPanel($barcode);
+                if(count($panel)>0) {
+                    $result = new \stdClass();
+                    $result->first = $this->panelDataHandler($panel->last());
+                    $result->last = $this->panelDataHandler($panel->first());
+
+                    if ($this->withHistory) {
+                        $result->historial = null;
+
+                        foreach ($panel as $history) {
+                            $result->historial[] = $this->panelDataHandler($history);
+                        }
+                    }
+
+                    return $result;
+                } else
+                {
+                    $error = "No se localizo el barcode en AOI";
+                    $output = compact('db','barcode', 'error');
+                }
+            }
+        } else
+        {
+            $error = "El dato es invalido, solo se permite barcode numerico.";
+            $output = compact('db','barcode', 'error');
+        }
+
+        return $output;
+    }
+
+    private function panelDataHandler($placa)
+    {
+        $moreInfo = new \stdClass();
+
+        if($placa instanceof PanelHistory)
+        {
+            $moreInfo->panel = $placa;
+            $moreInfo->bloque = null;
+        }
+
+        if($placa instanceof BloqueHistory)
+        {
+            $moreInfo->panel = $placa->panel;
+            $moreInfo->bloque = $placa;
+        }
+
+        $bloques = BloqueHistory::where('id_panel_history', $moreInfo->panel->id_panel_history)->get();
+        $moreInfo->analisis = $this->analisisDespacho($bloques,$moreInfo->panel);
+
+        if($this->withSmt) {
+            $moreInfo->smt = $moreInfo->panel->smt();
+        }
+
+        if($this->withCogiscan)
+        {
+            $moreInfo->cogiscan = $moreInfo->panel->cogiscan();
+        }
+
+        if($this->withWip)
+        {
+            $verify = new VerificarDeclaracion();
+            $verifyResult = $verify->bloqueEnTransaccionWip($placa->barcode);
+            $moreInfo->wip = $verifyResult;
+        }
+
+        return $moreInfo;
+    }
+/*
+ * BACKUP DE FUNCION
     public function barcode($barcode)
     {
         $db = 'current';
@@ -56,9 +154,10 @@ class FindInspection extends Controller
         }
 
         return $output;
-    }
+    }*/
 
-    private function panelDataHandler($barcode,  $panel)
+/*
+    private function panelDataHandler($barcode,  $panel,$debug=false)
     {
         $moreInfo = new \stdClass();
         $moreInfo->panel = $panel;
@@ -67,6 +166,7 @@ class FindInspection extends Controller
         $moreInfo->production = null;
         $moreInfo->smt = null;
         $moreInfo->analisis = null;
+        $moreInfo->wip = null;
 
         if (isset($panel->panel_barcode))
         {
@@ -98,12 +198,13 @@ class FindInspection extends Controller
             {
                 $moreInfo->cogiscan = $panel->cogiscan();
             }
+
             if($this->withWip)
             {
                 $verify = new VerificarDeclaracion();
-                $moreInfo->wip = $verify->bloqueEnInterfazWip($bloque->barcode,$panel->inspected_op);
+                $verifyResult = $verify->bloqueEnTransaccionWip($bloque->barcode);
+                $moreInfo->wip = $verifyResult;
             }
-
             return $moreInfo;
 
         } else {
@@ -111,7 +212,7 @@ class FindInspection extends Controller
             return compact('error');
         }
     }
-
+*/
     private function analisisDespacho($bloqueHistory, $panelHistory)
     {
         $info = new \stdClass();

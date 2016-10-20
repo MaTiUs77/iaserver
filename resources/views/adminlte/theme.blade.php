@@ -42,8 +42,19 @@
     {!! IAStyle('adminlte/dist/css/skins/skin-blue.min.css') !!}
     {!! IAScript('adminlte/dist/js/app.min.js') !!}
 
+  <script>
+    function remoteLink(uri)
+    {
+      document.getElementById("ltebody").innerHTML='<object type="text/html" data="'+uri+'"  width="100%" height="2000"></object>';
+    }
+  </script>
+  <style>
+    html, body {
+      height: 100%;
+    }
+  </style>
 </head>
-<body class="hold-transition skin-blue @hasSection('menumini') sidebar-mini @endif sidebar-collapse" @hasSection('ng') ng-cloak @endif @yield('bodytag')>
+<body class="hold-transition skin-blue @yield('mini','sidebar-mini') @yield('collapse','sidebar-collapse')" @hasSection('ng') ng-cloak @endif @yield('bodytag')>
 
 <div class="wrapper">
 
@@ -64,27 +75,32 @@
       <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
         <span class="sr-only">Menu de navegacion</span>
       </a>
-      <!-- Navbar Right Menu -->
+
+      <!-- Navbar Login Menu -->
       <div class="navbar-custom-menu">
         <ul class="nav navbar-nav">
             @include('adminlte/partial/navlogin')
-          <!-- Control Sidebar Toggle Button
-          <li>
-            <a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>
-          </li>
-           -->
         </ul>
       </div>
+
+      @hasSection('menutop')
+        @yield('menutop')
+      @endif
+
     </nav>
   </header>
   <!-- Left side column. contains the logo and sidebar -->
-  @include('adminlte/partial/menu')
+  @hasSection('menuaside')
+      @yield('menuaside')
+  @else
+      @include('adminlte/partial/menu')
+  @endif
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <section class="content">
         <div class="box">
-            <div class="box-body">
+            <div class="box-body" id="ltebody">
               @yield('body')
             </div>
         </div>

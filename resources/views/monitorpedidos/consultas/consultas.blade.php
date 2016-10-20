@@ -1,6 +1,7 @@
 @extends('monitorpedidos.index')
 @section('body')
     <div class="container-fluid">
+
 <nav class="navbar navbar-default">
 
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
@@ -33,6 +34,9 @@
                     <th>UBICACION</th>
                     <th>PARTNUMBER</th>
                     <th>LPN</th>
+                    <th>PLACAS</th>
+                    <th>MINUTOS</th>
+                    <th>QTY_REQUEST</th>
                     <th>FECHA</th>
                 </tr>
                 </thead>
@@ -45,6 +49,9 @@
                         <td> {{$history_monitor->location}} </td>
                         <td> {{$history_monitor->partNumber}} </td>
                         <td> {{$history_monitor->rawMaterialId}} </td>
+                        <td> {{$history_monitor->remainingBoards}} </td>
+                        <td> {{$history_monitor->minutos}} </td>
+                        <td> {{$history_monitor->valueqtyPerASSYFinal}} </td>
                         <td> {{$history_monitor->timeStampRegistro  }} </td>
                     </tr>
                 @endforeach
@@ -66,6 +73,7 @@
             <th>OP</th>
             <th>LPN</th>
             <th>PARTNUMBER</th>
+            <th>QTY_REQUEST</th>
             <th>ORIGEN</th>
             <th>FECHA</th>
             <th>LINEA</th>
@@ -80,6 +88,7 @@
                 <td> {{$history_cgs->op}} </td>
                 <td> {{$history_cgs->rawMaterial}} </td>
                 <td> {{$history_cgs->codMat}} </td>
+                <td> {{$history_cgs->cantASolic}} </td>
                 <td> {{$history_cgs->estadoUbicacion}} </td>
                 <td> {{$history_cgs->timestamp}} </td>
                 <td> {{$history_cgs->PROD_LINE}} </td>
@@ -306,4 +315,4 @@
                                         @endif
                                     </div>
                                 </div>
-    @endsection
+@endsection

@@ -24,6 +24,8 @@ class ViewPedidos extends Controller
 {
     public function getMaterialError(Request $request)
     {
+
+
         $pedidos = new CogiscanPedidos();
         $resume = $pedidos->getMaterialError($request->get('partnumber'));
 
@@ -58,7 +60,6 @@ class ViewPedidos extends Controller
         $material = new CogiscanPedidos();
         $pedido = $material->showMaterialMysql();
 
-        //$lpnOk = $material->lpnInDb2Tools($pedido);
         $reserva = $material->showReserva($request->get('valor'));
 
         $output = compact('pedido', 'reserva');
@@ -84,7 +85,15 @@ class ViewPedidos extends Controller
         $output = compact('reserva');
         return Response::multiple_output($output, 'monitorpedidos.reservas');
     }
+    public function traza_pedido($insert_id)
+    {
 
+        $pedidos = new CogiscanPedidos();
+        $traza = $pedidos->getTrazaPedidos($insert_id);
+        $traza_complete = $pedidos->trazabilidad($insert_id);
+        $output = compact('traza','traza_complete');
+        return Response::multiple_output($output,'monitorpedidos.trazaPedido');
+    }
     public function verHistorialPartNumber(Request $partnumber)
     {
                 $pedido = new CogiscanPedidos();
@@ -126,4 +135,13 @@ class ViewPedidos extends Controller
         $output = compact('reserva');
         return Response::multiple_output($output, 'monitorpedidos.transitview');
     }
+
+    public function traza_complete($id,$item_code)
+    {
+            $partnumber = new CogiscanPedidos();
+            $trazaPartNumber = $partnumber->trazabilidad($id,$item_code);
+            dd($trazaPartNumber);
+            $output = compact('trazaPartNumber');
+            return Response::multiple_output($output, 'monitorpedidos.traza_complete');
+   }
 }

@@ -70,7 +70,13 @@
                             <td style="width:50px;">
                                 <button id_panel="{{ $inspection->panel->id_panel_history }}" route="{{ route('aoicollector.inspection.blocks',$inspection->panel->id_panel_history) }}" ng-click="getInspectionBlocks($event);" class="btn btn-xs btn-default">Bloques</button>
                             </td>
-                            <td>SMD-{{ $inspection->panel->linea }}</td>
+                            <td>
+                                @if(isset($inspection->panel->linea))
+                                    SMD-{{ $inspection->panel->linea }}
+                                @else
+                                    SMD-{{ $inspection->panel->maquina->linea }}
+                                @endif
+                            </td>
                             <td>{{ $inspection->panel->panel_barcode }}</td>
                             <td>{{ $inspection->panel->programa }}</td>
                             <td>{{ $inspection->panel->revision_aoi }}</td>

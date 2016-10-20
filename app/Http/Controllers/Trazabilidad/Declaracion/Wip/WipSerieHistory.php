@@ -11,7 +11,8 @@ class WipSerieHistory extends WipSerieCommons
 
     public function findBarcode($barcode,$op="",$transOk="")
     {
-        $serie = XXEWipITFSerieHistory::select([
+        $serie = XXEWipITFSerieHistory::noLock()
+            ->select([
                 'id',
                 'nro_op',
                 'nro_informe',
@@ -44,7 +45,8 @@ class WipSerieHistory extends WipSerieCommons
 
     public function findBarcodeSecundario($barcode,$op="",$transOk="")
     {
-        $serie = XXEWipITFSerieHistory::select([
+        $serie = XXEWipITFSerieHistory::noLock()
+            ->select([
                 'id',
                 'nro_op',
                 'nro_informe',

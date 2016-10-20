@@ -1,5 +1,6 @@
 @extends('monitorpedidos.index')
 @section('ng','requestRecords')
+@section('ng','trazapedido')
 @section('body')
     <div  ng-controller = 'requestController' class="container-fluid">
         <div class="row">
@@ -41,11 +42,13 @@
                 </div>
             </div>
             {{--BOTON DE PEDIDO DE MATERIALES--}}
+            @if(hasRole('smtdatabase_operator') || isAdmin())
             <div class="col-lg-4" align="center">
                 <button id="btn-add" class="btn btn-danger btn-xs" ng-click="toggle('add',0)"><i class="fa fa-plus" aria-hidden="true"></i> Nuevo PartNumber</button>
             </div>
+                @endif
         </div>
-    <div class="container-fluid">
+    <div class="container-fluid table-responsive" ng-controller="inspectionController">
 
         <table class="table table-hover table-bordered table-stripped">
             <thead>
@@ -70,7 +73,7 @@
             @foreach($resume as $modelo)
 
                     <tr>
-                    <td><a class="btn btn-primary">{{$modelo->OP_NUMBER}}</a></td>
+                    <td><button id_pedido = "{{$modelo->INSERT_ID}}" route="{{url('amr/traza_pedido/'.$modelo->INSERT_ID)}}" class="btn btn-primary" ng-click="getInspectionBlocks($event);">{{$modelo->OP_NUMBER}}</button></td>
 
                     <td>{{$modelo->ITEM_CODE}}</td>
 
@@ -196,6 +199,6 @@
     </div>
     {!! IAScript('vendor/monitorpedidos/app.js') !!}
     {!! IAScript('vendor/monitorpedidos/request.js') !!}
-
+    {!! IAScript('vendor/monitorpedidos/trazapedido.js') !!}
 
 @endsection

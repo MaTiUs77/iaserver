@@ -23,13 +23,6 @@ class BloqueHistory extends Model
         return $this->hasOne('IAServer\Http\Controllers\Aoicollector\Model\PanelHistory', 'id_panel_history', 'id_panel_history');
     }
 
-    /*
-    public function jTransaccionWip()
-    {
-        return $this->hasOne('IAServer\Http\Controllers\Aoicollector\Model\TransaccionWip', 'barcode', 'barcode');
-    }
-*/
-
     public function wip($op)
     {
         $verify = new VerificarDeclaracion();

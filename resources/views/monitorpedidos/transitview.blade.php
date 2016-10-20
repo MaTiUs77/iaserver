@@ -62,3 +62,12 @@
                 </div>
             </div>
 @endsection
+
+<script>
+    jquery(document).ready(function($){
+        $('#mostrar').click(function(){
+
+        })
+    })
+
+</script>

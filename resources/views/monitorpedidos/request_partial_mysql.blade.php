@@ -2,11 +2,11 @@
 @section('body')
     <?php
     $self = url('amr/parciales/almacen'); //Obtenemos la página en la que nos encontramos
-    header("refresh:400; url=$self"); //Refrescamos cada 300 segundos
+    header("refresh:400; url=$self"); //Refrescamos cada 400 segundos
     ?>
     {{--FORMULARIO DE BUSQUEDA--}}
     <div  class="container-fluid">
-<div class="input-group-lg">as</div>
+
         <div class="row">
                 <div class="col-lg-5" align="center">
                     <form class="navbar-form navbar-left" role="search" method="GET" action="{{url ('amr/parciales/almacen')}}">
@@ -64,7 +64,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                {{--{{dd($reserva)}}--}}
+
                 @foreach($reserva as $r)
                     <tr>
                 <td><a class="btn btn-primary">{{$r->op}}</a></td>
@@ -104,13 +104,13 @@
                         $cant = $modelo->cantASolic;
 
                         $lpn = \IAServer\Http\Controllers\MonitorPedidos\CogiscanPedidos::lpnInDb2Tools($partnumber,$maquina,$linea,$ubicacion,$op,$id,$cant);
-//                        dump($partnumber);
+
                         ?>
 
                     @foreach($lpn as $totalLpn)
                     <tr>
 
-                        <?php $existeReserva = \IAServer\Http\Controllers\MonitorPedidos\CogiscanPedidos::existInReserva($modelo->PROD_LINE,$modelo->MAQUINA,$modelo->UBICACION,$totalLpn->field2,$totalLpn->field1,$modelo->id);?>
+                        <?php  $existeReserva = \IAServer\Http\Controllers\MonitorPedidos\CogiscanPedidos::existInReserva($modelo->PROD_LINE,$modelo->MAQUINA,$modelo->UBICACION,$totalLpn->field2,$totalLpn->field1,$modelo->id);?>
 
                         @if($existeReserva == 1)
 

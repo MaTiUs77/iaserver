@@ -3,8 +3,8 @@ var cfg = {};
 var localhost = {
 	host : 'localhost',
 	port : 80,
-	timeout : 30000,
-	rootPath : '/iaserver_laravel_svn/'
+	timeout : 50000,
+	rootPath : '/iaserver/'
 };
 
 var produccion = {
@@ -17,7 +17,7 @@ var produccion = {
 function local() { cfg.default = localhost; };
 function prod() { cfg.default = produccion; };
 
-cfg.default = produccion;
+cfg.default = local;
 cfg.local = local;
 cfg.prod = prod;
 

@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use IAServer\Http\Controllers\Aoicollector\Model\Produccion;
 use IAServer\Http\Controllers\Aoicollector\Pizarra\PizarraCone\ProduccionCone;
 use IAServer\Http\Controllers\IAServer\Filter;
+use IAServer\Http\Controllers\IAServer\Util;
 use IAServer\Http\Requests;
 use IAServer\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
@@ -45,27 +46,10 @@ class PizarraView extends Controller
         return self::indexGeneral();
     }
 
-    private function dateRangeFilter($sessionName)
-    {
-        // CARBON RANGE FILTER
-        $range = new \stdClass();
-        $range->desde = Carbon::now();
-        $range->hasta = Carbon::now();
-
-        Filter::dateSession($sessionName);
-        $rangeSplit = explode(' - ',Session::get($sessionName));
-        if(count($rangeSplit)==2)
-        {
-            $range->desde = Carbon::createFromFormat('d/m/Y',$rangeSplit[0]);
-            $range->hasta = Carbon::createFromFormat('d/m/Y',$rangeSplit[1]);
-        }
-        return $range;
-    }
-
     public function indexGeneral()
     {
         $pizarraFilterGeneral = Filter::makeSession('filterGeneral');
-        $range = $this->dateRangeFilter('pizarra_fecha');
+        $range = Util::dateRangeFilterEs('pizarra_fecha');
 
         // Obtengo lineas de produccion
         $produccion = Produccion::vista()
@@ -110,7 +94,7 @@ class PizarraView extends Controller
 
     public function indexLinea($linea)
     {
-        $range = $this->dateRangeFilter('pizarra_fecha');
+        $range = Util::dateRangeFilterEs('pizarra_fecha');
 
         $resume = new PizarraResume($linea,$range->desde,$range->hasta);
         $output = compact('resume');

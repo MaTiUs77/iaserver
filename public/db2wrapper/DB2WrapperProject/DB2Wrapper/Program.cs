@@ -12,9 +12,16 @@ namespace DB2Wrapper
     class Program
     {
         static void Main(string[] args)
-        {        
-            // string debugQuery = ExcecuteDebug("select * from CGS.\"ITEM_INFO\" where ITEM_KEY = 1482847 limit 1");
-            //Console.Write(debugQuery);
+        {
+
+            string query = "select * from CGS.\"ITEM_INFO\" where ITEM_KEY = 1482847 limit 1";
+            DB2 sql = new DB2();
+            Console.WriteLine("========================================================");
+            Console.WriteLine("Executing: " + query);
+            DataSet ds = sql.Query(query);
+
+            string debugQuery = ExcecuteDebug("select * from CGS.\"ITEM_INFO\" where ITEM_KEY = 1482847 limit 1");
+            Console.Write(debugQuery);
 
             if (args.Length < 1)
             {
@@ -52,10 +59,19 @@ namespace DB2Wrapper
 
         static string ExcecuteDebug(string query)
         {
-            DB2 sql = new DB2();
-//            Console.WriteLine("Executing: " + query);
-            DataSet ds = sql.Query(query);
-            string XmlFormatDataSet = ds.GetXml();
+            string XmlFormatDataSet = "";
+
+            try
+            {
+                DB2 sql = new DB2();
+                //            Console.WriteLine("Executing: " + query);
+                DataSet ds = sql.Query(query);
+                XmlFormatDataSet = ds.GetXml();
+            } catch(Exception ex)
+            {
+                XmlFormatDataSet = ex.Message;
+            }
+            
 
             return XmlFormatDataSet;
         }

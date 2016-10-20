@@ -25,14 +25,6 @@
         color:#FFFFFF;
     }
 
-    #stocker_box a.config input {
-        width: 80px;
-    }
-
-    #stocker_box a.config button {
-        margin-top: 2px;
-    }
-
     #stocker_box div.panel_trace {
 
         height:200px;
@@ -47,7 +39,6 @@
         background-color:#FFFFFF;
         color:#000000;
     }
-
 
     #stocker_box div.panel_trace a.panel_item {
         font-size:12px;
@@ -80,15 +71,15 @@
 
         <div class="text-center" ng-hide="stockerConfigMode">
             <small>Stocker x@{{stockerService.limite}} - Panel x@{{stockerService.bloques}} </small>
-            <button type="button" class="btn btn-xs btn-default btn-block" ng-click="stockerConfig()" ><span class="glyphicon glyphicon-wrench"></span> Cambiar configuracion</button>
+            <button type="button" class="btn btn-xs btn-default btn-block" ng-click="stockerConfigMode=!stockerConfigMode" ><span class="glyphicon glyphicon-wrench"></span> Cambiar configuracion</button>
         </div>
 
         <!-- CONFIGURADOR DE STOCKER -->
-        <div class="config text-center" ng-show="stockerConfigMode">
-            <input class="input-sm" type="number" ng-model="stockerConfigModeNewlimite" placeholder="Stocker"/>
-            <input class="input-sm" type="number" ng-model="stockerConfigModeNewbloques" placeholder="Panel"/>
+        <div ng-show="stockerConfigMode">
+                    <input type="number" class="form-control" ng-model="stockerConfigModeNewlimite" placeholder="Filas de stocker"/>
+                    <input type="number" class="form-control" ng-model="stockerConfigModeNewbloques" placeholder="Bloques de panel"/>
             <button type="button" class="btn btn-xs btn-success btn-block" ng-click="stockerConfig('save');" >Guardar</button>
-            <button type="button" class="btn btn-xs btn-default btn-block" ng-click="stockerConfig('cancel');" >Cancelar</button>
+            <button type="button" class="btn btn-xs btn-default btn-block" ng-click="stockerConfigMode=!stockerConfigMode" >Cancelar</button>
         </div>
         <!-- FIN CONFIGURADOR DE STOCKER -->
     </a>
