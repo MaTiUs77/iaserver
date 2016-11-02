@@ -75,7 +75,7 @@ class CogiscanDB2 extends Controller
         return $output;
     }
     private function query($db, $query) {
-        $cmd =  '%cd%\db2wrapper\DB2Wrapper.exe '.$db.' '.$query;
+        $cmd =  '%cd%\bin\db2wrapper\DB2Wrapper.exe '.$db.' '.$query;
 		
         $output = array();
         exec($cmd,$output);

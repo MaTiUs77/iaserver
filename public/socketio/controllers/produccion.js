@@ -4,18 +4,18 @@ var moment = require('moment');
 
 var blu = require('./blu');
 var stocker = require('./stocker');
-var config = require('./config');
 var log = require('./logcolor');
 
+var config = require('./config');
 config.local();
 
-//var produccionWatcher;
 var app;
 var host = config.default.host;
 var port = config.default.port;
 var timeout = config.default.timeout;
 var interval = 4000;
 
+var infoRunning = false;
 var prodcache = [];
 
 function socketConnected(socket) {
@@ -49,43 +49,42 @@ function socketConnected(socket) {
 	});
 }
 
-/*
 function info(socket) {
-	log.verbose(['REQUEST',socket.aoibarcode]);
-
-	var cache = produccionWatcher.getProdCache(socket.aoibarcode);
-
-	if(cache!=undefined)
-	{
-		socket.emit('getProduccionResponse', cache.output);
-	}
-}
-*/
-
-function info(socket) {
-
 	socket.emit('waitForGetProduction',true);
+
 	var uripath = config.default.rootPath +
-		'public/aoicollector/prod/info/'+socket.aoibarcode+'?json';//filter=1&allstocker=1&json';
+		'public/aoicollector/prod/info/'+socket.aoibarcode+'?filter=1&allstocker=0&json';
 
-	log.debug([host,port,uripath]);
+    if(infoRunning) {
+        log.warning('Esperando informacion de produccion');
+    } else {
 
-	blu.webPromise(host,port,uripath,timeout).then(function (response) {
+        infoRunning = true;
 
-		log.debug([socket.aoibarcode,'complete']);
-		socket.emit('getProduccionResponse', response);
+        log.debug(['RUN!', host, port, uripath]);
 
-		setMachineCache(socket.aoibarcode,response);
-	}).error(function (e) {
+        blu.webPromise(host, port, uripath, timeout).then(function (response) {
+            log.debug([socket.aoibarcode, 'complete']);
 
-		log.error(['error',e]);
+            socket.emit('getProduccionResponse', response);
 
-		socket.emit('getProduccionResponseError', e );
-	}).catch(function (e) {
-		log.error(['error',e]);
+            setMachineCache(socket.aoibarcode, response);
 
-		socket.emit('getProduccionResponseError', e );
-	});
+            infoRunning = false;
+        }).error(function (e) {
+
+            log.error(['error', e]);
+
+            socket.emit('getProduccionResponseError', e);
+
+            infoRunning = false;
+        }).catch(function (e) {
+            log.error(['error', e]);
+
+            socket.emit('getProduccionResponseError', e);
+            infoRunning = false;
+        });
+    }
 }
 
 function subscribe(socket) {
@@ -116,21 +115,20 @@ function setMachineCache(aoibarcode,response) {
 
 // ROUTES
 function routeProduccionCache() {
-	app.get('/produccion/cache', function(req, res){
+	app.get('/', function(req, res){
 		res.send(prodcache);
 	});
 }
 
 function routeMachineCache(aoibarcode) {
-	app.get('/produccion/' + aoibarcode, function (req, res) {
+	app.get('/aoibarcode/' + aoibarcode, function (req, res) {
 		var finded = _.findWhere(prodcache, {aoibarcode: aoibarcode});
 		res.send(finded);
 	});
 }
 
-function init(_app, _produccionWatcher) {
+function init(_app) {
 	app = _app;
-	produccionWatcher = _produccionWatcher;
 	routeProduccionCache();
 }
 

@@ -9,6 +9,7 @@ use IAServer\Http\Controllers\IAServer\Util;
 use IAServer\Http\Controllers\SMTDatabase\SMTDatabase;
 use IAServer\Http\Requests;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
 
 class StatExport extends StatController
 {
@@ -101,16 +102,15 @@ class StatExport extends StatController
         Log::info("StatExport: toDb() SMD-$maquina->linea $fecha $resume_type (idMaquina: $maquina->id) ");
     }
 
-    public function toCsv($linea, $turno, $fecha, $resume_type, $programa="")
+    public function toExcel($linea,$turno,$fecha,$resume_type,$programa="")
     {
         $fecha = Util::dateToEn($fecha);
-
         $estado = 'real';
         $csv = array();
 
         $maquinas = Maquina::where('linea',$linea)->get();
 
-        $filename = 'Stats_SMD-'.$linea.'_'.$fecha.'.csv';
+        $filename = 'SMD-'.$linea.'_'.$fecha;
 
         foreach ($maquinas as $maquina)
         {
@@ -122,8 +122,18 @@ class StatExport extends StatController
             }
         }
 
-        Log::info("StatExport: toCsv() SMD-$maquina->linea $fecha $resume_type (idMaquina: $maquina->id) ");
-        Util::convert_to_csv($csv,$filename,',');
+        Log::info("StatExport: toExcel() SMD-$maquina->linea $fecha $resume_type (idMaquina: $maquina->id) ");
+
+        array_unshift($csv, array_keys(head($csv)));
+
+        Excel::create('Stat_'.$filename, function($excel) use($csv,$filename) {
+
+            $excel->sheet($filename, function($sheet) use($csv) {
+                $sheet->setOrientation('landscape');
+                $sheet->fromArray($csv,null,'A1',false,false);
+            });
+
+        })->download('xls');
     }
 
     protected function allTurns($maquina, $fecha, $estado, $resume_type)

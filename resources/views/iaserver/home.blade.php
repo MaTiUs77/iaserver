@@ -1,10 +1,5 @@
 @extends('adminlte/theme')
 @section('title', 'Bienvenido')
-@section('head')
-    {!! IAStyle('assets/home/iaserver.css') !!}
-    {!! IAScript('assets/home/iaserver.js') !!}
-@endsection
-
 @section('collapse',false)
 @section('mini',false)
 @section('body')

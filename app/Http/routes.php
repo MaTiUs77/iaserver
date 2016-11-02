@@ -19,3 +19,6 @@ require('Controllers/Email/routes.php');
 
 require('Controllers/Redis/routes.php');
 require('Controllers/ServerMonitor/routes.php');
+
+require('Controllers/MonitorPiso/routes.php');
+require('Controllers/OvenLog/routes.php');

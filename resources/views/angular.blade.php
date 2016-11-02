@@ -27,6 +27,10 @@
     {!! IAScript('assets/bootstrap/js/bootstrap.min.js') !!}
     {!! IAScript('assets/dialog-master/js/bootstrap-dialog.min.js') !!}
 
+    <!-- BootSwatch 
+    {!! IAStyle('assets/bootswatch/paper/bootstrap.min.css') !!}
+	-->
+
     <!-- AngularJS-->
     {!! IAStyle('assets/angularjs/loading-bar.css') !!}
     {!! IAScript('assets/angularjs/angular.min.js') !!}
@@ -40,6 +44,15 @@
     <!-- Angular Toasty-->
     {!! IAStyle('assets/angularjs/toasty/angular-toasty.min.css') !!}
     {!! IAScript('assets/angularjs/toasty/angular-toasty.min.js') !!}
+
+    <!-- BootSwatch Angular File Manager
+    {!! IAStyle('assets/angular-filemanager/dist/angular-filemanager.min.css') !!}
+    {!! IAScript('assets/angular-filemanager/dist/angular-filemanager.min.js') !!}
+    -->
+
+    <!-- Angular Translate
+    {!! IAScript('assets/angular-translate/angular-translate.min.js') !!}
+    -->
 
     <!-- Other styles -->
     {!! IAStyle('assets/loader_mini.css') !!}

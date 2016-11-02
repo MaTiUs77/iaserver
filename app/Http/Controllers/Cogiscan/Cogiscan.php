@@ -120,13 +120,15 @@ class Cogiscan extends Controller
            $param = ['releaseProduct',
                   '<Parameters>
                       <Parameter name="assembly">'.$modelo.'</Parameter>
-                      <Parameter name="revision">A</Parameter>
                       <Parameter name="route">'.$route.'</Parameter>
                       <Parameter name="batchId">'.$op.'</Parameter>
-                      <Parameter name="maxReleaseQty">2</Parameter>
-                      <Parameter name="allowReRelease">false</Parameter>
-                      <Parameter name="barcode">'.$sn1.'</Parameter>
-                      <Parameter name="barcode">'.$sn2.'</Parameter>
+                      <Parameter name="maxReleaseQty">15</Parameter>
+                       <Extensions>
+                        <ProductGroup>
+                          <Product location="A1">'.$sn1.'</Product>
+                          <Product location="A2">'.$sn2.'</Product>
+                        </ProductGroup>
+                      </Extensions>
                     </Parameters>'];
 
         $cmd = new CogiscanCommand($param);
@@ -207,7 +209,7 @@ class Cogiscan extends Controller
         return $cmd->result();
     }
 
-    public function load($contentId,$containerId,$location,$unloadPrevious=true,$deletePrevious=false) {
+    public function load($contentId,$containerId,$location="",$unloadPrevious=true,$deletePrevious=false) {
         $param = [
             'load',
             '<Parameters>
@@ -223,7 +225,7 @@ class Cogiscan extends Controller
         return $cmd->result();
     }
 
-    public function unload($contentId,$containerId,$location,$deleteContent=false)
+    public function unload($contentId,$containerId,$location="",$deleteContent=false)
     {
         $param = [
             'unload',
@@ -232,6 +234,19 @@ class Cogiscan extends Controller
                 <Parameter name="containerId">' . $containerId . '</Parameter>
                 <Parameter name="location">' . $location . '</Parameter>
                 <Parameter name="deleteContent">' . $deleteContent . '</Parameter>
+            </Parameters>'
+        ];
+        $cmd = new CogiscanCommand($param);
+        return $cmd->result();
+    }
+
+    public function updateQuantity($itemId,$quantity)
+    {
+        $param = [
+            'updateQuantity',
+            '<Parameters>
+                <Parameter name="itemId">' . $itemId. '</Parameter>
+                <Parameter name="quantity">' . $quantity. '</Parameter>
             </Parameters>'
         ];
         $cmd = new CogiscanCommand($param);
@@ -346,13 +361,14 @@ class Cogiscan extends Controller
 
     public function aoicollectorPassed($panelBarcode)
     {
+        $release = $this->releaseProduct('modelotest','routemain','OP-123456',$panelBarcode,'0001007942');
+        $startSmt = $this->startOperation($panelBarcode,'SMT');
+        $endSmt = $this->endOperation($panelBarcode,'SMT');
         $start = $this->startOperation($panelBarcode,'AOI');
-        sleep(1);
         $set = $this->setProcessStepStatus($panelBarcode,'AOI','PASSED');
-        sleep(1);
         $end = $this->endOperation($panelBarcode,'AOI');
 
-        return compact('start','set','end');
+        return compact('release','startSmt','endSmt','start','set','end');
     }
 
     public function aoicollectorFailed($panelBarcode,$ipcError,$descripcion='Default')

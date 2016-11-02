@@ -41,18 +41,22 @@
     {!! IAStyle('adminlte/dist/css/AdminLTE.css') !!}
     {!! IAStyle('adminlte/dist/css/skins/skin-blue.min.css') !!}
     {!! IAScript('adminlte/dist/js/app.min.js') !!}
-
-  <script>
-    function remoteLink(uri)
-    {
-      document.getElementById("ltebody").innerHTML='<object type="text/html" data="'+uri+'"  width="100%" height="2000"></object>';
-    }
-  </script>
+    <!-- DataTables -->
+    {!! IAStyle('adminlte/plugins/datatables/dataTables.bootstrap.css') !!}
+    {!! IAScript('adminlte/plugins/datatables/jquery.dataTables.min.js') !!}
+    {!! IAScript('adminlte/plugins/datatables/dataTables.bootstrap.min.js') !!}
+    <script>
+      function remoteLink(uri)
+      {
+        document.getElementById("ltebody").innerHTML='<object type="text/html" data="'+uri+'"  width="100%" height="2000"></object>';
+      }
+    </script>
   <style>
     html, body {
       height: 100%;
     }
   </style>
+  @yield('head')
 </head>
 <body class="hold-transition skin-blue @yield('mini','sidebar-mini') @yield('collapse','sidebar-collapse')" @hasSection('ng') ng-cloak @endif @yield('bodytag')>
 
@@ -115,5 +119,26 @@
 <!-- ./wrapper -->
 
 <toasty></toasty>
+
+<script>
+  $(function() {
+    $(".datatable").DataTable( {
+      "language": {
+        "scrollX": true,
+        "search": "Buscar",
+        "lengthMenu":     "Ver _MENU_ resultados",
+        "info": "Ver _START_ a _END_ de _TOTAL_ resultados",
+        "zeroRecords": "No hay resultados",
+        "paginate": {
+          "first":      "Primero",
+          "last":       "Ultimo",
+          "next":       "Siguiente",
+          "previous":   "Anterior"
+        }
+      }
+    });
+  });
+</script>
+
 </body>
 </html>

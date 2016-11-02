@@ -109,7 +109,7 @@ class AbmController extends Controller
                 $user->attachRole(Input::get('permiso'));
             }
 
-            return redirect('abm')->with('message','Usuario creado con exito!');
+            return redirect('abm')->with('message','Usuario actualizado con exito!');
         }
     }
 

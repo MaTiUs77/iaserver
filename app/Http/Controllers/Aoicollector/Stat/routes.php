@@ -15,6 +15,6 @@ Route::group(['prefix' => 'stat'], function() {
     ]);
     Route::get('/export/{linea}/{turno}/{fecha}/{resume_type}/{programa?}', [
         'as' => 'aoicollector.stat.export',
-        'uses' => 'Aoicollector\Stat\StatExport@toCSv'
+        'uses' => 'Aoicollector\Stat\StatExport@toExcel'
     ]);
 });

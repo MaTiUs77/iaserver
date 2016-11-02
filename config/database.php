@@ -76,6 +76,30 @@ return [
             'strict'    => false,
         ],
 
+        'inventario' => [
+            'driver'    => 'mysql',
+            'host'      => env('INVENTARIO_HOST', '10.30.10.22'),
+            'database'  => env('INVENTARIO_DATABASE', 'inventario2015'),
+            'username'  => env('INVENTARIO_USERNAME', 'root'),
+            'password'  => env('INVENTARIO_PASSWORD', 'apisql'),
+            'charset'   => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix'    => '',
+            'strict'    => false,
+        ],
+
+        'labelnpm' => [
+            'driver'    => 'mysql',
+            'host'      => env('LABELNPM_HOST', '10.30.10.22'),
+            'database'  => env('LABELNPM_DATABASE', 'cogiscan'),
+            'username'  => env('LABELNPM_USERNAME', 'root'),
+            'password'  => env('LABELNPM_PASSWORD', 'apisql'),
+            'charset'   => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix'    => '',
+            'strict'    => false,
+        ],
+
         'calidad' => [
             'driver'    => 'mysql',
             'host'      => env('IA_HOST', 'ARUS3DB19'),

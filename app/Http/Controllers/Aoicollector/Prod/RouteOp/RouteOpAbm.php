@@ -46,9 +46,11 @@ class RouteOpAbm extends Controller
     public function store()
     {
         $rules = array(
-            'declara'  => 'required|numeric',
             'op' => 'required',
-            'puesto' => 'required'
+            'puesto' => 'required',
+            'regex' => 'required',
+            'qty_etiquetas' => 'required',
+            'qty_bloques' => 'required'
         );
 
         $validator = Validator::make(Input::all(), $rules);
@@ -64,13 +66,10 @@ class RouteOpAbm extends Controller
 
             $store->op = Input::get('op');
             $store->name = strtoupper(Input::get('puesto'));
-            $store->declare = Input::get('declara');
-
-            $parent_op = trim(Input::get('op_puesto_anterior'));
-            if(!empty($parent_op))
-            {
-                $store->parent_op = $parent_op;
-            }
+            $store->declare = (Input::get('declare') == 'on') ? 1 : 0;
+            $store->regex = Input::get('regex');
+            $store->qty_etiquetas = Input::get('qty_etiquetas');
+            $store->qty_bloques = Input::get('qty_bloques');
 
             $store->save();
 

@@ -10,7 +10,7 @@ Route::group(['prefix' => 'inspection'], function()
     // Exportar inspecciones
     Route::get('/export/{id_maquina}/{fecha}/{minormax}',  [
         'as' => 'aoicollector.inspection.export',
-        'uses' => 'Aoicollector\Inspection\InspectionController@exportarLista'
+        'uses' => 'Aoicollector\Inspection\InspectionExport@toExcel'
     ]);
 
     // Lista de inspecciones filtradas por maquina
@@ -32,7 +32,7 @@ Route::group(['prefix' => 'inspection'], function()
             'uses' => 'Aoicollector\Inspection\InspectionController@searchReference'
         ]);
 
-        Route::post('/', [
+        Route::match(['get', 'post'],'/', [
             'as' => 'aoicollector.inspection.search',
             'uses' => 'Aoicollector\Inspection\InspectionController@searchBarcode'
         ]);

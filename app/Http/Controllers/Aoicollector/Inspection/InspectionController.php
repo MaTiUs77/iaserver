@@ -21,12 +21,6 @@ use Illuminate\Support\Facades\Session;
 
 class InspectionController extends Controller
 {
-    public function exportarLista($id_maquina,$fecha,$minOrMax)
-    {
-        $export = new ExportarInspeccion();
-        $export->toCsv($id_maquina,$fecha,$minOrMax);
-    }
-
     /**
      * Muestra las inspecciones, por defecto muestra se muestra la primer maquina de la lista
      *

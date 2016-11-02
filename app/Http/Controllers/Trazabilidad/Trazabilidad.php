@@ -83,7 +83,8 @@ class Trazabilidad extends Controller
             $wip = $objwip->findOp($op,true,true);
             $smt = SMTDatabase::findOp($op);
 
-            if($wip!=null && $smt!=null)
+            // Verifica si existe alguna actualizacion en la cantidad de la OP y la actualiza en SMTDatabase
+            if($wip!=null && $wip->wip_ot != null && $smt!=null)
             {
                 if(((int)$smt->qty != (int)$wip->wip_ot->start_quantity) && $wip->wip_ot->start_quantity!=null)
                 {
@@ -94,7 +95,6 @@ class Trazabilidad extends Controller
 
             if(isset($smt->modelo)) {
                 $smt->registros = Panel::where('inspected_op',$op)->count();
-                //$controldeplacas = (object) DatosController::salida($smt->modelo,$smt->lote,$smt->panel);
                 $controldeplacas = (object) DatosController::salidaByOp($op);
             }
 

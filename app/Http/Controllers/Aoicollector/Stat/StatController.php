@@ -129,9 +129,11 @@ class StatController extends Controller
 
             if($r->estado=='REAL') {
                 $resume[$r->referencia]->total_real = $r->total_errores;
+                $resume[$r->referencia]->total_real_placas =  $r->total_placas;
             }
             if($r->estado=='FALSO') {
                 $resume[$r->referencia]->total_falso = $r->total_errores;
+                $resume[$r->referencia]->total_falso_placas =  $r->total_placas;
             }
         }
 

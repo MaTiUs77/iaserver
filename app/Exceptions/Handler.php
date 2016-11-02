@@ -5,6 +5,7 @@ namespace IAServer\Exceptions;
 use Exception;
 use IAServer\Http\Controllers\Email\Email;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
 use Symfony\Component\Debug\Exception\FatalErrorException;
@@ -111,6 +112,7 @@ class Handler extends ExceptionHandler
             "Host" => $host,
             "Request Url" => Request::url(),
             "Code" => $e->getCode(),
+            "GetPost" => collect(Input::all())->toJson(),
             "Message" => $e->getMessage()
             //"Stack" => $e->getTraceAsString()
         );

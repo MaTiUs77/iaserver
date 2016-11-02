@@ -1,0 +1,23 @@
+c:\users\core\documents\visual studio 2015\Projects\DB2Wrapper\DB2Wrapper\bin\Release\DB2Wrapper.exe.config
+c:\users\core\documents\visual studio 2015\Projects\DB2Wrapper\DB2Wrapper\bin\Release\DB2Wrapper.exe
+c:\users\core\documents\visual studio 2015\Projects\DB2Wrapper\DB2Wrapper\bin\Release\DB2Wrapper.pdb
+c:\users\core\documents\visual studio 2015\Projects\DB2Wrapper\DB2Wrapper\bin\Release\IBM.Data.DB2.dll
+c:\users\core\documents\visual studio 2015\Projects\DB2Wrapper\DB2Wrapper\bin\Release\IBM.Data.DB2.Entity.dll
+c:\users\core\documents\visual studio 2015\Projects\DB2Wrapper\DB2Wrapper\obj\Release\DB2Wrapper.exe
+c:\users\core\documents\visual studio 2015\Projects\DB2Wrapper\DB2Wrapper\obj\Release\DB2Wrapper.pdb
+C:\wamp\www\iaserver_laravel_svn\public\db2wrapper\DB2WrapperProject\DB2Wrapper\bin\Release\DB2Wrapper.exe.config
+C:\wamp\www\iaserver_laravel_svn\public\db2wrapper\DB2WrapperProject\DB2Wrapper\bin\Release\DB2Wrapper.exe
+C:\wamp\www\iaserver_laravel_svn\public\db2wrapper\DB2WrapperProject\DB2Wrapper\bin\Release\DB2Wrapper.pdb
+C:\wamp\www\iaserver_laravel_svn\public\db2wrapper\DB2WrapperProject\DB2Wrapper\bin\Release\IBM.Data.DB2.dll
+C:\wamp\www\iaserver_laravel_svn\public\db2wrapper\DB2WrapperProject\DB2Wrapper\bin\Release\IBM.Data.DB2.Entity.dll
+C:\wamp\www\iaserver_laravel_svn\public\db2wrapper\DB2WrapperProject\DB2Wrapper\obj\Release\DB2Wrapper.exe
+C:\wamp\www\iaserver_laravel_svn\public\db2wrapper\DB2WrapperProject\DB2Wrapper\obj\Release\DB2Wrapper.pdb
+C:\wamp\www\iaserver_laravel_svn\public\db2wrapper\DB2WrapperProject\DB2Wrapper\obj\Release\DB2Wrapper.csprojResolveAssemblyReference.cache
+C:\wamp\www\iaserver\public\db2wrapper\DB2WrapperProject\DB2Wrapper\bin\Release\DB2Wrapper.exe.config
+C:\wamp\www\iaserver\public\db2wrapper\DB2WrapperProject\DB2Wrapper\obj\Release\DB2Wrapper.exe
+C:\wamp\www\iaserver\public\db2wrapper\DB2WrapperProject\DB2Wrapper\obj\Release\DB2Wrapper.pdb
+C:\wamp\www\iaserver\public\db2wrapper\DB2WrapperProject\DB2Wrapper\bin\Release\DB2Wrapper.exe
+C:\wamp\www\iaserver\public\db2wrapper\DB2WrapperProject\DB2Wrapper\bin\Release\DB2Wrapper.pdb
+C:\wamp\www\iaserver\public\db2wrapper\DB2WrapperProject\DB2Wrapper\bin\Release\IBM.Data.DB2.dll
+C:\wamp\www\iaserver\public\db2wrapper\DB2WrapperProject\DB2Wrapper\bin\Release\IBM.Data.DB2.Entity.dll
+C:\wamp\www\iaserver\public\db2wrapper\DB2WrapperProject\DB2Wrapper\obj\Release\DB2Wrapper.csprojResolveAssemblyReference.cache

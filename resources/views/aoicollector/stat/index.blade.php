@@ -1,4 +1,4 @@
-@extends('angular')
+@extends('adminlte/theme')
 @section('ng','app')
 @section('title','Aoicollector - Estadisticas')
 @section('body')

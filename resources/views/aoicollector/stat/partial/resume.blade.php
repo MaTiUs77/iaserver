@@ -67,11 +67,11 @@
             </div>
         </div>
 
-        <table class="table table-bordered table-striped">
+        <table class="datatable table table-striped table-bordered" cellspacing="0" width="100%">
             <thead>
             <tr>
                 <th>Ultima aparicion</th>
-                <th><input type="text" ng-model="filter_referencia" ng-init="filter_referencia=''" class="form-control" placeholder="Filtrar referencia"/></th>
+                <th>Referencia</th>
                 <th>Total</th>
                 <th>Falsos</th>
                 <th>Reales</th>
@@ -79,7 +79,7 @@
             </thead>
             <tbody>
                 @foreach($reference as $r)
-                    <tr ng-hide="('{{ strtolower($r->referencia) }}').indexOf(filter_referencia.toLowerCase()) == -1" class="{{ ($r->total_real > 0) ? 'danger' : '' }}">
+                    <tr class="{{ ($r->total_real > 0) ? 'danger' : '' }}">
                         <td>
                             <?php
                             $ultima_aparicion = $fecha_eng. " ".$r->ultima_aparicion;
@@ -94,16 +94,39 @@
                         </td>
                         <td>{{ $r->referencia }}</td>
                         <td>{{ $r->total }}</td>
-                        <td>
+                        <td {!!  ($r->total_falso > 0 ) ? 'data-search="falso" data-order="'.$r->total_falso.'"' : 'data-order="0"' !!}>
+
                             @if($r->total_falso > 0 )
                                 <a href="{{  route('aoicollector.inspection.search.reference',[$r->referencia, $maquina->id, $turno, $fecha_eng, $resume->programa,'falso'] ) }}" target="_blank">{{ $r->total_falso  }}</a>
+                                @if($r->total_falso_placas!=$r->total_falso)
+                                    en {{ $r->total_falso_placas  }}
+
+                                    @if($r->total_falso_placas>1)
+                                        placas
+                                    @else
+                                        placa
+                                    @endif
+                                @endif
                             @else
                                 0
                             @endif
                         </td>
-                        <td>
+                        <td {!!  ($r->total_real > 0 ) ? 'data-search="real" data-order="'.$r->total_real.'"' : 'data-order="0"' !!}>
                             @if($r->total_real > 0 )
-                                <a href="{{  route('aoicollector.inspection.search.reference',[$r->referencia, $maquina->id, $turno, $fecha_eng, $resume->programa,'real'] ) }}" target="_blank">{{ $r->total_real  }}</a>
+                                <a href="{{  route('aoicollector.inspection.search.reference',[$r->referencia, $maquina->id, $turno, $fecha_eng, $resume->programa,'real'] ) }}" target="_blank">
+                                    {{ $r->total_real  }}
+                                </a>
+
+                                @if($r->total_real_placas!=$r->total_real)
+                                    en {{ $r->total_real_placas  }}
+
+                                    @if($r->total_real_placas>1)
+                                        placas
+                                    @else
+                                        placa
+                                    @endif
+                                @endif
+
                             @else
                                 0
                             @endif

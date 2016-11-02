@@ -1,8 +1,6 @@
 @include('iaserver.common.footer')
 
-{!! IAScript('vendor/aoicollector/prod/prod.controller.js') !!}
-{!! IAScript('vendor/aoicollector/prod/aoi.factory.js') !!}
-{!! IAScript('vendor/aoicollector/prod/stocker.factory.js') !!}
+{!! IAScript('vendor/aoicollector/prod/prod.js') !!}
 
 <script>
     $(function(){

@@ -39,7 +39,10 @@ class AppServiceProvider extends ServiceProvider
                     $xml = new \SimpleXMLElement('<service/>');
                     $header['Content-Type'] = 'application/xml';
 
-//                    $vars = collect($vars['reparacion'])->take(146);
+                    // Verifiar dartos en POSTMAN aplicando filtro y limitando resultados
+                    //$vars = collect($vars['reparacion'])->take(139);
+                    //return $vars;
+
                     $output = json_encode($vars);
 
                     try

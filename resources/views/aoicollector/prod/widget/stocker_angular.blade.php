@@ -52,8 +52,8 @@
     }
 </style>
 
-<div ng-hide="stockerService.barcode" >
-    <div class="panel panel-danger" ng-show="aoiService.produccion.op && !stockerService.barcode">
+<div ng-hide="stockerService.stocker.barcode || stockerService.loading" >
+    <div class="panel panel-danger" ng-show="aoiService.produccion.op && !stockerService.stocker.barcode">
         <div class="panel-heading">ATENCION</div>
         <div class="panel-body">
             Debe asignar un stocker!, puede usar la opcion
@@ -64,13 +64,13 @@
 </div>
 
 {{-- SI EXISTE CONFIGURACION DE STOCKER, MUESTRO ESTADO DEL MISMO --}}
-<div id="stocker_box" class="list-group" ng-show="stockerService.barcode">
+<div id="stocker_box" class="list-group" ng-show="stockerService.stocker.barcode">
     <!-- STOCKER HEADER -->
     <a class="list-group-item header">
-        <div class="text-center">Codigo: @{{ stockerService.barcode }}</div>
+        <div class="text-center">Codigo: @{{ stockerService.stocker.barcode }}</div>
 
         <div class="text-center" ng-hide="stockerConfigMode">
-            <small>Stocker x@{{stockerService.limite}} - Panel x@{{stockerService.bloques}} </small>
+            <small>Stocker x@{{stockerService.stocker.limite}} - Panel x@{{stockerService.stocker.bloques}} </small>
             <button type="button" class="btn btn-xs btn-default btn-block" ng-click="stockerConfigMode=!stockerConfigMode" ><span class="glyphicon glyphicon-wrench"></span> Cambiar configuracion</button>
         </div>
 
@@ -86,14 +86,13 @@
     <!-- FIN STOCKER HEADER -->
 
     <a href="javascript:;" class="list-group-item total">
-        <div>Total: <span id="stocker_count_unity">@{{stockerService.unidades}}</span></div>
+        <div>Total: <span id="stocker_count_unity">@{{stockerService.stocker.unidades}}</span></div>
     </a>
 
     <!-- PANELES EN STOCKER -->
     <div class="panel_trace">
-        <a id="panel_@{{n}}" ng-repeat="n in [] | range:stockerService.limite" class="list-group-item panel_item"  ng-class="stockerService.paneles >= n ? 'panel_saved panel_highlight' : 'panel_empty'">
-            <span class="glyphicon glyphicon-saved" ng-if="stockerService.paneles >= n"></span>
-            Panel: @{{ n }}
+        <a id="panel_@{{n}}" ng-repeat="n in [] | range:(stockerService.stocker.limite)" class="list-group-item panel_item" ng-class="stockerService.contenido.paneles[n].declaracion.declarado ? 'panel_saved panel_highlight' : 'panel_empty'">
+            #@{{ n }} @{{ stockerService.contenido.paneles[n].panel.panel_barcode }}
         </a>
     </div>
     <!-- FIN -->

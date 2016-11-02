@@ -1,46 +1,13 @@
-@extends('angular')
+@extends('adminlte/theme')
 @section('ng','app')
 @section('title','Aoicollector - Route OP')
 @section('body')
 
-    <nav class="navbar navbar-default" style="padding-bottom:5px;margin-bottom:1px;" role="navigation">
-        <div class="navbar-form">
-
-            <div class="navbar-left">
-                <form actio="get" action="?">
-                    <table><tbody><tr>
-                            <td>
-                                <h4> &nbsp;&nbsp; Configurar OP: </h4>
-                            </td>
-                            <td>
-                                <input type="text" class="form-control" placeholder="Ingrese OP" ng-model="$parent.choosedOp" name="op" />
-                            </td>
-                            <td>
-                                &nbsp;<button ng-show="$parent.choosedOp" type="submit" class="btn btn-success">Aceptar</button>
-                            </td>
-                        </tr></tbody></table>
-                </form>
-            </div>
-
-            @if(Auth::user())
-                <div class="navbar-right">
-                    <a href="" class="btn btn-info">
-                        @if (Auth::user()->hasProfile())
-                            {{ Auth::user()->profile->fullname() }}
-                        @else
-                            {{ Auth::user()->name }}
-                        @endif
-                    </a>
-                </div>
-            @endif
-
-        </div>
-    </nav>
     <div class="container">
         <form class="form-horizontal" role="form" method="post" action="{{ url('aoicollector/prod/routeop') }}">
             <div class="form-group">
                 <div class="col-sm-4 col-sm-offset-1">
-                    <h3>Formulario de creacion de rutas</h3>
+                    <h3>Configurar: {{  ($op!="") ? $op : Input::old('op') }}</h3>
                 </div>
             </div>
 
@@ -77,35 +44,58 @@
 
                 <div class="form-group">
                     <div class="col-sm-4 col-sm-offset-1">
-                        <input type="text"  class="form-control"  name="op" placeholder="op" value="{{  ($op!="") ? $op : Input::old('op') }}">
+                        <input type="text" class="form-control" name="regex" placeholder="Expresion Regular" value="{{  Input::old('regex')  }}">
                     </div>
                 </div>
 
                 <div class="form-group">
                     <div class="col-sm-4 col-sm-offset-1">
-                        <input type="text" class="form-control" name="op_puesto_anterior" placeholder="OP Puesto anterior" value="{{  Input::old('op_puesto_anterior')  }}">
+                        <input type="number" class="form-control" name="qty_etiquetas" placeholder="Cantidad de etiquetas" value="{{  Input::old('qty_etiquetas')  }}">
                     </div>
                 </div>
 
-                    <div class="form-group">
-                        <div class="col-sm-4 col-sm-offset-1">
-                            <select class="form-control" name="declara">
-                                <option value="" selected="selected">- Declara-</option>
-                                <option value="0">No</option>
-                                <option value="1">Si</option>
-                            </select>
-                        </div>
+                <div class="form-group">
+                    <div class="col-sm-4 col-sm-offset-1">
+                        <input type="number" class="form-control" name="qty_bloques" placeholder="Cantidad de bloques" value="{{  Input::old('qty_bloques')  }}">
                     </div>
+                </div>
 
-                    <div class="form-group">
-                        <div class="col-sm-4 col-sm-offset-1">
-                            <input id="submit" name="submit" type="submit" value="Guardar" class="btn btn-primary">
-                        </div>
+                <div class="form-group">
+                    <div class="col-sm-4 col-sm-offset-1">
+                        <input type="hidden" name="op" value="{{  ($op!="") ? $op : Input::old('op') }}">
                     </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-4 col-sm-offset-1">
+                        <input type="checkbox" name="declare" />
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <div class="col-sm-4 col-sm-offset-1">
+                        <input id="submit" name="submit" type="submit" value="Guardar configuracion" class="btn btn-block btn-primary">
+                    </div>
+                </div>
+
         </form>
 
 
     </div>
 
+
+
     @include('aoicollector.prod.partial.footer')
+
+    <script type="text/javascript" src="http://www.jqueryscript.net/demo/Simple-Toggle-Switch-Plugin-With-jQuery-Bootstrap-Bootstrap-Switch/bootstrap-switch.js"></script>
+
+    <script>
+        $("[name='declare']").bootstrapSwitch({
+            on: 'Declara',
+            off: 'No declara',
+            onClass: 'success',
+            offClass: 'warning'
+        });
+    </script>
 @endsection
