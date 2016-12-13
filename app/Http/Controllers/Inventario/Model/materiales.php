@@ -9,7 +9,7 @@ class materiales extends Model
     protected $connection = 'inventario';
     protected $table = 'materiales';
 
-    //protected $fillable = array('op','linMatWip','rawMaterial','codMat','maquina','ubicacion');
+    protected $fillable = array('codigo','descripcion');
     public $timestamps = false;
 
 }

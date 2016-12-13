@@ -1,0 +1,1 @@
+app.controller("servidorMonitorController",["$scope","$http","$interval",function(t,o,n){$("input[dynamicknob]").knob(),t.serverList=[],t.osmonitor=[],t.memoriamonitor=[],t.nodejserror=!1,t.getMonitorStatus=function(){o.get("servermonitor/redis").then(function(o){t.serverList=o.data.status},function(t){})},n(function(){t.getMonitorStatus()},5e3),t.getMonitorStatus()}]);

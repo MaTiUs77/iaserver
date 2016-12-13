@@ -109,7 +109,7 @@ class Produccion extends Model
         if(isset($produccion->barcode))
         {
             $forProduccion[] = $produccion;
-           $produccion = collect($forProduccion);
+            $produccion = collect($forProduccion);
         }
 
         // Se solicita informacion de linea, tiene mas de una AOI

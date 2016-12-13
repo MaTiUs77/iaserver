@@ -25,14 +25,14 @@ class RoleMiddleware
                     'codigo'=> 401,
                     'error'=> 'No tiene los permisos necesarios para ingresar a esta ruta.'
                 ];
-                return Response::multiple_output($output,'errors.msg');
+                return Response::multiple($output,'errors.msg');
             }
         } else {
             $output = [
                 'codigo'=> 401,
                 'error'=> 'Debe iniciar session para ingresar a esta ruta.'
             ];
-            return Response::multiple_output($output,'errors.msg');
+            return Response::multiple($output,'errors.msg');
         }
         return $next($request);
     }

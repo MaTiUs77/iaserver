@@ -24,14 +24,11 @@ class ViewPedidos extends Controller
 {
     public function getMaterialError(Request $request)
     {
-
-
         $pedidos = new CogiscanPedidos();
         $resume = $pedidos->getMaterialError($request->get('partnumber'));
 
         $output = compact('resume');
-        return Response::multiple_output($output, 'monitorpedidos.request_error');
-
+        return Response::multiple($output, 'monitorpedidos.request_error');
     }
 
     public function index(Request $request)
@@ -42,7 +39,7 @@ class ViewPedidos extends Controller
         $resume = $pedidos->getRequestPartial($request->get('partnumber'));
 
         $output = compact('resume');
-        return Response::multiple_output($output, 'monitorpedidos.request_partial');
+        return Response::multiple($output, 'monitorpedidos.request_partial');
     }
     public function requestXLinea($prod_line)
     {
@@ -52,7 +49,7 @@ class ViewPedidos extends Controller
         $resume = $pedidos->getRequestXLinea($prod_line);
 
         $output = compact('resume');
-        return Response::multiple_output($output, 'monitorpedidos.request_partial');
+        return Response::multiple($output, 'monitorpedidos.request_partial');
     }
 
     public function viewMysql(Request $request)
@@ -64,7 +61,7 @@ class ViewPedidos extends Controller
 
         $output = compact('pedido', 'reserva');
 
-        return Response::multiple_output($output, 'monitorpedidos.request_partial_mysql');
+        return Response::multiple($output, 'monitorpedidos.request_partial_mysql');
     }
 
     public function getRequestNew()
@@ -73,7 +70,7 @@ class ViewPedidos extends Controller
         $resume = $material->getRequestNew();
 
         $output = compact('resume');
-        return Response::multiple_output($output, 'monitorpedidos.request_partial');
+        return Response::multiple($output, 'monitorpedidos.request_partial');
     }
 
     public function showReservaXLinea($smt)
@@ -83,7 +80,7 @@ class ViewPedidos extends Controller
         $reserva = $pedidos->showReservaXLinea($smt);
 
         $output = compact('reserva');
-        return Response::multiple_output($output, 'monitorpedidos.reservas');
+        return Response::multiple($output, 'monitorpedidos.reservas');
     }
     public function traza_pedido($insert_id)
     {
@@ -92,7 +89,7 @@ class ViewPedidos extends Controller
         $traza = $pedidos->getTrazaPedidos($insert_id);
         $traza_complete = $pedidos->trazabilidad($insert_id);
         $output = compact('traza','traza_complete');
-        return Response::multiple_output($output,'monitorpedidos.trazaPedido');
+        return Response::multiple($output,'monitorpedidos.trazaPedido');
     }
     public function verHistorialPartNumber(Request $partnumber)
     {
@@ -108,12 +105,12 @@ class ViewPedidos extends Controller
                         $historial_pedidoXlpn = $pedido->getRequestXLpn($historial_idXlpn->id);
                         $historial_reservaXid = $pedido->getRequestXidReservas($historial_idXlpn->id);
                         $output = compact('historial_cgs', 'historial_deltamonitor', 'historial_reservas', 'historial_interfaz', 'historial_interfaz_error', 'historial_pedidoXlpn', 'historial_reservaXid');
-                        return Response::multiple_output($output, 'monitorpedidos\consultas.consultas');
+                        return Response::multiple($output, 'monitorpedidos\consultas.consultas');
                     } else {
                         $historial_pedidoXlpn = collect([]);
                         $historial_reservaXid = collect([]);
                         $output = compact('historial_cgs', 'historial_deltamonitor', 'historial_reservas', 'historial_interfaz', 'historial_interfaz_error', 'historial_pedidoXlpn', 'historial_reservaXid');
-                        return Response::multiple_output($output, 'monitorpedidos\consultas.consultas');
+                        return Response::multiple($output, 'monitorpedidos\consultas.consultas');
                     }
     }
     public function reservaTransito()
@@ -123,7 +120,7 @@ class ViewPedidos extends Controller
             $reserva = $pedidos->getRequestTransito();
 
             $output = compact('reserva');
-            return Response::multiple_output($output, 'monitorpedidos.transitview');
+            return Response::multiple($output, 'monitorpedidos.transitview');
 
     }
     public function reservaTransitoXlinea($linea)
@@ -133,7 +130,7 @@ class ViewPedidos extends Controller
         $reserva = $pedidos->getRequestTransitoReserva($linea);
 
         $output = compact('reserva');
-        return Response::multiple_output($output, 'monitorpedidos.transitview');
+        return Response::multiple($output, 'monitorpedidos.transitview');
     }
 
     public function traza_complete($id,$item_code)
@@ -142,6 +139,6 @@ class ViewPedidos extends Controller
             $trazaPartNumber = $partnumber->trazabilidad($id,$item_code);
             dd($trazaPartNumber);
             $output = compact('trazaPartNumber');
-            return Response::multiple_output($output, 'monitorpedidos.traza_complete');
+            return Response::multiple($output, 'monitorpedidos.traza_complete');
    }
 }

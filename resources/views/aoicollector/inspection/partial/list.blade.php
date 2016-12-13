@@ -1,12 +1,4 @@
 <style>
-   /* .table-striped tbody tr:nth-child(2n+1) > td {
-        background-color: #F7F7F7;
-    }
-
-    .table-hover tbody tr:hover td, .table-hover tbody tr:hover th {
-        background-color: #FFFDD1;
-    }*/
-
     .table tbody tr td {
         text-align: center;
 
@@ -27,6 +19,16 @@
         background-color: rgb(88, 88, 88);
         color: white;
         text-align: center;
+    }
+
+    .tooltip-inner {
+        white-space:pre;
+        max-width: none;
+    }
+
+    .icosize
+    {
+        font-size:20px;
     }
 
 </style>
@@ -51,14 +53,14 @@
     </thead>
     <tbody>
     <!-- Si hay un error los muestro -->
-    @if ( isset($insp->error))
+    @if ( isset($inspectionList->inspecciones ->error))
         <tr>
             <td colspan="13">
                 {{ $insp->error }}
             </td>
         </tr>
     @else
-        @if (count($insp) == 0)
+        @if (count($inspectionList->inspecciones ) == 0)
             <tr>
                 <td colspan="13">
                     No se registraron inspecciones
@@ -66,7 +68,7 @@
             </tr>
         @else
             <!-- Muestro resultados de paneles inspeccionados -->
-            @foreach( $insp as $panel)
+            @foreach( $inspectionList->inspecciones as $panel)
                 <tr class="{{ ($panel->revision_aoi == 'OK' && $panel->revision_ins == 'OK' ) ? 'success' : '' }} {{ ($panel->revision_ins == 'NG' ) ? 'danger' : '' }}">
                     <td style="width:50px;">
                         <button id_panel="{{ $panel->id_panel_history }}" route="{{ route('aoicollector.inspection.blocks',$panel->id_panel_history) }}" ng-click="getInspectionBlocks($event);" class="btn btn-xs btn-default">Bloques</button>
@@ -91,10 +93,18 @@
                     <td>{{ $panel->created_time }}</td>
                     <td>
                         <?php
-                        $verify = new \IAServer\Http\Controllers\Aoicollector\Inspection\VerificarDeclaracion();
-                        $twip = (object) $verify->bloqueEnTransaccionWip($panel->panel_barcode);
+                       // $verify = new \IAServer\Http\Controllers\Aoicollector\Inspection\VerificarDeclaracion();
+                        //$twip = (object) $verify->bloqueEnTransaccionWip($panel->panel_barcode);
                         ?>
 
+                            @if($panel->trans_ok == null)
+                                <i class="fa fa-exclamation-circle text-danger icosize" tooltip-placement="left" tooltip="Sin declarar"></i>
+                            @endif
+                            @if($panel->trans_ok==1)
+                                <i class="fa fa-thumbs-o-up text-success icosize" tooltip-placement="left" tooltip="Declarado"></i>
+                            @endif
+<?php
+                            /*
                         @if(isset($twip) && isset($twip->last))
                             @if($twip->declarado)
                                 <i class="fa fa-thumbs-o-up text-success" tooltip-placement="left" tooltip="Declarado"></i>
@@ -114,6 +124,7 @@
                         @else
                             <i class="fa fa-eye text-info" tooltip-placement="left" tooltip="Sin verificar"></i>
                         @endif
+                            */ ?>
 
                         @if($maquina->cogiscan=='T')
                             <?php
@@ -136,16 +147,48 @@
                             @endif
                         @endif
 
-                        @if($panel->created_date != $panel->firstime)
-                            <i class="fa fa-clock-o" tooltip-placement="left" tooltip="Primera inspeccion: {{ $panel->firstime }}"></i>
+                        @if(isset($panel->first_history_inspeccion_panel))
+                            @if($panel->id_panel_history != $panel->first_history_inspeccion_panel)
+                                <?php
+                                    $firstApparition = $panel->joinFirstInspection;
+                                ?>
+
+                                    <!-- Misma maquina -->
+                                @if($maquina->id == $firstApparition->id_maquina)
+                                    @if($panel->created_date == $firstApparition->created_date)
+                                        <i class="fa fa-history text-info icosize" tooltip-placement="left" tooltip="Primera inspeccion a las {{ $firstApparition->created_time }}"></i>
+                                    @else
+                                        <i class="fa fa-history text-danger icosize" tooltip-placement="left" tooltip="Primera inspeccion {{ \IAServer\Http\Controllers\IAServer\Util::dateToEs($firstApparition->created_date) }} a las {{ $firstApparition->created_time }}"></i>
+                                    @endif
+                                @else
+                                    <!-- Maquina diferente -->
+                                    <i class="fa fa-code-fork text-danger icosize" tooltip-placement="left" tooltip="Primera inspeccion en
+{{ $maquinas->where('id',$firstApparition->id_maquina)->first()->maquina }}
+{{ \IAServer\Http\Controllers\IAServer\Util::dateToEs($firstApparition->created_date) }} a las {{ $firstApparition->created_time }}"></i>
+                                @endif
+                            @endif
                         @endif
                     </td>
 
                 </tr>
             @endforeach
 
+
+            @if($inspectionList->inspecciones instanceof \Illuminate\Pagination\LengthAwarePaginator)
+                <tr>
+                    <td colspan="14">
+                        {!! $inspectionList->inspecciones->appends([
+                            'date_session' => Input::get('date_session'),
+                            'listMode' => Input::get('listMode'),
+                            'filterPeriod' => Input::get('filterPeriod')
+                            ])->links()
+                        !!}
+                    </td>
+                </tr>
+            @endif
+
             <!-- Muestro paginacion, solo si hay mas de una pagina-->
-            @if( isset($total) && $paginas > 1)
+            @if( $inspectionList->filas > 0 && $inspectionList->paginas > 1)
                 <tr>
                     <td colspan="14">
                         @include('aoicollector.inspection.partial.pagination')

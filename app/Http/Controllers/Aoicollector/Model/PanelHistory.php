@@ -2,6 +2,7 @@
 
 namespace IAServer\Http\Controllers\Aoicollector\Model;
 
+use Carbon\Carbon;
 use IAServer\Http\Controllers\Aoicollector\Inspection\VerificarDeclaracion;
 use IAServer\Http\Controllers\Cogiscan\Cogiscan;
 use IAServer\Http\Controllers\SMTDatabase\SMTDatabase;
@@ -13,6 +14,8 @@ class PanelHistory extends Model
 {
     protected $connection = 'iaserver';
     protected $table = 'aoidata.history_inspeccion_panel';
+    public $timestamps = false;
+
 
     /**
      * Relacion de history_inspeccion_panel.id_maquina con maquina.id
@@ -27,6 +30,11 @@ class PanelHistory extends Model
     public function joinBloques()
     {
         return $this->hasMany('IAServer\Http\Controllers\Aoicollector\Model\BloqueHistory', 'id_panel_history', 'id_panel_history');
+    }
+
+    public function joinFirstInspection()
+    {
+        return $this->hasOne('IAServer\Http\Controllers\Aoicollector\Model\PanelHistory', 'id_panel_history', 'first_history_inspeccion_panel');
     }
 
     public function twip()
@@ -109,23 +117,26 @@ class PanelHistory extends Model
         $fecha = '"'.$fecha.'"';
         if(empty($op))
         {
-           $q = self::select(DB::raw('
-           *,
+           $q = self::select(DB::raw("
+                *,
                 (
-                    select MIN(subp.created_date) from `aoidata`.`history_inspeccion_panel` as subp where
-                    subp.panel_barcode = p.panel_barcode and
-                    subp.id_maquina = '.$id_maquina.'
-                    group by subp.panel_barcode, subp.id_maquina
-                ) as firstime'))
-                ->from("aoidata.history_inspeccion_panel as p")
-                ->where('p.id_maquina',$id_maquina)
-                ->whereRaw("p.created_date = $fecha")
-                ->whereIn('p.created_time',function($sub) use($fecha, $id_maquina, $minOrMax)
+                    select first_history_inspeccion_panel from `aoidata`.`inspeccion_panel` as subp where
+                    subp.panel_barcode = hp.panel_barcode
+                ) as first_history_inspeccion_panel,
+                (
+                    select trans_ok from `aoidata`.`transaccion_wip` as subt where
+                    subt.barcode = hp.panel_barcode
+                ) as trans_ok
+                "))
+                ->from("aoidata.history_inspeccion_panel as hp")
+                ->where("hp.id_maquina",$id_maquina)
+                ->whereRaw("hp.created_date = $fecha")
+                ->whereIn("hp.created_time",function($sub) use($fecha, $id_maquina, $minOrMax)
                 {
                     $sub->select(DB::raw($minOrMax."(created_time)"))
                         ->from("aoidata.history_inspeccion_panel")
-                        ->where('id_maquina',$id_maquina)
-                        ->whereRaw('panel_barcode = p.panel_barcode')
+                        ->where("id_maquina",$id_maquina)
+                        ->whereRaw('panel_barcode = hp.panel_barcode')
                         ->whereRaw("created_date = $fecha")
                         ->groupBy("panel_barcode")
                         ->groupBy("id_maquina");
@@ -221,7 +232,7 @@ class PanelHistory extends Model
         return $q;
     }
 
-    public static function periodFirstApparation($idMaquinaOrOP, $maxOrmin='MAX', $fecha='CURDATE()',$minutes=60)
+    public static function periodFirstApparation($idMaquinaOrOP, $maxOrmin='MAX', Carbon $desdeCarbon, Carbon $hastaCarbon,$minutes=60)
     {
         $id_maquina = null;
         $op = null;
@@ -233,9 +244,9 @@ class PanelHistory extends Model
             $op = $idMaquinaOrOP;
         }
 
-        if($fecha!='CURDATE()')
+        if($desdeCarbon==null)
         {
-            $fecha = '"'.$fecha.'"';
+            $desdeCarbon = Carbon::now();
         }
 
         $q = self::select(DB::raw("
@@ -252,58 +263,54 @@ class PanelHistory extends Model
         if($id_maquina!=null)
         {
             $q = $q->where('p.id_maquina',$id_maquina)
-                    ->whereRaw("p.created_date = $fecha");
+                ->whereRaw("p.created_date = '".$desdeCarbon->toDateString()."'");
         } else
         {
             $q = $q->where('p.inspected_op',$op);
         }
-            $q = $q->whereIn('p.created_date',function($sub) use($fecha, $id_maquina, $op, $maxOrmin)
+        $q = $q->whereIn('p.created_date',function($sub) use($id_maquina, $op, $maxOrmin) {
+            $sub = $sub->select(DB::raw($maxOrmin."(created_date)"))
+                ->from("aoidata.history_inspeccion_panel")
+                ->whereRaw('panel_barcode = p.panel_barcode')
+                ->groupBy("panel_barcode")
+                ->groupBy("id_maquina");
+
+            if($id_maquina!=null)
             {
-                $sub = $sub->select(DB::raw($maxOrmin."(created_date)"))
-                    ->from("aoidata.history_inspeccion_panel")
-                    ->whereRaw('panel_barcode = p.panel_barcode')
-                    ->groupBy("panel_barcode")
-                    ->groupBy("id_maquina");
-
-                if($id_maquina!=null)
-                {
-                    $sub = $sub->where('id_maquina',$id_maquina);
-                } else
-                {
-                    $sub = $sub->where('p.inspected_op',$op);
-                }
-            });
-
-            $q = $q->whereIn('p.created_time',function($sub) use($fecha, $id_maquina, $op, $maxOrmin)
+                $sub = $sub->where('id_maquina',$id_maquina);
+            } else
             {
-                $sub = $sub->select(DB::raw($maxOrmin."(created_time)"))
-                    ->from("aoidata.history_inspeccion_panel")
-                    ->whereRaw('panel_barcode = p.panel_barcode')
-                    ->groupBy("panel_barcode")
-                    ->groupBy("id_maquina");
+                $sub = $sub->where('p.inspected_op',$op);
+            }
+        });
 
-                if($id_maquina!=null)
-                {
-                    $sub = $sub->where('id_maquina',$id_maquina)
-                        ->whereRaw("created_date = $fecha");
-                } else
-                {
-                    $sub = $sub->where('p.inspected_op',$op);
-                }
-            })
-            ->groupBy("periodo")
-            ->groupBy(DB::raw('p.inspected_op'))
-            ->groupBy(DB::raw('p.created_date'))
-            ->orderBy(DB::raw('p.created_date'),'asc')
-            ->orderBy(DB::raw('p.created_time'),'asc');
+        $q = $q->whereIn('p.created_time',function($sub) use($desdeCarbon, $id_maquina, $op, $maxOrmin){
+            $sub = $sub->select(DB::raw($maxOrmin."(created_time)"))
+                ->from("aoidata.history_inspeccion_panel")
+                ->whereRaw('panel_barcode = p.panel_barcode')
+                ->groupBy("panel_barcode")
+                ->groupBy("id_maquina");
+
+            if($id_maquina!=null)
+            {
+                $sub = $sub->where('id_maquina',$id_maquina)
+                    ->whereRaw("created_date = '".$desdeCarbon->toDateString()."'");
+            } else
+            {
+                $sub = $sub->where('p.inspected_op',$op);
+            }
+        })
+        ->groupBy("periodo")
+        ->groupBy(DB::raw('p.inspected_op'))
+        ->groupBy(DB::raw('p.created_date'))
+        ->orderBy(DB::raw('p.created_date'),'asc')
+        ->orderBy(DB::raw('p.created_time'),'asc');
 
         return $q;
     }
 
-    public static function periodFirstApparationOptimized($idMaquinaOrOP, $maxOrmin='MAX', $fecha='CURDATE()',$minutes=60)
+    public static function produccionByRange($id_maquina, $maxOrmin='MIN', Carbon $desdeCarbon = null, Carbon $hastaCarbon= null, $minutes=60)
     {
-        $id_maquina = null;
-        $op = null;
         $apparition = null;
 
         switch($maxOrmin)
@@ -316,47 +323,33 @@ class PanelHistory extends Model
                 break;
         }
 
-        if(is_numeric($idMaquinaOrOP))
-        {
-            $id_maquina = $idMaquinaOrOP;
-        } else
-        {
-            $op = $idMaquinaOrOP;
+        if($desdeCarbon == null)  {
+            $desdeCarbon = Carbon::now();
         }
 
-        if($fecha!='CURDATE()')
-        {
-            $fecha = '"'.$fecha.'"';
+        if($hastaCarbon == null)  {
+            $hastaCarbon = Carbon::now();
         }
 
         $q = self::select(DB::raw("
-            COUNT(*) as total ,
-            p.inspected_op as op,
-            YEAR(hp.created_date) as anio,
-            MONTH(hp.created_date) as mes,
-            DAY(hp.created_date) as dia,
+            COUNT(hb.id_panel_history) as placas,
+            hp.inspected_op as op,
+            hp.created_date,
+            hp.turno,
             SEC_TO_TIME((TIME_TO_SEC(hp.created_time) DIV (".$minutes."*60)) * (".$minutes."*60)) AS periodo
 	        "))
-            ->from("aoidata.inspeccion_panel as p")
-            ->join( 'aoidata.history_inspeccion_panel as hp', function($join) use($fecha,$apparition)
-            {
-                $join->on(DB::raw( 'hp.id_panel_history' ), '=', DB::raw( 'p.'.$apparition ));
-                $join->on(DB::raw( 'hp.id_maquina' ), '=', DB::raw( 'p.id_maquina' ));
-                $join->on(DB::raw( 'hp.created_date' ), '=', DB::raw( $fecha));
-            })
-            ->join( 'aoidata.history_inspeccion_bloque as hb', DB::raw( 'hb.id_panel_history' ), '=', DB::raw( 'p.'.$apparition ) );
+            ->from("aoidata.history_inspeccion_panel as hp")
+            ->join('aoidata.inspeccion_panel as p', DB::raw('hp.id_panel_history'), '=', DB::raw('p.'.$apparition))
+            ->join('aoidata.history_inspeccion_bloque as hb', DB::raw('hb.id_panel_history'), '=', DB::raw('hp.id_panel_history'))
 
-        if($id_maquina!=null)
-        {
-            $q = $q->where('p.id_maquina',$id_maquina);
-        } else
-        {
-            $q = $q->where('p.inspected_op',$op);
-        }
+            ->where('hp.id_maquina',$id_maquina)
+            ->whereRaw("hp.created_date between '".$desdeCarbon->toDateString()."' and '".$hastaCarbon->toDateString()."'")
 
-        $q = $q->groupBy("periodo")
-            ->groupBy(DB::raw('p.inspected_op'))
-            ->groupBy(DB::raw('hp.created_date'))
+            ->groupBy(DB::raw('p.created_date'))
+            ->groupBy("periodo")
+            ->groupBy(DB::raw('hp.inspected_op'))
+            ->groupBy(DB::raw('hp.turno'))
+
             ->orderBy(DB::raw('hp.created_date'),'asc')
             ->orderBy(DB::raw('hp.created_time'),'asc');
 
@@ -405,20 +398,16 @@ class PanelHistory extends Model
         $w = new Wip();
         $smt = SMTDatabase::findOp($this->inspected_op);
 
-        // Obtengo semielaborado desde interfaz
-        $wipResult = $w->findOp($this->inspected_op,false,false);
-        $semielaborado =null;
-        if(isset($wipResult->wip_ot->codigo_producto))
+        if($smt->semielaborado == null)
         {
-            $semielaborado = $wipResult->wip_ot->codigo_producto;
+            // Obtengo semielaborado desde interfaz
+            $wipResult = $w->findOp($this->inspected_op,false,false);
+            if(isset($wipResult->wip_ot->codigo_producto))
+            {
+                $smt->semielaborado = $wipResult->wip_ot->codigo_producto;
+                $smt->save();
+            }
         }
-        $smt->semielaborado = $semielaborado;
-
-        unset($smt->op);
-        unset($smt->id);
-        unset($smt->prod_aoi);
-        unset($smt->prod_man);
-        unset($smt->qty);
 
         return $smt;
     }

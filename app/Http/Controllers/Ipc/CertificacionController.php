@@ -27,7 +27,7 @@ class CertificacionController extends Controller
 
         $output = compact('certificacion');
 
-        return Response::multiple_output($output,'ipc.certificacion.index');
+        return Response::multiple($output,'ipc.certificacion.index');
     }
 
     public function create()

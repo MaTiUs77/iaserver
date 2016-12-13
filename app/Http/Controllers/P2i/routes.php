@@ -1,10 +1,7 @@
 <?php
 Route::group(['prefix' => 'p2i'], function() {
 
-    Route::get('/', function() {
-        return redirect('p2i/carga');
-    });
-
+    Route::get('/', 'P2i\CargaController@index');
     Route::resource('/carga', 'P2i\CargaController',['except' => ['show']]);
     Route::resource('/limpieza', 'P2i\LimpiezaController',['except' => ['show']]);
     Route::resource('/secador', 'P2i\SecadorController',['except' => ['show']]);

@@ -19,7 +19,7 @@ class InspectionExport extends Controller
         $fecha = Util::dateToEn(Session::get('date_session'));
 
         $insp = PanelHistory::listar($id_maquina, $fecha, "",$minOrMax)->get();
-        $filename = 'SMD-'.$maquina->linea.'_'.$fecha.'.csv';
+        $filename = 'SMD-'.$maquina->linea.'_'.$fecha;
 
         $insp->makeHidden([
             'id_panel_history',
@@ -43,4 +43,16 @@ class InspectionExport extends Controller
 
         })->download('xls');
     }
+/*
+    public function collectionToExcel($filename, $collection)
+    {
+        Excel::create('Export_'.$filename, function($excel) use($collection,$filename) {
+
+            $excel->sheet($filename, function($sheet) use($collection) {
+                $sheet->setOrientation('landscape');
+                $sheet->fromModel($collection);
+            });
+
+        })->download('xls');
+    }*/
 }

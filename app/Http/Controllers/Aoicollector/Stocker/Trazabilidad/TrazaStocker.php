@@ -6,8 +6,8 @@ use IAServer\Http\Controllers\Aoicollector\Inspection\VerificarDeclaracion;
 use IAServer\Http\Controllers\Aoicollector\Model\PanelHistory;
 use IAServer\Http\Controllers\Aoicollector\Model\Produccion;
 use IAServer\Http\Controllers\Aoicollector\Model\Stocker;
-use IAServer\Http\Controllers\Aoicollector\Model\TransaccionWip;
 use IAServer\Http\Controllers\Aoicollector\Stocker\Controller\StockerController;
+use IAServer\Http\Controllers\Aoicollector\Stocker\Src\StockerContent;
 use IAServer\Http\Requests;
 use Illuminate\Support\Facades\Input;
 
@@ -85,7 +85,6 @@ class TrazaStocker extends StockerController
             {
                 $verify = new VerificarDeclaracion();
                 $interfazWip = $verify->panelEnTransaccionesWipOrCheckInterfazWip($panel);
-                //$interfazWip = $verify->panelEnInterfazWip($panel);
 
                 $addPanel->declaracion = $interfazWip->declaracion;
                 $addPanel->bloques = $interfazWip->bloques;
@@ -144,5 +143,25 @@ class TrazaStocker extends StockerController
         }
 
         return (object) $output;
+    }
+
+    public function withOp($op)
+    {
+         $allstocker = Stocker::vista()
+            ->where('op', $op)
+            ->where('paneles','>',0)
+            ->where('id_stocker_route', 1)
+            ->orderBy('created_at','desc')
+            ->get();
+
+        /*
+                $stockerList = [];
+                if (count($allstocker) > 0) {
+                    foreach ($allstocker as $stk) {
+                        $stockerList[] = $this->stockerInfoById($stk->id);
+                    }
+                }*/
+
+        return $allstocker;
     }
 }

@@ -2,7 +2,8 @@ app.controller("prodController",
     ["$scope","$rootScope","$http","$timeout","$interval", "IaCore", "Aoi", "Stocker", "Panel", "toasty", "cfpLoadingBar",
     function($scope,$rootScope,$http,$timeout,$interval, IaCore, Aoi, Stocker, Panel, toasty, cfpLoadingBar) {
     $rootScope.configprod = {
-        aoibarcode : IaCore.storage({name:'aoibarcode'})
+        aoibarcode : IaCore.storage({name:'aoibarcode'}),
+        socketio: ':8080'
     };
 
     $rootScope.aoiService = {};
@@ -29,7 +30,7 @@ app.controller("prodController",
         }
     };
 
-    var socket = io.connect(':8080');
+    var socket = io.connect($rootScope.configprod.socketio);
 
     socket.on('connect_error', function(){
         toasty.error({
@@ -90,12 +91,12 @@ app.controller("prodController",
             }
 
             if(data.produccion) {
-                $rootScope.stockerService.loading = true;
-                if(data.produccion.stocker)
+                $rootScope.stockerService.stocker = data.produccion.stocker;
+                Stocker.autoscroll($rootScope.stockerService.stocker.paneles);
+                /*if(data.produccion.stocker.barcode)
                 {
-                    socket.emit('stockerDeclared',data.produccion.stocker.barcode);
-                    Stocker.autoscroll($rootScope.stockerService.paneles);
-                }
+                    socket.emit('stockerInfo',data.produccion.stocker.barcode);
+                }*/
             }
         }
 
@@ -156,8 +157,7 @@ app.controller("prodController",
                 userId = userId[0];
             }
 
-            var userBarcode = scannedValue.replace("DLOGIN", "");
-            var userBarcode = userBarcode.replace("LOGIN", "");
+            var userBarcode = scannedValue.replace("DLOGIN", "").replace("LOGIN", "");
             var userName = userBarcode.replace(userId, "");
 
             toasty.info({
@@ -166,18 +166,14 @@ app.controller("prodController",
                 timeout: 5000
             });
 
-//            userSplit = userBarcode.split('SPLIT');
-
             var credentials = {
                 name : userName,
                 userid : userId,
                 aoibarcode: $rootScope.aoiService.produccion.barcode
             };
 
-            var authUser = $http({method:'POST',url:'prod/user/login',params:credentials});
-
-            authUser.then(function(result)
-            {
+            $http({method:'POST',url:'prod/user/login',params:credentials})
+            .then(function(result) {
                 result = result.data;
                 if(result) {
                     if(result.error) {

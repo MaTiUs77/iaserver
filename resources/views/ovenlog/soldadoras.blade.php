@@ -23,14 +23,4 @@
 
     @endif
 </div>
-
-{{--<!-- Angular Translate -->--}}
-{{--{!! IAScript('assets/angular-translate/angular-translate.min.js') !!}--}}
-{{--<!-- BootSwatch -->--}}
-{{--{!! IAStyle('assets/bootswatch/paper/bootstrap.min.css') !!}--}}
-{{-- Angular File Manager --}}
-{{--{!! IAStyle('assets/angular-filemanager/dist/angular-filemanager.min.css') !!}--}}
-{{--{!! IAScript('assets/angular-filemanager/dist/angular-filemanager.min.js') !!}--}}
-
-{{--{!! IAScript('vendor/ovenlog/app.js') !!}--}}
 @stop

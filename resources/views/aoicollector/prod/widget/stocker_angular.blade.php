@@ -26,12 +26,27 @@
     }
 
     #stocker_box div.panel_trace {
-
         height:200px;
         overflow:auto;
     }
-    #stocker_box div.panel_trace a.panel_saved {
+
+    #stocker_box div.panel_trace a.panel_item {
+        font-size: 12px;
+    }
+
+    #stocker_box div.panel_trace a.panel_declarado {
         background-color:#7ed67e;
+        color:#FFFFFF;
+    }
+
+    #stocker_box div.panel_trace a.panel_empty {
+        background-color: #f8f8f8;
+        color:#000000;
+    }
+    /*
+
+    #stocker_box div.panel_trace a.panel_pendiente {
+        background-color: #7cb3d6;
         color:#FFFFFF;
     }
 
@@ -49,10 +64,10 @@
     #stocker_box div.panel_trace a.panel_item:hover {
         background-color: #000000;
         color: #FFFFFF;
-    }
+    }*/
 </style>
 
-<div ng-hide="stockerService.stocker.barcode || stockerService.loading" >
+<div ng-hide="stockerService.stocker.barcode" >
     <div class="panel panel-danger" ng-show="aoiService.produccion.op && !stockerService.stocker.barcode">
         <div class="panel-heading">ATENCION</div>
         <div class="panel-body">
@@ -63,7 +78,6 @@
     </div>
 </div>
 
-{{-- SI EXISTE CONFIGURACION DE STOCKER, MUESTRO ESTADO DEL MISMO --}}
 <div id="stocker_box" class="list-group" ng-show="stockerService.stocker.barcode">
     <!-- STOCKER HEADER -->
     <a class="list-group-item header">
@@ -89,12 +103,26 @@
         <div>Total: <span id="stocker_count_unity">@{{stockerService.stocker.unidades}}</span></div>
     </a>
 
-    <!-- PANELES EN STOCKER -->
     <div class="panel_trace">
-        <a id="panel_@{{n}}" ng-repeat="n in [] | range:(stockerService.stocker.limite)" class="list-group-item panel_item" ng-class="stockerService.contenido.paneles[n].declaracion.declarado ? 'panel_saved panel_highlight' : 'panel_empty'">
-            #@{{ n }} @{{ stockerService.contenido.paneles[n].panel.panel_barcode }}
+        <a id="panel_@{{n}}" ng-repeat="n in [] | range:stockerService.stocker.limite" class="list-group-item panel_item" ng-class="n <= stockerService.stocker.paneles ? 'panel_declarado' : 'panel_empty'">
+           Panel: @{{ n }}
         </a>
     </div>
-    <!-- FIN -->
+
+    <!-- PANELES EN STOCKER CON VERIFICACION DE TRAZA
+    <div class="panel_trace">
+        <a id="panel_@{{n}}" ng-repeat="n in [] | range:stockerService.stocker.limite" class="list-group-item panel_item">
+            <span ng-if="!stockerService.contenido.paneles[n-1].panel.panel_barcode">
+               Panel: @{{ n }}
+            </span>
+            @{{ stockerService.contenido.paneles[n-1].panel.panel_barcode }}
+            <span ng-if="!stockerService.contenido.paneles[n-1].declaracion.declarado && stockerService.contenido.paneles[n-1].panel.panel_barcode" class="fa fa-thumbs-o-down  fa-1x text-danger panelsize pull-right"></span>
+            <span ng-if="stockerService.contenido.paneles[n-1].declaracion.declarado" class="fa fa-thumbs-o-up fa-1x text-success panelsize pull-right"></span>
+            <span ng-if="stockerService.contenido.paneles[n-1].declaracion.pendiente" class="fa fa-clock-o fa-1x text-info panelsize pull-right"></span>
+            <span ng-if="stockerService.contenido.paneles[n-1].declaracion.error" class="fa fa-thumbs-o-up fa-1x text-danger panelsize pull-right"></span>
+            <span ng-if="stockerService.contenido.paneles[n-1].declaracion.parcial" class="fa fa-thumbs-o-up fa-1x text-warning panelsize pull-right"></span>
+        </a>
+    </div>
+    FIN -->
 </div>
 

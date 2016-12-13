@@ -5,53 +5,52 @@
         @include('aoicollector.prod.widget.stocker_angular')
     </div>
 
-    <div class="col-sm-8 col-md-9 col-lg-9">
-        <div class="info-box" style="margin-bottom: 5px;">
-
-            <span class="info-box-icon" ng-class="aoiService.produccion.wip.active ? 'bg-green' : 'bg-red'" style="width:150px;font-size: 28px;padding:0px 5px 0px 5px;margin-right:5px;">
-                <text ng-show="aoiService.produccion.wip.active">
-                    ACTIVA
-                </text>
-                 <text ng-hide="aoiService.produccion.wip.active">
-                     CERRADA
-                 </text>
-            </span>
-
-            <div class="info-box-content">
-
-                <h1 style="margin: 0px;">
+    <div class="col-sm-8">
+        <div class="box box-primary">
+            <div class="box-header with-border">
+                <h3 class="box-title">
                     @{{ aoiService.produccion.op }}
-                    <small>@{{ aoiService.produccion.wip.wip_ot.codigo_producto}}</small>
-                </h1>
-                <h4>
-                @{{ aoiService.produccion.smt.modelo}} -
-                @{{ aoiService.produccion.smt.panel}} -
-                @{{ aoiService.produccion.smt.lote}}
-                </h4>
+                    <small>
+                        @{{ aoiService.produccion.smt.modelo}} -
+                        @{{ aoiService.produccion.smt.panel}} -
+                        @{{ aoiService.produccion.smt.lote}}
+                    </small>
+                </h3>
+
+                <div class="box-tools pull-right">
+                    Producir:
+                    <span style="font-size: 16px;">
+                        @{{ aoiService.produccion.wip.wip_ot.start_quantity }}
+                    </span>
+
+                    <span style="padding: 5px;font-weight: normal;" class="label" ng-class="aoiService.produccion.wip.active ? 'label-success' : 'label-danger'">
+                        <span ng-show="aoiService.produccion.wip.active">ACTIVA</span>
+                        <span ng-hide="aoiService.produccion.wip.active">CERRADA</span>
+                    </span>
+                    &nbsp;
+                </div>
             </div>
-            <!-- /.info-box-content -->
-        </div>
+            <div class="box-body" style="display: block;">
+                Modo:
+                <span ng-if="aoiService.produccion.manual_mode==0">
+                    <span style="padding: 5px;" class="label label-success">AOI</span>
+                </span>
+                <span ng-if="aoiService.produccion.manual_mode==1">
+                    <span style="padding: 5px;" class="label label-warning">MANUAL</span>
+                </span>
+                <span ng-if="aoiService.produccion.manual_mode==2">
+                    <span style="padding: 5px;" class="label label-info">MONTAJE</span>
+                </span>
 
-        <div style="border-bottom: 1px solid #efefef;margin-bottom: 5px;padding-bottom:5px;">
-            <small>Modo:</small>
-            <text ng-if="aoiService.produccion.manual_mode==0">
-                <span style="padding: 5px;" class="label label-success">AOI</span>
-            </text>
-            <text ng-if="aoiService.produccion.manual_mode==1">
-                <span style="padding: 5px;" class="label label-warning">MANUAL</span>
-            </text>
-            <text ng-if="aoiService.produccion.manual_mode==2">
-                <span style="padding: 5px;" class="label label-info">MONTAJE</span>
-            </text>
-
-            <small>Puesto SFCS:</small>
-            <span style="padding: 5px;" class="label label-primary">@{{ aoiService.produccion.sfcs.puesto }}</span>
-            <span ng-if="aoiService.produccion.sfcs.declara==1">
-                <span style="padding: 5px;" class="label label-info">DECLARA</span>
-            </span>
-            <span ng-if="aoiService.produccion.sfcs.declara==0">
-                <span style="padding: 5px;" class="label label-danger">NO DECLARA</span>
-            </span>
+                    Puesto
+                    <span style="padding: 5px;" class="label label-primary">@{{ aoiService.produccion.sfcs.puesto }}</span>
+                <span ng-if="aoiService.produccion.sfcs.declara==1">
+                    <span style="padding: 5px;" class="label label-info">DECLARA</span>
+                </span>
+                <span ng-if="aoiService.produccion.sfcs.declara==0">
+                    <span style="padding: 5px;" class="label label-danger">NO DECLARA</span>
+                </span>
+            </div>
         </div>
     </div>
 
@@ -62,36 +61,49 @@
             </div><!-- /.box-header -->
             <div class="box-body">
 
-                <div class="row">
-                    <div class="col-md-3" ng-show="aoiService.produccion.smt.prod_aoi != aoiService.produccion.smt.qty">
-                         <span style="font-size:25px;height: 56px;line-height: 56px;" class="info-box-icon" ng-class="aoiService.produccion.smt.prod_aoi > aoiService.produccion.smt.qty ? 'bg-green' : 'bg-red'">
-                            <span ng-if="aoiService.produccion.smt.prod_aoi > aoiService.produccion.smt.qty">
-                                +@{{ aoiService.produccion.smt.prod_aoi - aoiService.produccion.smt.qty }}
-                            </span>
+                <h4 ng-if="aoiService.produccion.smt.prod_aoi == aoiService.produccion.smt.qty" style="margin: 0;">
+                    Produccion completa!
+                </h4>
 
-                            <span ng-if="aoiService.produccion.smt.prod_aoi < aoiService.produccion.smt.qty">
-                                @{{ aoiService.produccion.smt.qty - aoiService.produccion.smt.prod_aoi  }}
-                            </span>
-                         </span>
-                    </div>
-                    <div class="col-md-3" ng-show="aoiService.produccion.smt.prod_aoi == aoiService.produccion.smt.qty">
-                         <span style="font-size:25px;height: 56px;line-height: 56px;" class="info-box-icon bg-green">
-                             FIN
-                         </span>
-                    </div>
-                    <div class="col-md-9">
-                        <h3 style="margin-top: 0px;">@{{ aoiService.produccion.smt.prod_aoi }} <small>de</small>
-                            @{{ aoiService.produccion.smt.qty }}
-                        </h3>
-
-                        <div class="progress" style="margin-bottom: 5px; ">
-                            <div class="progress-bar progress-bar-primary progress-bar-striped active" role="progressbar" aria-valuenow="@{{ aoiService.produccion.smt.porcentaje }}" aria-valuemin="0" aria-valuemax="4740" style="width: @{{ aoiService.produccion.smt.porcentaje }}%; min-width: 4em;">
-                                @{{ aoiService.produccion.smt.porcentaje }}%
-                            </div>
-                        </div>
+                <div class="progress" style="margin-bottom: 5px; ">
+                    <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="@{{ aoiService.produccion.smt.porcentaje }}" aria-valuemin="0" aria-valuemax="@{{ aoiService.produccion.smt.qty }}" style="width: @{{ aoiService.produccion.smt.porcentaje }}%; min-width: 4em;">
+                        @{{ aoiService.produccion.smt.porcentaje }}%
                     </div>
                 </div>
 
+                <div class="row">
+                    <div class="col-xs-6 col-sm-6 col-md-6 border-left">
+                        <div class="description-block">
+                            <h5 class="description-header">
+                                @{{ aoiService.produccion.smt.prod_aoi }}
+                            </h5>
+                            <span class="description-text">INSPECCIONES</span>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-6 col-sm-6 col-md-6" >
+                        <div class="description-block">
+                            <h5 class="description-header">
+                                <div ng-if="aoiService.produccion.smt.prod_aoi > aoiService.produccion.smt.qty">
+                                    +@{{ aoiService.produccion.smt.prod_aoi - aoiService.produccion.smt.qty }}
+                                </div>
+
+                                <div ng-if="aoiService.produccion.smt.prod_aoi < aoiService.produccion.smt.qty">
+                                    @{{ aoiService.produccion.smt.qty - aoiService.produccion.smt.prod_aoi  }}
+                                </div>
+                            </h5>
+
+                            <span ng-if="aoiService.produccion.smt.prod_aoi < aoiService.produccion.smt.qty" class="description-text">RESTANTES</span>
+                            <span ng-if="aoiService.produccion.smt.prod_aoi > aoiService.produccion.smt.qty" class="description-text">EXCEDENTE</span>
+
+                            <span ng-if="aoiService.produccion.smt.prod_aoi == aoiService.produccion.smt.qty">
+                                    <i class="fa fa-thumbs-o-up fa-3x text-success"></i>
+                            </span>
+
+                        </div>
+                    </div>
+
+                </div>
             </div><!-- /.box-body -->
             <div class="box-footer">
                 <div class="row">
@@ -129,63 +141,80 @@
         <div class="box box-solid" ng-class="aoiService.produccion.wip.active ? 'box-primary' : 'box-danger'">
             <div class="box-header with-border">
                 <h3 class="box-title">EBS <small style="color: #ffffff;">Declaraciones</small></h3>
-            </div><!-- /.box-header -->
+            </div>
             <div class="box-body" ng-show="aoiService.produccion.wip.active" >
-                <div class="row">
-                    <div class="col-md-3">
-                         <span style="font-size:25px;height: 56px;line-height: 56px;" class="info-box-icon" ng-class="aoiService.produccion.wip.wip_ot.restante > aoiService.produccion.wip.wip_ot.start_quantity ? 'bg-green' : 'bg-red'">
-                            @{{  aoiService.produccion.wip.wip_ot.restante }}
-                         </span>
+                <div class="progress" style="margin-bottom: 5px; ">
+                    <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="@{{ aoiService.produccion.wip.wip_ot.porcentaje }}" aria-valuemin="0" aria-valuemax="@{{ aoiService.produccion.wip.wip_ot.quantity_completed }}" style="width: @{{ aoiService.produccion.wip.wip_ot.porcentaje }}%; min-width: 4em;">
+                        @{{ aoiService.produccion.wip.wip_ot.porcentaje }}%
                     </div>
-                    <div class="col-md-9">
-                        <h3 style="margin-top: 0px;">@{{ aoiService.produccion.wip.wip_ot.quantity_completed }} <small>de</small>
-                            @{{ aoiService.produccion.wip.wip_ot.start_quantity }}
-                        </h3>
+                </div>
+                <div class="row">
+                    <div class="col-xs-6 col-sm-6 col-md-6 border-left">
+                        <div class="description-block">
+                            <h5 class="description-header">
+                                @{{ aoiService.produccion.wip.wip_ot.quantity_completed }}
+                            </h5>
+                            <span class="description-text">DECLARADO</span>
+                        </div>
+                    </div>
 
-                        <div class="progress" style="margin-bottom: 5px; ">
-                            <div class="progress-bar progress-bar-primary progress-bar-striped active" role="progressbar" aria-valuenow="@{{ aoiService.produccion.wip.wip_ot.porcentaje }}" aria-valuemin="0" aria-valuemax="4740" style="width: @{{ aoiService.produccion.wip.wip_ot.porcentaje }}%; min-width: 4em;">
-                                @{{ aoiService.produccion.wip.wip_ot.porcentaje }}%
-                            </div>
+                    <div class="col-xs-6 col-sm-6 col-md-6" >
+                        <div class="description-block">
+                            <h5 class="description-header">
+                                @{{  aoiService.produccion.wip.wip_ot.restante }}
+                            </h5>
+                            <span class="description-text">RESTANTES</span>
                         </div>
                     </div>
                 </div>
-                <!-- END PROGRESSBAR -->
-            </div><!-- /.box-body -->
+            </div>
+
+            <div class="box-body" ng-hide="aoiService.produccion.wip.active" >
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="description-block">
+                            <h5 class="description-header">
+                                <span style="padding: 5px;font-weight: normal;font-size: 20px;" class="label label-danger">
+                                    <span>OP CERRADA</span>
+                                </span>
+                            </h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <div class="box-footer">
                 <div class="row">
-                    <div class="col-xs-6 col-sm-6 col-md-4">
+                    <div class="col-xs-6 col-sm-6 col-md-6">
                         <div class="description-block">
                             <h5 class="description-header">
                                 @{{ aoiService.produccion.wip.transactions.pendientes }}
                             </h5>
                             <span class="description-text">PENDIENTES</span>
                         </div>
-                        <!-- /.description-block -->
                     </div>
-                    <div class="col-xs-6 col-sm-6 col-md-4 border-left">
+                    <div class="col-xs-6 col-sm-6 col-md-6 border-left">
                         <div class="description-block">
                             <h5 class="description-header">
                                 @{{ aoiService.produccion.wip.transactions.errores }}
                             </h5>
                             <span class="description-text">ERRORES</span>
                         </div>
-                        <!-- /.description-block -->
                     </div>
-                    <div class="col-xs-12 col-sm-12 col-md-4 border-left">
+                   {{-- <div class="col-xs-12 col-sm-12 col-md-4 border-left">
                         <div class="description-block">
                             <h5 class="description-header">
-                                @{{ aoiService.produccion.wip.transactions.declaradas }}
+                                @{{ aoiService.produccion.wip.transactions.solicitudes }}
                             </h5>
-                            <span class="description-text">SOLICITUDES</span>
+                            <span class="description-text">PEDIDOS</span>
                         </div>
                         <!-- /.description-block -->
-                    </div>
+                    </div>--}}
                     <!-- /.col -->
                 </div>
                 <!-- /.row -->
             </div>
-        </div><!-- /.box -->
+        </div>
     </div>
 
     <!-- Detalle de transacciones WIP -->

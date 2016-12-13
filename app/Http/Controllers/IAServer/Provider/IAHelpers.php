@@ -69,6 +69,7 @@ function multipleSort($collection,$criteria=array())
     $comparer = $makeComparer($criteria);
     return $collection->sort($comparer);
 }
+
 function hasRole($role)
 {
     if(\Illuminate\Support\Facades\Auth::user() && \Illuminate\Support\Facades\Auth::user()->hasRole($role))
@@ -83,4 +84,13 @@ function hasRole($role)
 function isAdmin()
 {
     return hasRole('admin');
+}
+function isInventoryOper()
+{
+    return hasRole('inventario_operador');
+}
+
+function dateToEs($date)
+{
+    return \IAServer\Http\Controllers\IAServer\Util::dateToEs($date);
 }

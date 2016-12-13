@@ -39,8 +39,6 @@
                             @endforeach
                         </select>
 
-
-
                             <input type="text" name="pizarra_fecha" value="{{ Session::get('pizarra_fecha') }}" placeholder="Seleccionar fecha" class="form-control"/>
                         </div>
                         <button type="submit" class="btn btn-info"><i class="fa fa-calendar"></i> Buscar</button>

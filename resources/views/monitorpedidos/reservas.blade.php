@@ -39,6 +39,7 @@
                 <div class="alert alert-info">{{ Session::get('message') }}</div>
             @endif
         </div>
+        <div class="container table-responsive">
         <table class="table table-hover">
             <thead>
             <tr>
@@ -81,6 +82,7 @@
             @endforeach
             </tbody>
         </table>
+        </div>
     </div>
     {!! IAScript('vendor/monitorpedidos/app.js') !!}
     {!! IAScript('vendor/monitorpedidos/request.js') !!}

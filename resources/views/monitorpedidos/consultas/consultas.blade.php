@@ -19,7 +19,7 @@
 </nav>
 </div>
 
-<div class="container-fluid">
+<div class="container-fluid table-responsive">
 @if(!$historial_deltamonitor->isEmpty())
 
         <div class="panel panel-primary">

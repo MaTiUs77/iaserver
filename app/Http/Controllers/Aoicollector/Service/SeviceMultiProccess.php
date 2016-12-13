@@ -31,7 +31,7 @@ class ServiceMultiProccess extends Service
         } else
         {
             $output = compact('lista');
-            return Response::multiple_output($output,'aoicollector.service.process.index');
+            return Response::multiple($output,'aoicollector.service.process.index');
         }
     }
 }

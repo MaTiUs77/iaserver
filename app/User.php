@@ -28,6 +28,10 @@ class User extends Authenticatable
         return $this->hasOne('IAServer\Http\Controllers\Auth\Entrust\Profile','user_id');
     }
 
+    public function inventario() {
+        return $this->hasOne('IAServer\Http\Controllers\Auth\Entrust\InventarioEntrust','user_id');
+    }
+
     public function hasProfile() {
         if(count($this->profile)) {
             return true;

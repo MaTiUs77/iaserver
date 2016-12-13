@@ -13,7 +13,7 @@
 Route::group(['prefix' => 'monitorop'], function()
 {
 
-//    Route::get('/','menuController@index');
+    Route::get('/', 'MonitorOp\MonitorOpView@defaultIndex');
     Route::get('/op/{modelo?}', 'MonitorOp\MonitorOpView@index');
     Route::get('/insaut/{op?}','MonitorOp\MonitorOpView@indexInsaut');
 

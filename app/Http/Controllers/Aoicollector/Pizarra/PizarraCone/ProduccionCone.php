@@ -36,6 +36,8 @@ class ProduccionCone extends Model
 
             $proy->proyectado = $div_proyectado_period;
             $proy->produccion = $proy->p_real + $proy->p_real_1;
+            $proy->fecha = "$proy->anio-$proy->mes-$proy->dia";
+            $proy->periodo = str_pad($proy->horario, 2, "0", STR_PAD_LEFT).":00:00";
 
             // Evito divisiones por 0
             if($div_proyectado <= 0) {
@@ -53,7 +55,7 @@ class ProduccionCone extends Model
             $proy->porcentaje  = number_format(((($proy->p_real + $proy->p_real_1) / $div_proyectado_period) * 100), 1, '.', '');
         }
 
-        $proyectado = $proyectado->groupBy('turno');
+        //$proyectado = $proyectado->groupBy('turno');
 
         return $proyectado;
     }

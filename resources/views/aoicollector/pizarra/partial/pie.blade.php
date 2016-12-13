@@ -1,6 +1,7 @@
 <?php
     $prodchart = 'prodchart_'.$turno.rand(0,99999);
 ?>
+
 <div id="{{ $prodchart }}" style="height: 400px"></div>
 <script>
         $(function () {

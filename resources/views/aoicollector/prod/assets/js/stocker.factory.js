@@ -11,6 +11,16 @@ app.factory('Stocker',[
 
     var interfaz = {};
 
+    interfaz.autoscroll = function(pos) {
+        var container = $('#stocker_box div.panel_trace');
+        var scrollTo = $('#panel_'+pos);
+        if(scrollTo.offset()) {
+            container.animate({
+                scrollTop: scrollTo.offset().top - container.offset().top + container.scrollTop()
+            });
+        }
+    };
+
     interfaz.nodeInit = function(_socket)
     {
         socket = _socket;
@@ -20,10 +30,24 @@ app.factory('Stocker',[
 
             if(result) {
                 if(result.error) {
-//                    $rootScope.printError('Stocker',result,'modal');
                     console.log('Error',result);
                 } else {
                     $rootScope.stockerService = result;
+                    interfaz.autoscroll($rootScope.stockerService.stocker.paneles);
+                }
+            }
+            $rootScope.$digest();
+        });
+
+        socket.on('stockerInfoResponse', function (result,toastId) {
+            toasty.clear(toastId);
+
+            if(result) {
+                if(result.error) {
+                    console.log('Error',result);
+                } else {
+                    $rootScope.stockerService = result;
+                    interfaz.autoscroll($rootScope.stockerService.stocker.paneles);
                 }
             }
             $rootScope.$digest();
@@ -80,7 +104,7 @@ app.factory('Stocker',[
                         timeout: 2000
                     });
 
-                    $rootScope.stockerService = result;
+                    $rootScope.stockerService.stocker = result;
                 }
             }
             $rootScope.$digest();
@@ -99,22 +123,14 @@ app.factory('Stocker',[
                         timeout: 2000
                     });
 
-                    $rootScope.stockerService = result;
+                    $rootScope.stockerService.stocker = result;
                 }
             }
             $rootScope.$digest();
         });
     };
 
-    interfaz.autoscroll = function(pos) {
-        var container = $('#stocker_box div.panel_trace');
-        var scrollTo = $('#panel_'+pos);
-        if(scrollTo.offset()) {
-            container.animate({
-                scrollTop: scrollTo.offset().top - container.offset().top + container.scrollTop()
-            });
-        }
-    };
+
 
     interfaz.valid = function(stkbarcode) {
         if(stkbarcode) {

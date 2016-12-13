@@ -3,6 +3,7 @@ namespace IAServer\Http\Controllers\Aoicollector\Api;
 
 use IAServer\Http\Controllers\Aoicollector\Inspection\FindInspection;
 use IAServer\Http\Controllers\Aoicollector\Inspection\VerificarDeclaracion;
+use IAServer\Http\Controllers\Aoicollector\Model\Produccion;
 use IAServer\Http\Requests;
 use IAServer\Http\Controllers\Controller;
 
@@ -58,7 +59,7 @@ class Api extends Controller
         return $output;
     }
 
-    public function fullInfo($barcode)
+    public function aoicollectorPlaca($barcode,$verifyDeclared="")
     {
         $output = new \stdClass();
 
@@ -74,31 +75,39 @@ class Api extends Controller
             $panel = $data->panel;
 
             $output->barcode = $barcode;
-            $output->op = $panel->inspected_op;
-            $output->smt = $data->smt;
+            $output->panel = $panel;
 
             // Verifico si el panel es secundario
-            if($panel->isSecundario())
-            {
-                $verify = new VerificarDeclaracion();
-                $interfazWip = $verify->panelSecundarioEnInterfazWip($panel);
-                $output->declaracion = $interfazWip->declaracion;
-            } else
-            {
-                $verify = new VerificarDeclaracion();
-                $interfazWip = $verify->panelEnTransaccionesWipOrCheckInterfazWip($panel);
-                $output->declaracion = $interfazWip->declaracion;
+            if($verifyDeclared) {
+                if ($panel->isSecundario()) {
+                    $verify = new VerificarDeclaracion();
+                    $interfazWip = $verify->panelSecundarioEnInterfazWip($panel);
+                    $output->interfaz = $interfazWip->declaracion;
+                } else {
+                    $verify = new VerificarDeclaracion();
+                    $interfazWip = $verify->panelEnTransaccionesWipOrCheckInterfazWip($panel);
+                    $output->interfaz = $interfazWip->declaracion;
+                }
             }
-            // Esconder algunos datos
-            unset($output->declaracion->parcial);
-            unset($output->declaracion->declarado_total);
-            unset($output->declaracion->parcial_total);
-            unset($output->declaracion->pendiente_total);
-            unset($output->declaracion->error_total);
         } else
         {
             $output = $panel;
         }
+
+        return $output;
+    }
+
+    public function aoicollectorProdInfo($aoibarcode)
+    {
+        $aoibarcode = strtoupper($aoibarcode);
+
+        $output = (object) Produccion::fullInfo($aoibarcode,[
+            'transaction'=>true,
+            'stocker'=>true,
+            'smt'=>true,
+            'placas'=>true,
+            'period' => true
+        ]);
 
         return $output;
     }

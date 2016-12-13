@@ -26,27 +26,5 @@ Route::group(['prefix' => 'amr'], function()
     Route::post('/cancelar/{id}','MonitorPedidos\CogiscanPedidos@cancelRequest');
     Route::get('/pedidos/transito','MonitorPedidos\ViewPedidos@reservaTransito');
     Route::get('/pedidos/transito/{smt}','MonitorPedidos\ViewPedidos@reservaTransitoXlinea');
-    Route::get('/gestionop','MonitorPedidos\GestionOp@getAllMaterialOp');
+    Route::get('/gestionop','MonitorPedidos\ViewGestionOp@getMaterialOp');
 });
-
-
-//
-//Route::resource('/excel','ExcelController@index');
-//Route::get('/login', 'Auth\AuthController@getLogin');
-//Route::post('/login', 'Auth\AuthController@postLogin');
-//
-//Route::get('/register', 'Auth\AuthController@getRegister');
-//Route::post('/register', 'Auth\AuthController@postRegister');
-//
-//// Password reset link request routes...
-//Route::get('password/email', 'Auth\PasswordController@getEmail');
-//Route::post('password/email', 'Auth\PasswordController@postEmail');
-//
-//// Password reset routes...
-//Route::get('password/reset/{token}', 'Auth\PasswordController@getReset');
-//Route::post('password/reset', 'Auth\PasswordController@postReset');
-//
-//Route::get('logout', function(){
-//    Auth::logout();
-//    return redirect('/');
-//});

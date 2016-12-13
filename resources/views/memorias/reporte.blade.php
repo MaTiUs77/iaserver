@@ -19,14 +19,21 @@
             @if(count($produccion)>0)
                 @foreach($produccion->groupBy('id_usuario')->keys()->all() as $id_user)
                     <?php
-                        $user = $produccion->where('id_usuario',$id_user)->first();
                         $grabaciones = $produccion->where('id_usuario',$id_user);
                         $total = $produccion->sum('cantidad');
+                        $user = $grabaciones->first();
                     ?>
                     <div class="col-sm-3 col-md-3 col-lg-3">
                         <blockquote>
+
                             <h3>
-                                {{ ucwords(strtolower($user->operador->profile->fullname()))  }}
+                                @if(isset($user->operador))
+                                    {{ ucwords(strtolower($user->operador->profile->nombre))  }},
+                                    {{ ucwords(strtolower($user->operador->profile->apellido))  }}
+                                @else
+                                    Desconocido
+                                @endif
+
                             </h3>
                             <small>Grabaciones</small>
                             {{ $grabaciones->sum('cantidad') }}

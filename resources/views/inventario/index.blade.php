@@ -1,6 +1,6 @@
-
 @extends('adminlte/theme')
 @section('title','Inventario 2016')
+@section('ng','app')
 @section('mini',false)
 @section('collapse',false)
 @section('menuaside')
@@ -8,25 +8,34 @@
         <section class="sidebar">
             <ul class="sidebar-menu">
 
+                <!-- MENU -->
+                <li><a href="{{ route('inventario.imprimir') }}">Imprimir Etiquetas</a></li>
+                <li><a href="{{ url('inventario/consultar') }}">Consultar Etiquetas</a></li>
                 <!-- TREEMENU -->
                 <li class="treeview">
-                    <a href="#"><i class="glyphicon glyphicon-qrcode"></i>
-                        <span>EBS</span>
+                    @if(isAdmin()|| isInventoryOper())
+                    <a href="#"><i class="glyphicon glyphicon-wrench"></i>
+                        <span>Configuración</span>
                         <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
                     </a>
-                    {{--<ul class="treeview-menu">--}}
-                        {{--<li><a href="{{ url('amr/parciales') }}">PEDIDOS PARCIALES/ERROR</a></li>--}}
-                        {{--<li><a href="{{ url('amr/pedidos/nuevos') }}">PEDIDOS NUEVOS</a></li>--}}
-                        {{--<li><a href="{{ url('amr/pedidos/procesados') }}">PEDIDOS PROCESADOS</a></li>--}}
-                    {{--</ul>--}}
+                    <ul class="treeview-menu">
+                        <li><a href="{{ route('inventario.configurar.usuarios.profile') }}">Perfil de Usuario</a></li>
+                        @if (isAdmin())
+                        <li><a href="{{ route('inventario.configurar.impresoras') }}">ABM Impresoras</a></li>
+
+                        <li><a href="{{ route('inventario.configurar.usuarios') }}">Usuarios</a></li>
+                            @endif
+                        @endif
+                    </ul>
                 </li>
                 <!-- END TREEMENU -->
-                <li><a href="{{ url('inventario/actualizar') }}">Editar Etiquetas</a></li>
+                <!-- END MENU -->
             </ul>
         </section>
     </aside>
 
 @endsection
+
 @section('body')
 
 @endsection

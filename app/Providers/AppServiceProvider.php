@@ -17,52 +17,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Response::macro('multiple_output', function($vars, $viewPath=null, $status = 200, array $header = array())
-        {
-            $type = '';
 
-            if($viewPath!=null) {
-                $type = 'view';
-            }
-
-            $all = Input::all();
-            if(array_key_exists('json',$all)) {
-                $type = 'json';
-            }
-
-            if(array_key_exists('xml',$all)) {
-                $type = 'xml';
-            }
-
-            switch($type) {
-                case 'xml':
-                    $xml = new \SimpleXMLElement('<service/>');
-                    $header['Content-Type'] = 'application/xml';
-
-                    // Verifiar dartos en POSTMAN aplicando filtro y limitando resultados
-                    //$vars = collect($vars['reparacion'])->take(139);
-                    //return $vars;
-
-                    $output = json_encode($vars);
-
-                    try
-                    {
-                        Util::array_to_xml(json_decode($output  ,true),$xml);
-                        return Response::make($xml->asXML(), $status, $header);
-                    } catch(\Exception $e)
-                    {
-                        throw new XmlExceptionHandler($output,$e->getMessage(),500);
-                    }
-                break;
-                case 'view':
-                    return view($viewPath, $vars);
-                break;
-                case 'json':
-                default:
-                    return response()->json($vars)->header('Access-Control-Allow-Origin', '*');
-                break;
-            }
-        });
     }
 
     /**

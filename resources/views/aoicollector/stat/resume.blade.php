@@ -1,5 +1,6 @@
-@extends('angular')
+@extends('adminlte/theme')
 @section('ng','app')
+@section('mini',false)
 @section('title','Aoicollector - Resumen de Estadisticas')
 @section('body')
 

@@ -26,6 +26,9 @@
             @if(isset($smt) && !$is_memory)
                 <blockquote>
                     @include('trazabilidad.widget.resumen_controldeplacas',[$smt,$controldeplacas])
+
+                    <small>Stockers</small>
+                    <a class="btn btn-sm btn-success" ng-click="openModal('{{ route('trazabilidad.form.allprodstocker',$wip->wip_ot->nro_op) }}','Stockers en produccion','success')">Ver stockers en produccion</a>
                 </blockquote>
             @endif
         </div>
@@ -125,12 +128,10 @@
     </div>
     @endif
 
-
     @else
     <h3>No hay registros de declaraciones para la op solicitada</h3>
 @endif
     
-
 <script>
     setTimeout('window.location.reload();', (60 * 1000) * 2);
 </script>

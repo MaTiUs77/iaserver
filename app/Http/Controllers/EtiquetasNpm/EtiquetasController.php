@@ -12,6 +12,10 @@ use Symfony\Component\HttpFoundation\Request;
 class EtiquetasController extends Controller
 
 {
+    public function registraretiquetas()
+    {
+        return view('etiquetasnpm.registraretiquetas');
+    }
     /**
      * @param Request $serial
      * @return \Illuminate\Http\RedirectResponse
@@ -281,7 +285,8 @@ class EtiquetasController extends Controller
 
     public function imprimir($zpl)
     {
-        $zebra_host = '10.30.30.128';
+//        $zebra_host = '10.30.30.128';
+        $zebra_host = '10.30.100.205';
         $zebra_port = '9100';
 
         try {

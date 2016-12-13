@@ -12,7 +12,8 @@ return array(
      |
      */
 
-    'enabled' => true,
+    // Si el environment es local muestro debugbar
+    'enabled' => (env('APP_ENV', 'production')=='local') ? true : false,
 
     /*
      |--------------------------------------------------------------------------

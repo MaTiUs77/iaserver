@@ -2,12 +2,9 @@
 // IASERVER HOME
 Route::get('/', ['as' =>'iaserver.home', 'uses' => 'IAServer\IAServerController@index']);
 
-Route::get('/home', function() {
-    return redirect(route('iaserver.home'));
-});
+Route::get('/home', 'IAServer\IAServerController@index');
 
 Route::get('/logo', ['as' =>'iaserver.logo', 'uses' => 'IAServer\IAServerController@logo']);
-
 
 Route::group(['prefix' => 'auth'], function() {
 
@@ -33,6 +30,7 @@ Route::group(['prefix' => 'auth'], function() {
 Route::resource('/abm', 'IAServer\Abm\AbmController');
 
 // Custom Profile
+/*
 Route::post('/profile/search', function() {
     $buscar = Input::get('search');
 
@@ -56,12 +54,11 @@ Route::post('/profile/search', function() {
         $output = array('error'=>'Debe ingresar nombre y apellido');
     }
 
-    return Response::multiple_output($output);
+    return Response::multiple($output);
 });
+*/
 
 // FORMS
 Route::group(['prefix' => 'forms'], function() {
-    Route::get('/prompt', ['as'=>'iaserver.forms.prompt',function () {
-        return view('iaserver.common.prompt');
-    }]);
+    Route::get('/prompt', ['as'=>'iaserver.forms.prompt', 'uses' =>'IAServer\IAServerController@prompter']);
 });

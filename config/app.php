@@ -149,6 +149,7 @@ return [
         Collective\Bus\BusServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
         Arcanedev\LogViewer\LogViewerServiceProvider::class,
+        IAServer\Providers\ResponseServiceProvider::class,
 //        Barryvdh\Debugbar\ServiceProvider::class
     ],
 

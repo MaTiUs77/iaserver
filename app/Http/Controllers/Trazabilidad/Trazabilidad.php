@@ -1,16 +1,19 @@
 <?php
 namespace IAServer\Http\Controllers\Trazabilidad;
 
+use IAServer\Http\Controllers\Aoicollector\Inspection\FindInspection;
 use IAServer\Http\Controllers\Aoicollector\Model\Panel;
+use IAServer\Http\Controllers\Aoicollector\Model\PanelHistory;
+use IAServer\Http\Controllers\Aoicollector\Stocker\Trazabilidad\TrazaStocker;
 use IAServer\Http\Controllers\Controldeplacas\DatosController;
 use IAServer\Http\Controllers\IAServer\Util;
+use IAServer\Http\Controllers\SMTDatabase\Model\OrdenTrabajo;
 use IAServer\Http\Controllers\SMTDatabase\SMTDatabase;
 use IAServer\Http\Controllers\Trazabilidad\Declaracion\Wip\Wip;
 use IAServer\Http\Controllers\Trazabilidad\Declaracion\Wip\WipSerie;
 use IAServer\Http\Controllers\Trazabilidad\Declaracion\Wip\WipSerieHistory;
 use IAServer\Http\Requests;
 use IAServer\Http\Controllers\Controller;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Response;
 
@@ -54,7 +57,7 @@ class Trazabilidad extends Controller
     {
         $output = $this->wipInfoCtrl($op);
 
-        return Response::multiple_output($output,'trazabilidad.index');
+        return Response::multiple($output,'trazabilidad.index');
     }
 
     public function wipInfoCtrl($op="")
@@ -82,16 +85,7 @@ class Trazabilidad extends Controller
 
             $wip = $objwip->findOp($op,true,true);
             $smt = SMTDatabase::findOp($op);
-
-            // Verifica si existe alguna actualizacion en la cantidad de la OP y la actualiza en SMTDatabase
-            if($wip!=null && $wip->wip_ot != null && $smt!=null)
-            {
-                if(((int)$smt->qty != (int)$wip->wip_ot->start_quantity) && $wip->wip_ot->start_quantity!=null)
-                {
-                    $smt->qty = $wip->wip_ot->start_quantity;
-                    $smt->save();
-                }
-            }
+            SMTDatabase::syncSmtWithWip($smt,$wip);
 
             if(isset($smt->modelo)) {
                 $smt->registros = Panel::where('inspected_op',$op)->count();
@@ -106,8 +100,6 @@ class Trazabilidad extends Controller
             $manualWipSerie = $manualWip->transactionResume($op,true);
             $manualWipHistory = $manualWiph->transactionResume($op,true);
         }
-
-
 
         $output = compact('op','wip','smt','controldeplacas','manualWipSerie','manualWipHistory','enIa','enWip');
 
@@ -150,6 +142,15 @@ class Trazabilidad extends Controller
         return redirect( route('trazabilidad.find.op',$wipInfo->wip_ot->nro_op) )->with('message',$message);
     }
 
+    public function formAllProdStocker($op)
+    {
+        $tstocker = new TrazaStocker();
+        $allstocker = $tstocker->withOp($op);
+
+        $output = compact('allstocker');
+        return view('trazabilidad.partial.allstocker',$output);
+    }
+
     public function formTransOk($op,$modo, $trans_ok=null,$manual=false,$ebs_error_trans=null)
     {
         $serie_table = array();
@@ -179,5 +180,48 @@ class Trazabilidad extends Controller
         $output = compact('modo','serie_table','history_table','serie_trans','history_trans');
 
         return view('trazabilidad.detalle',$output);
+    }
+
+    public function transportOp()
+    {
+        $regex = '/([0-9]+)/';
+
+        $input = Input::get('barcodes');
+        $newop = Input::get('newop');
+
+        $newsmt = OrdenTrabajo::where('op',$newop)->first();
+
+        preg_match_all($regex, $input, $matches);
+
+        $inspecciones = [];
+        foreach ($matches[0] as $barcode) {
+            $panel = Panel::where('panel_barcode', $barcode)->first();
+
+            if(Input::get('execute') =='execute' )
+            {
+              /*  $oldsmt = OrdenTrabajo::where('op',$panel->inspected_op)->first();
+
+                $oldsmt->prod_aoi = $oldsmt->prod_aoi - $panel->bloques;
+                $oldsmt->save();
+
+                $newsmt->prod_aoi = $newsmt->prod_aoi + $panel->bloques;
+                $newsmt->save();*/
+
+                $panel->inspected_op = $newsmt->op;
+                $panel->save();
+
+                $history = PanelHistory::where('panel_barcode', $panel->panel_barcode)->get();
+                foreach ($history as $panelHistory) {
+                    $panelHistory->inspected_op = $panel->inspected_op;
+                    $panelHistory->save();
+                }
+            }
+
+            $inspecciones[] = $panel;
+        }
+
+        $output = compact('inspecciones','newop');
+
+        return Response::multiple($output,'trazabilidad.transportop.index');
     }
 }

@@ -59,7 +59,7 @@ class StatView extends StatController
 
         $output = compact('maquina','fecha','fecha_eng','turno','programas','resume','reference', 'resume_type');
 
-        return Response::multiple_output($output, 'aoicollector.stat.index');
+        return Response::multiple($output, 'aoicollector.stat.index');
     }
 
     public function resume()
@@ -78,6 +78,6 @@ class StatView extends StatController
 
         $resume = collect($resume)->groupBy('linea');
         $output = compact('resume');
-        return Response::multiple_output($output,'aoicollector.stat.resume');
+        return Response::multiple($output,'aoicollector.stat.resume');
     }
 }

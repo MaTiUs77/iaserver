@@ -34,7 +34,7 @@ class CargaController extends Controller
 
         $output = compact('proceso','finalizado');
 
-        return Response::multiple_output($output,'p2i.carga.index');
+        return Response::multiple($output,'p2i.carga.index');
     }
 
     public function create()
@@ -116,7 +116,7 @@ class CargaController extends Controller
     {
         $output = Carga::where('camara',$camara)->orderBy('id','desc')->first();
 
-        return Response::multiple_output($output);
+        return Response::multiple($output);
     }
 
     public function terminarProceso($id_carga)
@@ -156,6 +156,6 @@ class CargaController extends Controller
 
         $output = compact('stat');
 
-        return Response::multiple_output($output,'p2i.carga.stat');
+        return Response::multiple($output,'p2i.carga.stat');
     }
 }

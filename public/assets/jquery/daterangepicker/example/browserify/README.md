@@ -8,4 +8,4 @@ In the project root
 
 In this folder
 
-    ../../node_modules/.bin/browserify main.js -o bundle.js
+    ../../node_modules/.bin/browserify main.controller.js -o bundle.js

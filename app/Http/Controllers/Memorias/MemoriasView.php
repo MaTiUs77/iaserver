@@ -53,7 +53,7 @@ class MemoriasView extends Memorias
 
         $output = compact('produccion','periodoUser','periodoDiario');
 
-        return Response::multiple_output($output,'memorias.reporte');
+        return Response::multiple($output,'memorias.reporte');
     }
 
     public function search($op="")

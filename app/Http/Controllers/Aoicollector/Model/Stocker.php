@@ -18,6 +18,11 @@ class Stocker extends Model
         return $this->hasOne('IAServer\Http\Controllers\Aoicollector\Model\Stocker', 'id', 'id_panel');
     }
 
+    public function joinStockerTraza()
+    {
+        return $this->hasMany('IAServer\Http\Controllers\Aoicollector\Model\StockerTraza', 'id_stocker', 'id');
+    }
+
     public static function vista()
     {
         $sql = self::from("aoidata.vi_stocker");
@@ -78,7 +83,6 @@ class Stocker extends Model
     public static function sp_stockerAddPanel($idPanel,$idStocker, $manualMode=0)
     {
         $query = "CALL aoidata.sp_stockerAddPanel_opt('".$idPanel."','".$idStocker."', ".$manualMode.");";
-        dd($query);
         $sql = DB::connection('iaserver')->select($query);
         return $sql;
     }

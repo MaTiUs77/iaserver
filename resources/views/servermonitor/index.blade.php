@@ -18,9 +18,7 @@
             <p>No fue posible obtener datos del servidor NodeJs</p>
         </div>
 
-        <input dynamicknob type="text" class="knob" value="10" data-skin="tron" data-thickness="0.2" data-width="90" data-height="90" data-fgColor="#3c8dbc" data-readonly="true">
-
-        <div dynamicbar data="cpumonitor">
+        <div dynamicbar data="[5,10]">
             Cargando...
         </div>
 
@@ -30,112 +28,35 @@
 
         <div class="row">
             <div class="col-md-3 col-sm-6 col-xs-12" ng-repeat="item in serverList">
-                <div class="info-box" ng-class="item.alive ? 'bg-green' : 'bg-red'">
-                    <span class="info-box-icon">
-                        <span ng-show="item.alive">
-                            @{{ item.ping.max  }}<small>ms</small>
-                        </span>
-
-                        <span ng-hide="item.alive">
-                            <i class="fa fa-thumbs-o-down"></i>
-                        </span>
-                    </span>
-                    <div class="info-box-content">
-                        <span class="info-box-text">@{{ item.nombre }}</span>
-                        <span class="info-box-number">@{{ item.host | uppercase }}</span>
-
-                        <div dynamicbar data="item.ping.diffs">
-                            Cargando...
-                        </div>
+                <div class="box box-widget widget-user-2">
+                    <!-- Add the bg color to the header using any of the bg-* classes -->
+                    <div class="widget-user-header bg-green">
+                        <!-- /.widget-user-image -->
+                        <h3 class="widget-user-username">@{{ item.nombre }}</h3>
+                        <h5 class="widget-user-desc">@{{ item.host | uppercase }}</h5>
                     </div>
-                    <!-- /.info-box-content -->
+                    <div class="box-footer no-padding">
+                        <ul class="nav nav-stacked">
+                            <li><a href="#">CPU <span class="pull-right badge bg-blue">@{{ item.cpu}}%</span></a></li>
+                            <li>
+                                <div dynamicbar data="item.cpu">
+                                    Cargando...
+                                </div>
+                            </li>
+                            <li><a href="#">Memoria <span class="pull-right badge bg-aqua">@{{ item.memoriaFisicaPorcentaje}}%</span></a></li>
+                        </ul>
+
+                    </div>
                 </div>
-                <!-- /.info-box -->
             </div>
         </div>
+
+
     </div>
 
     @include('iaserver.common.footer')
     {!! IAScript('adminlte/plugins/sparkline/jquery.sparkline.min.js') !!}
     {!! IAScript('adminlte/plugins/knob/jquery.knob.js') !!}
+    {!! IAScript('vendor/servermonitor/servermonitor.js') !!}
 
-    <script>
-        app.controller("servidorMonitorController",function ($scope,$http, $interval)
-        {
-            $("input[dynamicknob]").knob();
-
-
-            $scope.serverList = [];
-            $scope.osmonitor = [];
-            $scope.memoriamonitor = [];
-
-            $scope.nodejserror = false;
-
-            $scope.getMonitorStatus = function()
-            {
-                $http.get("http://arushde04:8081/status").then(function(res){
-                    $scope.serverList = res.data;
-                    $scope.nodejserror = false;
-
-                }, function errorCallback(response) {
-                    $scope.serverList = [];
-                    $scope.nodejserror = true;
-                });
-
-                $http.get("http://localhost:8888/status").then(function(res){
-                    $scope.osmonitor.push(res.data.cpu[0]);
-                    $scope.memoriamonitor.push(res.data.memoria.porcent);
-
-                    $("input[dynamicknob]").val(res.data.cpu[0]);
-
-                    $("[data='cpumonitor']").sparkline($scope.osmonitor, {
-                        type: 'line',
-                        height: '30',
-                        width: '120',
-                        barWidth: 8,
-                        barSpacing: 3,
-                        barColor: '#65edae',
-                        negBarColor: '#ff5656'
-                    });
-
-                    $("[data='memoriamonitor']").sparkline($scope.memoriamonitor, {
-                        type: 'line',
-                        height: '30',
-                        width: '120',
-                        barWidth: 8,
-                        barSpacing: 3,
-                        barColor: '#65edae',
-                        negBarColor: '#ff5656'
-                    });
-
-                }, function errorCallback(response) {
-                });
-            };
-
-            $interval(function(){
-                $scope.getMonitorStatus();
-            }, 5000);
-
-            $scope.getMonitorStatus();
-        });
-
-        app.directive('dynamicbar', function() {
-            return {
-                scope: {
-                    data: '='
-                },
-                link: function(scope, element) {
-                    element.sparkline(scope.data, {
-                        type: 'line',
-                        height: '30',
-                        width: '120',
-                        barWidth: 8,
-                        barSpacing: 3,
-                        barColor: '#65edae',
-                        negBarColor: '#ff5656'
-                    });
-                }
-            }
-        })
-    </script>
 @endsection

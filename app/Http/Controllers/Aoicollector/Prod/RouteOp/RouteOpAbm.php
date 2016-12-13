@@ -31,7 +31,7 @@ class RouteOpAbm extends Controller
 
         $output = compact('op','routeop','sfcs');
 
-        return Response::multiple_output($output,'aoicollector.prod.routeop.index');
+        return Response::multiple($output,'aoicollector.prod.routeop.index');
     }
 
     public function create()
@@ -40,7 +40,7 @@ class RouteOpAbm extends Controller
         $routeop = RouteOp::where('op',$op)->get();
 
         $output = compact('op','routeop');
-        return Response::multiple_output($output,'aoicollector.prod.routeop.create');
+        return Response::multiple($output,'aoicollector.prod.routeop.create');
     }
 
     public function store()

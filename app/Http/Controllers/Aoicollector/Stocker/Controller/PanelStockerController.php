@@ -2,12 +2,11 @@
 
 namespace IAServer\Http\Controllers\Aoicollector\Stocker\Controller;
 
+use Carbon\Carbon;
 use IAServer\Http\Controllers\Aoicollector\Inspection\FindInspection;
-use IAServer\Http\Controllers\Aoicollector\Inspection\VerificarDeclaracion;
 use IAServer\Http\Controllers\Aoicollector\Model\Produccion;
 use IAServer\Http\Controllers\Aoicollector\Model\Stocker;
 use IAServer\Http\Controllers\Aoicollector\Model\StockerDetalle;
-use IAServer\Http\Controllers\Aoicollector\Service\Service;
 use IAServer\Http\Controllers\Trazabilidad\Declaracion\Wip\Wip;
 use IAServer\Http\Requests;
 
@@ -27,6 +26,11 @@ class PanelStockerController extends StockerController
             {
                 $stockerId = $stockerDetalle->id_stocker;
                 $stockerDetalle->delete();
+
+                $stocker = Stocker::findByIdStocker($stockerId);
+                $stocker->updated_at = Carbon::now();
+                $stocker->save();
+
 //                $output = array('done'=>'Panel removido');
                 $output = $this->stockerInfoById($stockerId);
             } else
@@ -125,26 +129,8 @@ class PanelStockerController extends StockerController
 
     public function addPanelManual($panelBarcode,$aoibarcode)
     {
-        $output = array();
-        $stocker = null;
-
-        $produccion = Produccion::barcode($aoibarcode);
-        if(isset($produccion->id_stocker))
-        {
-            $stocker = $this->stockerInfoById($produccion->id_stocker);
-
-            $webservice = new Service();
-            $service = (object) $webservice->barcodeStatus($panelBarcode,true);
-            $panel = null;
-
-            $output = $service;
-
-        } else {
-            $output = array('error'=>'No hay Stocker definido en produccion');
-        }
-
+        $output = ['error'=>'La funcion no esta definida'];
         if(is_array($output))  { $output = (object) $output; }
-
         return $output;
     }
 
@@ -174,13 +160,17 @@ class PanelStockerController extends StockerController
             $panelInStocker = StockerDetalle::where('id_panel',$panel->id)->first();
             if(isset($panelInStocker->id))
             {
-                $output = array('error'=>'El panel solicitado ya fue asignado a un stocker');
+                $output = array('error'=>'El panel solicitado ya fue asignado al stocker');
             } else
             {
                 StockerDetalle::firstOrCreate([
                     'id_stocker' => $stocker->id,
                     'id_panel' => $panel->id
                 ]);
+
+                $stocker = Stocker::findByIdStocker($stocker->id);
+                $stocker->updated_at = Carbon::now();
+                $stocker->save();
 
                 // Actualizo datos de stocker, para verificar si se encuentra full o no
                 $stockerUpdatedInfo = $this->stockerInfoById($stocker->id);

@@ -10,24 +10,24 @@ class PanelStockerView extends PanelStockerController
     public function view_addPanel($panelBarcode,$aoibarcode)
     {
         $output = $this->addPanel($panelBarcode,$aoibarcode);
-        return Response::multiple_output($output);
+        return Response::multiple($output);
     }
 
     public function view_addPanelManual($panelBarcode,$aoibarcode)
     {
         $output = $this->addPanelManual($panelBarcode,$aoibarcode);
-        return Response::multiple_output($output);
+        return Response::multiple($output);
     }
 
     public function view_removePanel($panelBarcode)
     {
         $output = $this->removePanel($panelBarcode);
-        return Response::multiple_output($output);
+        return Response::multiple($output);
     }
 
     public function view_declarePanel($panelBarcode)
     {
         $output = $this->declarePanel($panelBarcode);
-        return Response::multiple_output($output);
+        return Response::multiple($output);
     }
 }

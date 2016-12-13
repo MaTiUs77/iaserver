@@ -27,7 +27,9 @@ class FindInspection extends Controller
         if(is_numeric($barcode)) {
             // Buscar en BloqueHistory, retorna los resultados en orden descendiente
             // la primer inspeccion seria la ultima en el array de resultados
+
             $placa = BloqueHistory::buscar($barcode);
+
 
             if(count($placa)>0)
             {
@@ -46,7 +48,11 @@ class FindInspection extends Controller
                 return $result;
             } else
             {
-                // Sera una placa secundaria? Ya busque en bloques, ahora busco en paneles.
+                /*
+                 * Sera una placa secundaria? en bloques las placas secundarias tienen el formato
+                 * 0000123-XX y nosotros estamos buscando 0000123
+                 * Hay que buscar en paneles el codigo sin el guion
+                 */
                 $panel = PanelHistory::buscarPanel($barcode);
                 if(count($panel)>0) {
                     $result = new \stdClass();

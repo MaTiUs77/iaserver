@@ -13,8 +13,8 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-        'IAServer\Events\SomeEvent' => [
-            'IAServer\Listeners\EventListener',
+        'IAServer\Events\RedisSend' => [
+            'IAServer\Listeners\EventRedisSend',
         ],
     ];
 

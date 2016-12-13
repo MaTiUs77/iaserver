@@ -18,7 +18,7 @@ class ProdController extends Controller
     {
         $prod = (object) Produccion::fullInfo($aoibarcode);
 
-        return Response::multiple_output($prod);
+        return Response::multiple($prod);
     }
 
     public function opInfo($op,$aoibarcode="")
@@ -29,11 +29,13 @@ class ProdController extends Controller
         $routeop = RouteOp::where('op',$op)->get();
         $smt = SMTDatabase::findOp($op);
 
+        SMTDatabase::syncSmtWithWip($smt,$wip);
+
         $sfcs = new Sfcs();
         $sfcs = $sfcs->puestosOp($op);
 
         $output = compact('aoibarcode','op','wip','smt','routeop','sfcs');
-        return Response::multiple_output($output,'aoicollector.prod.partial.infoop');
+        return Response::multiple($output,'aoicollector.prod.partial.infoop');
     }
 
     public function opInfoSubmit()

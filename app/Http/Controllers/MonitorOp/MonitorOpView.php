@@ -9,6 +9,7 @@ use IAServer\Http\Controllers\P2i\Model\Carga;
 
 use IAServer\Http\Controllers\P2i\Model\General;
 use IAServer\Http\Controllers\Trazabilidad\Declaracion\Wip\Model\XXEWipOt;
+use IAServer\Http\Controllers\Trazabilidad\Declaracion\Wip\Wip;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -20,13 +21,19 @@ use Illuminate\Support\Facades\Validator;
 
 class MonitorOpView extends Controller
 {
+    public function defaultIndex()
+    {
+//        redirect('/monitorop/op/huawei');
+        return $this->index('huawei');
+
+    }
     public function index($modelo)
     {
         $wip = new GetWipOtInfo();
         $resume = $wip->infoOp($modelo);
 
         $output = compact('resume');
-        return Response::multiple_output($output,'monitorop.op_habilitadas');
+        return Response::multiple($output,'monitorop.op_habilitadas');
     }
     public function indexInsaut()
     {
@@ -34,7 +41,15 @@ class MonitorOpView extends Controller
         $resume = $wip->infoOpInsaut();
 
         $output = compact('resume');
-        return Response::multiple_output($output,'monitorop.op_habilitadas');
+        return Response::multiple($output,'monitorop.op_habilitadas');
 
+    }
+    public function periodo($op,$minutes)
+    {
+        $wip = new Wip();
+        $resume = $wip->period($op,$minutes);
+
+        $output = compact($resume);
+        return Response::multiple($output,'monitorop.widget.detalle_period');
     }
 }

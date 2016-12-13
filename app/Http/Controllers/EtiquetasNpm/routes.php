@@ -12,12 +12,8 @@
 */
 Route::group(['prefix' => 'etiquetasnpm'], function()
 {
-    Route::get('/registrar',function()
-    {
-        return view('etiquetasnpm.registraretiquetas');
-    });
+    Route::get('/registrar','EtiquetasNpm\EtiquetasController@registraretiquetas');
     Route::post('/imprimir','EtiquetasNpm\EtiquetasController@getUltimoId');
-
 });
 
 

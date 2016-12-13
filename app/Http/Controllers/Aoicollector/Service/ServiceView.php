@@ -31,7 +31,7 @@ class ServiceView extends Service
             $output = $output ->last;
         }
 
-        return Response::multiple_output($output);
+        return Response::multiple($output);
     }
 
     public function view_barcodeStatusLast($barcode)
@@ -48,7 +48,7 @@ class ServiceView extends Service
             $output = $output ->last;
         }
 
-        return Response::multiple_output($output);
+        return Response::multiple($output);
     }
 
     public function view_barcodeStatusWithWip($barcode)
@@ -59,7 +59,7 @@ class ServiceView extends Service
     public function view_barcodeInBackup($barcode)
     {
         $output = $this->barcodeInBackup($barcode);
-        return Response::multiple_output($output);
+        return Response::multiple($output);
     }
 
     public function view_produccion($aoibarcode)
@@ -74,12 +74,12 @@ class ServiceView extends Service
             ]);
 //        });
 
-        return Response::multiple_output($output);
+        return Response::multiple($output);
     }
 
     public function view_declarar($barcode)
     {
         $output = $this->declarar($barcode);
-        return Response::multiple_output($output);
+        return Response::multiple($output);
     }
 }

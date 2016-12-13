@@ -63,6 +63,13 @@
     @yield('head')
 </head>
 <body @if($__env->yieldContent('ng')) ng-cloak @endif @yield('bodytag')>
+
+    @if(app()->environment()=='desarrollo')
+        <div class="alert alert-warning" role="alert">
+            <p><b>ATENCION</b> Usted se encuentra en el servidor de DESARROLLO, por favor, dirijase al servidor de PRODUCCION haciendo <a href="http://ARUSHAP34" target="_top">CLICK ACA</a></p>
+        </div>
+    @endif
+
     @yield('body')
 
     <toasty></toasty>

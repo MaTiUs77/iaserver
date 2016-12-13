@@ -1,4 +1,7 @@
 <?php
+
+Route::get('/','Aoicollector\Inspection\InspectionController@listDefault');
+
 Route::group(['prefix' => 'inspection'], function()
 {
     // Pagina principal de inspecciones
@@ -30,6 +33,11 @@ Route::group(['prefix' => 'inspection'], function()
         Route::get('/reference/{reference}/{id_maquina}/{turno}/{fecha}/{programa}/{realOFalso}', [
             'as' => 'aoicollector.inspection.search.reference',
             'uses' => 'Aoicollector\Inspection\InspectionController@searchReference'
+        ]);
+
+        Route::match(['get', 'post'],'/multiplesearch', [
+            'as' => 'aoicollector.inspection.multiplesearch',
+            'uses' => 'Aoicollector\Inspection\InspectionController@multipleSearchBarcode'
         ]);
 
         Route::match(['get', 'post'],'/', [

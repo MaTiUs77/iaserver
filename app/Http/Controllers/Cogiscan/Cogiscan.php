@@ -52,7 +52,7 @@ class Cogiscan extends Controller
             $output = array('error'=>'El metodo no existe');
         }
 
-        return Response::multiple_output($output);
+        return Response::multiple($output);
     }
 
     private function normalizeAttributes($attributes)

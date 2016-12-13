@@ -4,6 +4,7 @@ namespace IAServer\Http\Controllers\Cogiscan;
 ini_set("default_socket_timeout", 120);
 
 use DebugBar\DebugBar;
+use IAServer\Http\Controllers\IAServer\Debug;
 use IAServer\Http\Requests;
 use IAServer\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Request;
@@ -30,7 +31,7 @@ class CogiscanDB2 extends Controller
             $output = array('error'=>'El metodo no existe');
         }
 
-        return Response::multiple_output($output);
+        return Response::multiple($output);
     }
 
     private function normalizeAttributes($attributes)
@@ -75,8 +76,14 @@ class CogiscanDB2 extends Controller
         return $output;
     }
     private function query($db, $query) {
+        $debug = new Debug($this,false,'db2',false);
+
+        $ip = Request::server('REMOTE_ADDR');
+        $host = getHostByAddr(Request::server('REMOTE_ADDR'));
+
         $cmd =  '%cd%\bin\db2wrapper\DB2Wrapper.exe '.$db.' '.$query;
-		
+        $debug->put($cmd.' IP: '.$ip.' HOST: '.$host);
+
         $output = array();
         exec($cmd,$output);
         $output = implode("",$output);

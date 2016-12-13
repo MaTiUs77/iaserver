@@ -8,7 +8,7 @@ class impresiones extends Model
 {
     protected $connection = 'inventario';
     protected $table = 'impresiones';
-
+    protected $primaryKey = 'id_etiqueta';
     public $timestamps = false;
 
 }

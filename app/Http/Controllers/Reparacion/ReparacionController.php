@@ -73,7 +73,7 @@ class ReparacionController extends Controller
 
         $output = compact('id_sector','resumen','stats','reparacion');
 
-        return Response::multiple_output($output,'reparacion.index');
+        return Response::multiple($output,'reparacion.index');
     }
 
     public function extendHistorialCollection(Collection $collection)
@@ -171,7 +171,7 @@ class ReparacionController extends Controller
         $reparacion = Historial::barcode($id_sector, $barcode)->get();
 
         $output = compact('reparacion');
-        return Response::multiple_output($output,'reparacion.index');
+        return Response::multiple($output,'reparacion.index');
     }
 
     public function postFilter()
@@ -227,6 +227,6 @@ class ReparacionController extends Controller
             $reparacion = $reparacion->get();
         }
         $output = compact('reparacion');
-        return Response::multiple_output($output,'reparacion.index');
+        return Response::multiple($output,'reparacion.index');
     }
 }

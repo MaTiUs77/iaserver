@@ -105,6 +105,7 @@ class Util extends Controller
 
         Filter::dateSession($sessionName);
         $rangeSplit = explode(' - ',Session::get($sessionName));
+
         if(count($rangeSplit)==2)
         {
             $range->desde = Carbon::createFromFormat('d/m/Y',$rangeSplit[0]);

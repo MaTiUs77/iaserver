@@ -2,19 +2,8 @@
 
 namespace IAServer\Http\Controllers\ServerMonitor;
 
-use Carbon\Carbon;
-use IAServer\Http\Controllers\IAServer\Filter;
-use IAServer\Http\Controllers\IAServer\Util;
-use IAServer\Http\Controllers\Reparacion\Model\Historial;
-use IAServer\Http\Controllers\ServerMonitor\Model\ServerMonitorModel;
 use IAServer\Http\Requests;
 use IAServer\Http\Controllers\Controller;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Input;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Facades\Session;
 
 class ServerMonitor extends Controller
 {
@@ -22,7 +11,22 @@ class ServerMonitor extends Controller
         return view('servermonitor.index');
     }
 
-    public function lista() {
-        return ServerMonitorModel::all();
+    public function redis() {
+        try
+        {
+            $monitor = \LRedis::smembers('servermonitor::online');
+
+            $status = array();
+            foreach ($monitor as $item) {
+                $status[] = json_decode(\LRedis::get('servermonitor::status::'.$item));
+            }
+
+            $output = compact('monitor','status');
+
+            return $output;
+        }
+        catch(\Exception $e) {
+            return ['error' => $e->getMessage()];
+        }
     }
 }

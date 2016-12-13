@@ -20,13 +20,31 @@
 var elixir = require('laravel-elixir');
 
 elixir(function(mix) {
-    mix.scriptsIn(
-        "resources/views/aoicollector/prod/assets/js",
-        "public/vendor/aoicollector/prod/prod.js"
-    );
 
+    // === IASERVER
     mix.scriptsIn(
         "resources/views/iaserver/assets/js",
         "public/vendor/iaserver/iaserver.js"
+    );
+
+    // === AOICOLLECTOR
+    mix.scriptsIn(
+        "resources/views/aoicollector/prod/assets/js",
+        "public/vendor/aoicollector/prod/prod.js"
+    ).scriptsIn(
+        "resources/views/aoicollector/stat/assets/js",
+        "public/vendor/aoicollector/stat/stat.js"
+    ).scriptsIn(
+        "resources/views/aoicollector/inspection/assets/js",
+        "public/vendor/aoicollector/inspection/inspection.js"
+    ).scriptsIn(
+        "resources/views/trazabilidad/assets/js",
+        "public/vendor/trazabilidad/trazabilidad.js"
+    );
+
+    // === SERVERMONITOR
+    mix.scriptsIn(
+        "resources/views/servermonitor/assets/js",
+        "public/vendor/servermonitor/servermonitor.js"
     );
 });

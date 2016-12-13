@@ -4,8 +4,6 @@ namespace IAServer\Http\Controllers\MonitorPedidos;
 
 use Carbon\Carbon;
 use IAServer\Http\Controllers\Email\Email;
-use IAServer\Http\Controllers\IAServer\Filter;
-use IAServer\Http\Controllers\IAServer\Util;
 use IAServer\Http\Controllers\MonitorOp\GetWipOtInfo;
 use IAServer\Http\Controllers\MonitorPedidos\Model\amr_deltamonitor;
 use IAServer\Http\Controllers\MonitorPedidos\Model\cgs_materialrequest;
@@ -14,21 +12,10 @@ use IAServer\Http\Controllers\MonitorPedidos\Model\logs_pedidos;
 use IAServer\Http\Controllers\MonitorPedidos\Model\pedidos_rechazados;
 use IAServer\Http\Controllers\MonitorPedidos\Model\reserva_history;
 use IAServer\Http\Controllers\MonitorPedidos\Model\reservas;
-use IAServer\Http\Controllers\MonitorPedidos\Model\XXE_WIP_OT;
-use IAServer\Http\Controllers\MonitorPedidos\Model\XXE_WMS_COGISCAN_PEDIDO_LPNS;
-use IAServer\Http\Controllers\MonitorPedidos\Model\XXE_WMS_COGISCAN_WIP;
-use IAServer\Http\Controllers\P2i\Model\Carga;
 use Illuminate\Http\Request;
-use IAServer\Http\Controllers\P2i\Model\General;
 use IAServer\Http\Controllers\MonitorPedidos\Model\XXE_WMS_COGISCAN_PEDIDOS;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Input;
-//use Illuminate\Support\Facades\Request;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 
 class CogiscanPedidos extends Controller
@@ -116,6 +103,7 @@ class CogiscanPedidos extends Controller
         $newInsert->MAQUINA = strtoupper($request->input('maquina'));
         $newInsert->UBICACION = strtoupper($request->input('ubicacion'));
         $newInsert->save();
+
 
         $newid = $newInsert->id;
 

@@ -1,8 +1,10 @@
 <?php
 namespace IAServer\Http\Controllers\Aoicollector\Api;
 
+use IAServer\Http\Controllers\Aoicollector\Model\Produccion;
 use IAServer\Http\Controllers\IAServer\Debug;
 use IAServer\Http\Requests;
+use IAServer\User;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
 
@@ -30,12 +32,46 @@ class ApiResponse extends Api
     public function verifyPlacaResponse($barcode,$stage)
     {
         $output = $this->verifyPlaca($barcode,$stage);
-        return Response::multiple_output($output);
+        return Response::multiple($output);
     }
 
-    public function fullInfoResponse($barcode)
+    public function p5Response($barcode,$stage)
     {
-        $output = $this->fullInfo($barcode);
-        return Response::multiple_output($output);
+        $placa = (object) $this->verifyPlaca($barcode,$stage);
+
+        if(isset($placa->error))
+        {
+            $output = ['error'=>$placa->error];
+        } else {
+            $output = [
+                'barcode' => $placa->barcode,
+                'op' => $placa->smt->op,
+                'modelo' => $placa->smt->modelo,
+                'lote' => $placa->smt->lote,
+                'panel' => $placa->smt->panel,
+                'semielaborado' => $placa->smt->semielaborado,
+                'controldeplacas' => $placa->declaracion->declarado
+            ];
+        }
+
+        return Response::multiple($output);
+    }
+
+    public function aoicollectorPlacaResponse($barcode,$verifyDeclared="")
+    {
+        $output = $this->aoicollectorPlaca($barcode,$verifyDeclared);
+        return Response::multiple($output);
+    }
+
+    public function aoicollectorProdInfoResponse($aoibarcode)
+    {
+        $output = $this->aoicollectorProdInfo($aoibarcode);
+        return Response::multiple($output);
+    }
+
+    public function prodListResponse()
+    {
+        $output = Produccion::all();
+        return Response::multiple($output);
     }
 }

@@ -1,5 +1,6 @@
 @extends('adminlte/theme')
 @section('ng','app')
+@section('mini',false)
 @section('title','Aoicollector - Estadisticas')
 @section('body')
     <style>
@@ -95,5 +96,5 @@
 
     {!! IAScript('assets/gauge/dist/gauge.min.js') !!}
     @include('iaserver.common.footer')
-    {!! IAScript('vendor/aoicollector/stat/stat.controller.js') !!}
+    {!! IAScript('vendor/aoicollector/stat/stat.js') !!}
 @endsection

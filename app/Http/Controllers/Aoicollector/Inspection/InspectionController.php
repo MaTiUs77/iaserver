@@ -7,15 +7,12 @@ use IAServer\Http\Controllers\Aoicollector\Model\BloqueHistory;
 use IAServer\Http\Controllers\Aoicollector\Model\DetalleHistory;
 use IAServer\Http\Controllers\Aoicollector\Model\Maquina;
 
-use IAServer\Http\Controllers\IAServer\Debug;
 use IAServer\Http\Controllers\IAServer\Util;
 use IAServer\Http\Controllers\IAServer\Filter;
 use IAServer\Http\Requests;
 use IAServer\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Input;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Session;
 
@@ -39,6 +36,32 @@ class InspectionController extends Controller
         return $this->listWithFilter($maquina->id,$pagina,$op);
     }
 
+    public function listWithFilter($id_maquina,$pagina=null,$op='')
+    {
+        $id_maquina = (int) $id_maquina;
+
+        $carbonDate = Util::dateRangeFilterEs('date_session');
+
+        $inspectionList = new InspectionList($id_maquina,$carbonDate->desde,$carbonDate->hasta);
+        $inspectionList->setPagina($pagina);
+        $inspectionList->setMode(Input::get('listMode'));
+        $inspectionList->setPeriod(Input::get('filterPeriod'));
+        $inspectionList->find();
+
+        // Sidebar
+        $maquinas = Maquina::select('maquina.*','produccion.cogiscan')
+            ->orderBy('maquina.linea')
+            ->leftJoin('aoidata.produccion','produccion.id_maquina','=','maquina.id')
+            ->get();
+
+
+        $maquina = $maquinas->where('id',$id_maquina)->first();
+
+        $output = compact('inspectionList','maquinas','maquina');
+
+        return Response::multiple($output,'aoicollector.inspection.index');
+    }
+
     /**
      * Muestra las inspecciones, filtradas por maquina
      *
@@ -46,7 +69,7 @@ class InspectionController extends Controller
      * @param null $pagina
      * @return \Illuminate\View\View
      */
-    public function listWithFilter($id_maquina,$pagina=null,$op='')
+    public function listWithFilterORIGINAL($id_maquina,$pagina=null,$op='')
     {
         $insp = array();
         $por_pagina = 50;
@@ -93,7 +116,7 @@ class InspectionController extends Controller
 
         $output = compact('insp','maquinas','maquina','total','pagina','por_pagina','paginas','programas');
 
-        return Response::multiple_output($output,'aoicollector.inspection.index');
+        return Response::multiple($output,'aoicollector.inspection.index');
     }
 
     /**
@@ -108,7 +131,7 @@ class InspectionController extends Controller
         $bloques = BloqueHistory::where('id_panel_history',$id_panel)->get();
         $output = compact('bloques');
 
-        return Response::multiple_output($output,'aoicollector.inspection.partial.blocks');
+        return Response::multiple($output,'aoicollector.inspection.partial.blocks');
     }
 
     /**
@@ -123,7 +146,7 @@ class InspectionController extends Controller
         $detalle = DetalleHistory::fullDetail($id_bloque)->get();
         $output = compact('detalle');
 
-        return Response::multiple_output($output,'aoicollector.inspection.partial.detail');
+        return Response::multiple($output,'aoicollector.inspection.partial.detail');
     }
 
     /**
@@ -146,7 +169,7 @@ class InspectionController extends Controller
         $findService = new FindInspection();
         $findService->withCogiscan = true;
         $findService->withSmt = true;
-        //$findService->withWip = true;
+        $findService->withHistory = true;
         $insp = (object) $findService->barcode($barcode);
 
         if(isset($insp->last))
@@ -162,10 +185,6 @@ class InspectionController extends Controller
             {
                 $insp_by_date[$insp->last->panel->created_date] = $insp;
             }
-
-/*            foreach($insp->historial as $r) {
-                $insp_by_date[$r->panel->created_date][] = $r;
-            }*/
         }
 
         if(!$maquina)
@@ -175,7 +194,41 @@ class InspectionController extends Controller
 
         $output = compact('insp','insp_by_date','maquinas','maquina','timeline','barcode');
 
-        return Response::multiple_output($output,'aoicollector.inspection.index');
+        return Response::multiple($output,'aoicollector.inspection.search_barcode');
+    }
+
+    public function multipleSearchBarcode()
+    {
+        $regex = '/([0-9]+)/';
+
+        $firstOrLast = Input::get('mode');
+        if(!isset($firstOrLast))
+        {
+            $firstOrLast = 'first';
+        }
+
+        $input = Input::get('barcodes');
+        preg_match_all($regex, $input, $matches);
+
+        $barcodes = [];
+        foreach ($matches[0] as $barcode) {
+            $find = new FindInspection();
+            $find->withSmt = true;
+            $inspeccion = $find->barcode($barcode);
+            if($firstOrLast=='first')
+            {
+                $barcodes[] = $inspeccion->first;
+            } else
+            {
+                $barcodes[] = $inspeccion->last;
+            }
+        }
+
+        $maquinas = Maquina::orderBy('linea')->get();
+        $maquina = $maquinas->first();
+        $output = compact('maquinas','maquina','barcodes');
+
+        return Response::multiple($output,'aoicollector.inspection.multiplesearch');
     }
 
     public function searchReference($reference, $id_maquina, $turno, $fecha_eng, $progama,$realOFalso = 'real')
@@ -194,7 +247,7 @@ class InspectionController extends Controller
 
         $output = compact('insp','maquinas','maquina','search_reference');
 
-        return Response::multiple_output($output,'aoicollector.inspection.index');
+        return Response::multiple($output,'aoicollector.inspection.search_reference');
     }
 
     public function findPanelWithReference($id_maquina, $turno, $fecha, $programa, $reference, $estado, $resume_type='first')

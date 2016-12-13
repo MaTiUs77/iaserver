@@ -70,4 +70,9 @@ class IAServerController extends Controller
     {
         return view('iaserver.logo');
     }
+
+    public function prompter()
+    {
+        return view('iaserver.common.prompt');
+    }
 }

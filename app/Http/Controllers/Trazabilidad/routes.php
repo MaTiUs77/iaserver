@@ -15,16 +15,30 @@ Route::group(array('prefix' => 'trazabilidad'), function() {
         'uses' => 'Trazabilidad\Trazabilidad@findOp'
     ]);
 
-    // FORM DECLARAR
-    Route::get('/declarar/{op}',[
-        'as' => 'trazabilidad.form.declarar',
-        'uses' => 'Trazabilidad\Trazabilidad@formDeclarar'
+    Route::match(['get', 'post'], '/transport', [
+        'as' => 'trazabilidad.transport.op',
+        'uses' => 'Trazabilidad\Trazabilidad@transportOp'
     ]);
 
-    Route::post('/declarar/{op}', [
-        'middleware' => 'role:admin',
-        'as' => 'trazabilidad.form.declarar.send',
-        'uses' => 'Trazabilidad\Trazabilidad@formDeclararSend'
-    ]);
+    Route::group(array('prefix' => 'form'), function() {
+        // FORM DECLARAR
+        Route::get('/declarar/{op}',[
+            'as' => 'trazabilidad.form.declarar',
+            'uses' => 'Trazabilidad\Trazabilidad@formDeclarar'
+        ]);
+
+        Route::post('/declarar/{op}', [
+            'middleware' => 'role:admin',
+            'as' => 'trazabilidad.form.declarar.send',
+            'uses' => 'Trazabilidad\Trazabilidad@formDeclararSend'
+        ]);
+
+        Route::get('/allprodstocker/{op}', [
+            'as' => 'trazabilidad.form.allprodstocker',
+            'uses' => 'Trazabilidad\Trazabilidad@formAllProdStocker'
+        ]);
+    });
+
+
     // END FORM
 });

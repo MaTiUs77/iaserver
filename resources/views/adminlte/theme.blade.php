@@ -60,6 +60,12 @@
 </head>
 <body class="hold-transition skin-blue @yield('mini','sidebar-mini') @yield('collapse','sidebar-collapse')" @hasSection('ng') ng-cloak @endif @yield('bodytag')>
 
+@if(app()->environment()=='desarrollo')
+  <div class="callout callout-warning" style="border-radius: 0;margin:0;">
+    <p><b>ATENCION</b> Usted se encuentra en el servidor de DESARROLLO, por favor, dirijase al servidor de PRODUCCION haciendo <a href="http://ARUSHAP34">CLICK ACA</a></p>
+  </div>
+@endif
+
 <div class="wrapper">
 
   <!-- Main Header -->
