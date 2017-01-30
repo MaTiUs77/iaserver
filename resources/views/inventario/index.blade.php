@@ -28,6 +28,10 @@
                         @endif
                     </ul>
                 </li>
+                @if(isAdmin())
+                <li><a href="{{ url('inventario/consultar/reporte') }}">Exportar Database</a></li>
+                @endif
+                {{--<li><a href="{{ url('inventario/consultar/reporte') }}">Exportar Database</a></li>--}}
                 <!-- END TREEMENU -->
                 <!-- END MENU -->
             </ul>

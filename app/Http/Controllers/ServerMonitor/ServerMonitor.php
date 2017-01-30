@@ -14,11 +14,11 @@ class ServerMonitor extends Controller
     public function redis() {
         try
         {
-            $monitor = \LRedis::smembers('servermonitor::online');
+            $monitor = \LRedis::smembers('servermonitor:online');
 
             $status = array();
             foreach ($monitor as $item) {
-                $status[] = json_decode(\LRedis::get('servermonitor::status::'.$item));
+                $status[] = json_decode(\LRedis::get('servermonitor:status:'.$item));
             }
 
             $output = compact('monitor','status');

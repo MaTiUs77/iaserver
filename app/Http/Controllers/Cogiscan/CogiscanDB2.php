@@ -3,7 +3,10 @@ namespace IAServer\Http\Controllers\Cogiscan;
 
 ini_set("default_socket_timeout", 120);
 
+use Carbon\Carbon;
 use DebugBar\DebugBar;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 use IAServer\Http\Controllers\IAServer\Debug;
 use IAServer\Http\Requests;
 use IAServer\Http\Controllers\Controller;
@@ -12,12 +15,15 @@ use Illuminate\Support\Facades\Response;
 
 class CogiscanDB2 extends Controller
 {
+    protected $nodeRestHost = '10.30.10.90';
+    protected $nodeRestPort = 1337;
+
     /**
      * Ejecuta los metodos sin necesidad de definir las rutas
      *
      * @return mixed
      */
-    public function dynamicCommands(){
+    protected function dynamicCommands(){
         $command = Request::segment(3);
         $attributes= array_except( Request::segments() , [0,1,2]);
 
@@ -67,6 +73,7 @@ class CogiscanDB2 extends Controller
 
             if($modifier=='public')
             {
+                $output[$method] = null;
                 foreach ($params as $param) {
                     $output[$method][] = $param->getName() . (($param->isOptional() == true) ? ' (opcional) ' : '');
                 }
@@ -75,6 +82,10 @@ class CogiscanDB2 extends Controller
 
         return $output;
     }
+    /*
+     *  Estos metodos usaban un warper creado en .Net para conectar al DB2
+     *  ahora se usa un REST ejecutado en un servidor NodeJs
+     *
     private function query($db, $query) {
         $debug = new Debug($this,false,'db2',false);
 
@@ -104,85 +115,151 @@ class CogiscanDB2 extends Controller
              dd($ex->getMessage(),$xml);
         }
     }
+    */
+    /////////////////////////////////////////////////////////////////////////////
+    //                          COGISCAN NODE REST API
+    /////////////////////////////////////////////////////////////////////////////
+    private function query($query)
+    {
+        $client = new Client();
+        $apiRest = "http://$this->nodeRestHost:$this->nodeRestPort/cogiscan/query";
+        try {
+            $res = $client->request('GET', $apiRest, [
+                'query' => ['sql' => $query]
+            ]);
+            $content = json_decode($res->getBody()->getContents());
 
+            return $content;
+
+        } catch (RequestException $err) {
+
+            return ['error'=>$err->getMessage()];
+        }
+    }
+
+    public function materialLoadedAt($fecha_desde = "",$fecha_hasta = "")
+    {
+        // Si no defino hasta
+        if(empty($fecha_hasta)) {
+            // y no defino desde
+            if (empty($fecha_desde)) {
+                $fecha_hasta = Carbon::now()->toDateString();
+            } else {
+                $fecha_hasta = $fecha_desde;
+            }
+        }
+
+        if(empty($fecha_desde)) {
+            $fecha_desde = Carbon::now()->toDateString();
+        }
+
+        $query = "
+        SELECT
+        INF.PART_NUMBER,
+        INF.ITEM_TYPE_NAME,
+        INF.ITEM_ID,
+        INF.INITIAL_QUANTITY,
+
+        VARCHAR_FORMAT(INF.INIT_TMST, 'YYYY-MM-DD HH24:MI:ss') as INIT_TMST,
+        VARCHAR_FORMAT(INF.LOAD_TMST, 'YYYY-MM-DD HH24:MI:ss') as LOAD_TMST,
+        VARCHAR_FORMAT(INF.UNLOAD_TMST, 'YYYY-MM-DD HH24:MI:ss') as UNLOAD_TMST,
+
+        VARCHAR_FORMAT(INF.INIT_TMST, 'YYYY-MM-DD HH24') as INIT_TMST_hora,
+        VARCHAR_FORMAT(INF.LOAD_TMST, 'YYYY-MM-DD HH24') as LOAD_TMST_hora,
+        VARCHAR_FORMAT(INF.UNLOAD_TMST, 'YYYY-MM-DD HH24') as UNLOAD_TMST_hora,
+
+        INF.LOAD_USER_ID,IT.ITEM_ID AS FEEDER_ITEM_ID,ITKT.ITEM_ID AS TOP_ITEM_ID,ITK.ITEM_ID AS CURR_ITEM_ID FROM CGS.ITEM_INFO INF LEFT OUTER JOIN CGS.ITEM IT ON (IT.ITEM_KEY = INF.CNTR_KEY) LEFT OUTER JOIN CGS.ITEM ITKT ON (ITKT.ITEM_KEY =INF.TOP_TOOL_KEY) LEFT OUTER JOIN CGS.ITEM ITK ON (ITK.ITEM_KEY = INF.TOOL_KEY) LEFT OUTER JOIN CGS.TOOL_FOR_LINE TFL ON (TFL.TOOL_KEY = INF.TOOL_KEY)
+        WHERE
+
+        DATE(INF.LOAD_TMST) >= '$fecha_desde' AND
+        DATE(INF.LOAD_TMST) <= '$fecha_hasta' AND
+        INF.UNLOAD_TMST IS NULL
+        ORDER BY INF.LOAD_TMST asc
+        ";
+        return self::query($query);
+    }
+
+    public function materialLoadedByUserAt($fecha_desde = "",$fecha_hasta = "")
+    {
+        $respuesta = $this->materialLoadedAt($fecha_desde,$fecha_hasta);
+
+        if(isset($respuesta["error"]))
+        {
+            return $respuesta;
+        } else
+        {
+            $handle = collect($respuesta);
+            return $handle->groupBy('LOAD_USER_ID');
+        }
+    }
     /////////////////////////////////////////////////////////////////////////////
     //                          COGISCAN WEBSERVICES
     /////////////////////////////////////////////////////////////////////////////
     public function itemInfoByKey($itemKey)
     {
-        $db = 'CGS';
         $query = "select * from CGS.ITEM_INFO where ITEM_KEY = $itemKey limit 1";
 
-        return self::query($db,$query);
+        return self::query($query);
     }
 
     public function itemInfoByToolKey($toolKey)
     {
-        $db = 'CGS';
         $query = "select b.BATCH_ID,p.* from CGSPCM.PRODUCT p inner join CGSPCM.PRODUCT_BATCH b on b.BATCH_KEY = p.BATCH_KEY where p.TOOL_KEY = $toolKey limit 1";
-        return self::query($db,$query);
+        return self::query($query);
     }
 
     public function itemInfoByComplex($itemId)
     {
-        $db = 'CGS';
         $query = "select b.BATCH_ID,p.* from CGSPCM.PRODUCT p inner join CGSPCM.PRODUCT_BATCH b on b.BATCH_KEY = p.BATCH_KEY inner join CGS.ITEM i on i.ITEM_ID = '".$itemId."' where p.TOOL_KEY = i.ITEM_KEY limit 1";
-        return self::query($db,$query);
+        return self::query($query);
     }
 
     public function itemInfoById($itemId)
     {
-        $db = 'CGS';
         $query = "select * from CGS.ITEM_INFO where CGS.ITEM_INFO.ITEM_ID = '$itemId' limit 1 ";
 
-        return self::query($db,$query);
+        return self::query($query);
     }
 
     public function itemInfoInQuarentine($quarentine='Y')
     {
-        $db = 'CGS';
         $query = "select * from CGS.ITEM_INFO where QUARANTINE_LOCKED = '$quarentine' ";
 
-        return self::query($db,$query);
+        return self::query($query);
     }
 
     public function partNumber($partNumber,$itemId)
     {
-        $db = 'CGS';
         $query = "select * from CGS.PART_NUMBER p left join CGS.ITEM i on i.ITEM_ID = '$itemId'  where p.PART_NUMBER = '$partNumber' ";
 
-        return self::query($db,$query);
+        return self::query($query);
     }
 
     public function posicionesPorUbicacion($partNumber,$itemId)
     {
-        $db = 'CGS';
         $query = "select * from CGSLSC.TOOL_SETUP where PRODUCT_PN_KEY = (select PART_NUMBER_KEY from CGS.PART_NUMBER where PART_NUMBER = '$partNumber' limit 1) and TOOL_KEY = (select ITEM_KEY from CGS.ITEM where ITEM_ID = '$itemId' limit 1) ";
 
-        return self::query($db,$query);
+        return self::query($query);
     }
 
     public function itemByComplex($itemId)
     {
-        $db = 'CGS';
         $query = "select * from CGS.ITEM where ITEM_ID = '$itemId'";
 
-        return self::query($db,$query);
+        return self::query($query);
     }
 
     public function toolSetup($PRODUCT_PN_KEY,$TOOL_KEY)
     {
-        $db = 'CGS';
         $query = "select * from CGSLSC.TOOL_SETUP where PRODUCT_PN_KEY = $PRODUCT_PN_KEY and TOOL_KEY = $TOOL_KEY";
 
-        return self::query($db,$query);
+        return self::query($query);
     }
 
     public function opByPartNumber($partNumber)
     {
-        $db = 'CGS';
         $query = "select * from CGSPCM.product_batch where product_pn_key = (select part_number_key from CGS.part_number where part_number = '$partNumber')";
 
-        return self::query($db,$query);
+        return self::query($query);
     }
 }

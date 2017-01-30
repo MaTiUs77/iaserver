@@ -10,6 +10,11 @@ Route::group(['prefix' => 'inspection'], function()
         'uses' => 'Aoicollector\Inspection\InspectionController@listDefault'
     ]);
 
+    Route::match(['get', 'post'],'/defectos/periodo', [
+        'as' => 'aoicollector.inspection.defectos.periodo',
+        'uses' => 'Aoicollector\Inspection\InspectionController@defectosPeriodo'
+    ]);
+
     // Exportar inspecciones
     Route::get('/export/{id_maquina}/{fecha}/{minormax}',  [
         'as' => 'aoicollector.inspection.export',

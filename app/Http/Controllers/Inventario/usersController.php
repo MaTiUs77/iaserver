@@ -114,6 +114,7 @@ class usersController extends Controller
         $config_user->id_sector = $input['config_user']['id_sector'];
         $config_user->id_planta = $input['config_user']['id_planta'];
         $config_user->id_impresora = $input['config_user']['impresora']['id_impresora'];
+        $config_user->save();
         try{
             $config_user->save();
             return 'exito';

@@ -127,6 +127,7 @@ class InspectionList extends Controller
             (
                 select trans_ok from `aoidata`.`transaccion_wip` as subt where
                 subt.barcode = hp.panel_barcode
+                order by subt.created_at desc limit 1
             ) as trans_ok
             "))
             ->from("aoidata.history_inspeccion_panel as hp")
@@ -146,7 +147,6 @@ class InspectionList extends Controller
             // Filtro horario
             if($this->filterPeriod)
             {
-
                $q = $q->whereRaw("SEC_TO_TIME((TIME_TO_SEC(hp.created_time) DIV (60*60)) * (60*60)) = '$this->filterPeriod' ");
             }
 
@@ -191,6 +191,39 @@ class InspectionList extends Controller
             if($this->filterPeriod)
             {
                 $q = $q->whereRaw("SEC_TO_TIME((TIME_TO_SEC(hp.created_time) DIV (60*60)) * (60*60)) = '$this->filterPeriod' ");
+            }
+
+        return $q;
+    }
+
+    /*
+     * Muestra los errores reales de la primer y unica inspeccion del dia, en periodos de 15 min
+     */
+    public function queryDefectInspectionRange($allMachine=true)
+    {
+        $q = PanelHistory::select(DB::raw("
+            hp.id_maquina,
+            hp.created_date,
+            SUM(hp.reales) as errores,
+            SEC_TO_TIME((TIME_TO_SEC(hp.created_time) DIV (15*60)) * (15*60)) AS periodo
+	        "))
+            ->from("aoidata.history_inspeccion_panel as hp")
+            ->join('aoidata.inspeccion_panel as p', DB::raw('hp.id_panel_history'), '=', DB::raw('p.first_history_inspeccion_panel'))
+
+            //->where('hp.id_maquina',$this->id_maquina)
+            ->whereRaw("hp.created_date between '".$this->desdeCarbon->toDateString()."' and '".$this->hastaCarbon->toDateString()."'")
+            ->groupBy('periodo')
+
+            ->groupBy(DB::raw('hp.id_maquina'))
+            ->groupBy(DB::raw('hp.created_date'))
+
+            ->orderBy(DB::raw('hp.created_date'),'asc')
+            ->orderBy(DB::raw('hp.created_time'),'asc');
+
+            // Filtro horario
+            if(!$allMachine)
+            {
+                $q = $q->where('hp.id_maquina',$this->id_maquina);
             }
 
         return $q;

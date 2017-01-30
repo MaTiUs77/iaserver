@@ -36,6 +36,25 @@ class InspectionController extends Controller
         return $this->listWithFilter($maquina->id,$pagina,$op);
     }
 
+    public function defectosPeriodo()
+    {
+        $carbonDate = Util::dateRangeFilterEs('date_session');
+
+        $maquinas = Maquina::select('maquina.*','produccion.inf','produccion.cogiscan')
+            ->orderBy('maquina.linea')
+            ->leftJoin('aoidata.produccion','produccion.id_maquina','=','maquina.id')
+            ->get();
+
+        $inspectionList = new InspectionList($maquinas->first()->id,$carbonDate->desde,$carbonDate->hasta);
+        $defectChart = $inspectionList->queryDefectInspectionRange()->get();
+
+        $maquina = $maquinas->first();
+
+        $output = compact('defectChart','maquinas','maquina');
+
+        return Response::multiple($output,'aoicollector.inspection.periodo_defectos');
+    }
+
     public function listWithFilter($id_maquina,$pagina=null,$op='')
     {
         $id_maquina = (int) $id_maquina;
@@ -46,6 +65,11 @@ class InspectionController extends Controller
         $inspectionList->setPagina($pagina);
         $inspectionList->setMode(Input::get('listMode'));
         $inspectionList->setPeriod(Input::get('filterPeriod'));
+        if(!empty($op))
+        {
+            $inspectionList->setOp($op);
+        }
+
         $inspectionList->find();
 
         // Sidebar
@@ -57,7 +81,7 @@ class InspectionController extends Controller
 
         $maquina = $maquinas->where('id',$id_maquina)->first();
 
-        $output = compact('inspectionList','maquinas','maquina');
+        $output = compact('defectChart','inspectionList','maquinas','maquina');
 
         return Response::multiple($output,'aoicollector.inspection.index');
     }
@@ -212,15 +236,23 @@ class InspectionController extends Controller
 
         $barcodes = [];
         foreach ($matches[0] as $barcode) {
+
             $find = new FindInspection();
             $find->withSmt = true;
-            $inspeccion = $find->barcode($barcode);
-            if($firstOrLast=='first')
+            $inspeccion = (object) $find->barcode($barcode);
+
+            if(isset($inspeccion->error))
             {
-                $barcodes[] = $inspeccion->first;
+                $barcodes[] = $inspeccion;
             } else
             {
-                $barcodes[] = $inspeccion->last;
+                if($firstOrLast=='first')
+                {
+                    $barcodes[] = $inspeccion->first;
+                } else
+                {
+                    $barcodes[] = $inspeccion->last;
+                }
             }
         }
 

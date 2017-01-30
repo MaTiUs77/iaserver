@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class InventarioEntrust extends Model
 {
-    protected $table = 'inventario.config_user';
+    protected $table = 'inventario2016.config_user';
     protected $primaryKey = 'id_config';
     public $timestamps = false;
 

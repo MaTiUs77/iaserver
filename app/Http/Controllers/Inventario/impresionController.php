@@ -6,7 +6,6 @@ use IAServer\Http\Controllers\Inventario\Model\impresiones;
 use IAServer\Http\Controllers\Inventario\Model\lpn_generator;
 use IAServer\Http\Controllers\Inventario\Model\unidad_medida;
 use Illuminate\Http\Request;
-
 use IAServer\Http\Requests;
 use IAServer\Http\Controllers\Controller;
 use IAServer\Http\Controllers\Inventario\Model\materiales;
@@ -226,11 +225,11 @@ class impresionController extends Controller
                             ^XA~TA000~JSN^LT0^MNW^MTT^PON^PMN^LH0,0^JMA^PR" . $user_info['config_user']['impresora']['velocidad_impresion'] . "~SD" . $user_info['config_user']['impresora']['setdarkness'] . "^JUS^LRN^CI0^XZ
                             ^XA
                             ^MMT
-                            ^PW1181
+                            ^PW1248
                             ^LL0591
                             ^LS0
                             ^FT317,275^A0N,150,141^FH\^FDHIBRIDO^FS
-                            ^FT412,551^A0N,104,98^FH\^FDINVENTARIO 2015^FS
+                            ^FT412,551^A0N,104,98^FH\^FDINVENTARIO 2016^FS
                             ^FO0,4^GB1180,585,12^FS
                             ^FO1,5^GB240,153,12^FS
                             ^FO0,435^GB373,154,12^FS
@@ -345,7 +344,7 @@ class impresionController extends Controller
                         ^XA~TA000~JSN^LT0^MNW^MTT^PON^PMN^LH0,0^JMA^PR" . $user_info['config_user']['impresora']['velocidad_impresion'] . "~SD" . $user_info['config_user']['impresora']['setdarkness']  . "^JUS^LRN^CI0^XZ
                         ^XA
                         ^MMT
-                        ^PW1181
+                        ^PW1248
                         ^LL0591
                         ^LS0
                         ^FT45,420^A0N,58,81^FH\^FD" . $pconteo . "^FS
@@ -373,9 +372,9 @@ class impresionController extends Controller
                         ^FT290,415^A0N,46,38^FH\^FD". $lpn->first()->unidad_medida ."^FS
                         ^FT282,347^A0N,33,31^FH\^FDUNIDAD^FS
                         ^FT406,356^A0N,50,48^FH\^FD2\F8 CONTEO^FS
-                        ^FT802,426^A0N,20,12^FH\^FD". $tconteo ."^FS
+                        ^FT802,426^A0N,58,81^FH\^FD". $tconteo ."^FS
                         ^FT56,570^A0N,20,14^FH\^FD----------------------^FS
-                        ^FT413,425^A0N,20,12^FH\^FD".$sconteo."^FS
+                        ^FT413,425^A0N,58,81^FH\^FD".$sconteo."^FS
                         ^FT653,61^A0N,42,40^FH\^FDID:^FS
                         ^FT711,64^A0N,54,52^FH\^FD".$lpn->first()->lpn."^FS
                         ^BY3,3,59^FT28,277^BCN,,N,N
@@ -401,7 +400,7 @@ class impresionController extends Controller
         }
     }
 
-        public function toPrint(Request $partnumber)
+    public function toPrint(Request $partnumber)
     {
 
         if($partnumber->get('pn') == 'HIBRIDO') {
@@ -410,9 +409,7 @@ class impresionController extends Controller
             $USER = Auth::user();
             $getuser = new usersController();
             $user_info = $getuser->show($USER->id);
-           // $user_info = invController::userInfo($USER->id);
-
-
+           // $user_info = invController::userInfo($USER->id)
             $arrToPrint = array(
                 "userName" => $USER->name,
                 "id_sector" => $user_info['config_user']['id_sector'],
@@ -570,11 +567,11 @@ class impresionController extends Controller
                             ^XA~TA000~JSN^LT0^MNW^MTT^PON^PMN^LH0,0^JMA^PR" . $arrToPrint['velocidad_impresion'] . "~SD" . $arrToPrint['setdarkness'] . "^JUS^LRN^CI0^XZ
                             ^XA
                             ^MMT
-                            ^PW1181
+                            ^PW1248
                             ^LL0591
                             ^LS0
                             ^FT317,275^A0N,150,141^FH\^FDHIBRIDO^FS
-                            ^FT412,551^A0N,104,98^FH\^FDINVENTARIO 2015^FS
+                            ^FT412,551^A0N,104,98^FH\^FDINVENTARIO 2016^FS
                             ^FO0,4^GB1180,585,12^FS
                             ^FO1,5^GB240,153,12^FS
                             ^FO0,435^GB373,154,12^FS
@@ -635,7 +632,9 @@ class impresionController extends Controller
             $QTY = $partnumber->get('qty');
             $USER = Auth::user();
             $PNinfo = $this->show($PN);
-            $user_info = invController::userInfo($USER->id);
+            $infousuario = new usersController();
+            $user_info = $infousuario->show($USER->id);
+            
             $arrToPrint = array(
                 "partNumber" => $PN,
                 "quantity" => $QTY,
@@ -643,15 +642,16 @@ class impresionController extends Controller
                 "Unidad_medida" => $PNinfo[0]['unidad_medida'],
                 "userName" => $USER->name,
                 "userPass" => $USER->password,
-                "userDesc" => $user_info[0]['descripcion'],
-                "id_sector" => $user_info[0]['id_sector'],
-                "id_planta" => $user_info[0]['id_planta'],
-                "id_impresora" => $user_info[0]['id_impresora'],
-                "printer_address" => $user_info[0]['printer_address'],
-                "id_printer_type" => $user_info[0]['id_printer_type'],
-                "setdarkness" => $user_info[0]['setdarkness'],
-                "velocidad_impresion" => $user_info[0]['velocidad_impresion'],
+                //"userDesc" => $user_info[0]['descripcion'],
+                "id_sector" => $user_info['config_user']['id_sector'],
+                "id_planta" => $user_info['config_user']['id_planta'],
+                "id_impresora" => $user_info['config_user']['impresora']['id_impresora'],
+                "printer_address" => $user_info['config_user']['impresora']['printer_address'],
+                "id_printer_type" => $user_info['config_user']['impresora']['id_printer_type'],
+                "setdarkness" => $user_info['config_user']['impresora']['setdarkness'],
+                "velocidad_impresion" => $user_info['config_user']['impresora']['velocidad_impresion'],
             );
+
             //enviar el array a una funcion para generar el prn
             $this->prnPrint($arrToPrint);
 
@@ -815,7 +815,7 @@ class impresionController extends Controller
                         ^XA~TA000~JSN^LT0^MNW^MTT^PON^PMN^LH0,0^JMA^PR" . $array['velocidad_impresion'] . "~SD" . $array['setdarkness'] . "^JUS^LRN^CI0^XZ
                         ^XA
                         ^MMT
-                        ^PW1181
+                        ^PW1248
                         ^LL0591
                         ^LS0
                         ^FT45,420^A0N,58,81^FH\^FD" . $array['quantity'] . "^FS

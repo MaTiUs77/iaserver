@@ -11,13 +11,13 @@ use Illuminate\Support\Collection as IlluminateCollection;
 class Collection extends IlluminateCollection
 {
     /* ------------------------------------------------------------------------------------------------
-     |  Main Functions
+     |  Custom Functions
      | ------------------------------------------------------------------------------------------------
      */
     /**
      * Reset the collection.
      *
-     * @return self
+     * @return static
      */
     public function reset()
     {

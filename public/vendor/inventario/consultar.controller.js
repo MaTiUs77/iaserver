@@ -36,6 +36,27 @@ app.controller('LabelCtrl',function($scope,InventarioFactory) {
                 $scope.label.cantidadContada = response.data[0]['cant_agregada'];
                 $scope.label.cantidadSegConteo = response.data[0]['seg_conteo'];
                 $scope.label.cantidadTerConteo = response.data[0]['ter_conteo'];
+                if($scope.label.cantidadContada > 0)
+                {
+                    $scope.pconteoDisable = true;
+                    console.log($scope.pconteoDisable);
+                }else{
+                    $scope.pconteoDisable = false;
+                }
+                if($scope.label.cantidadSegConteo > 0)
+                {
+                    $scope.sconteoDisable = true;
+                    console.log($scope.sconteoDisable);
+                }else{
+                    $scope.sconteoDisable = false;
+                }
+                if($scope.label.cantidadTerConteo > 0)
+                {
+                    $scope.tconteoDisable = true;
+                    console.log($scope.tconteoDisable);
+                }else{
+                    $scope.tconteoDisable = false;
+                }
                 $scope.buscar = null;
                 $scope.isDisabled = false;
             }
@@ -71,6 +92,7 @@ app.controller('LabelCtrl',function($scope,InventarioFactory) {
             {
                 $scope.statusStyle = "color:#5cb85c;";
                 $scope.updLabelStatus = "Actualizado Correctamente"
+                location.reload();
             }
             else
             {
@@ -82,7 +104,6 @@ app.controller('LabelCtrl',function($scope,InventarioFactory) {
     $scope.togglee = function (){
 
         InventarioFactory.getUdmFromDB().then(function(responseUdm) {
-
             $scope.udmList = responseUdm.data;
             console.log($scope.udmList);
         });

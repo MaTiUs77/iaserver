@@ -1,5 +1,5 @@
 @extends('adminlte/theme')
-@section('title',"Error $codigo")
+@section('title',"Error")
 @section('body')
 
     <div class="error-page">

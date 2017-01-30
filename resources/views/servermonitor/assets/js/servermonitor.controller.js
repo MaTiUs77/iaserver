@@ -1,65 +1,74 @@
+app.directive('dynchart', function() {
+    return {
+        scope: {
+            data: '='
+        },
+        link: function(scope, element) {
+            //var min = scope.dataMin;
+            //var max = scope.dataMax;
+            element.sparkline(scope.data, {
+                type: 'line',
+                width: '100%',
+                height: '50',
+                lineWidth: 2,
+                maxSpotColor: '#ff0000',
+                spotRadius: 3,
+                normalRangeMin: 0,
+                normalRangeMax: 80,
+                normalRangeColor: '#e5e5e5'
+            });
+        }
+    }
+});
+
 app.controller("servidorMonitorController",
-    ["$scope","$http", "$interval",
-    function ($scope,$http, $interval) {
-    $("input[dynamicknob]").knob();
+    ["$scope","$http", "$interval","toasty",
+    function ($scope,$http, $interval, toasty) {
 
     $scope.serverList = [];
-    $scope.osmonitor = [];
-    $scope.memoriamonitor = [];
 
-    $scope.nodejserror = false;
+    var socket = io.connect('http://ARUSHAP34:8081');
 
-    $scope.getMonitorStatus = function()
-    {
-        /*$http.get("servermonitor/redis").then(function(res){
-            $scope.serverList = res.data;
-            $scope.nodejserror = false;
+    socket.on('connect_error', function(err){
+        console.log("Error de conexion, servidor caido",err);
+    });
 
-        }, function errorCallback(response) {
-            $scope.serverList = [];
-            $scope.nodejserror = true;
-        });*/
+    socket.on('redisError', function(message){
+        console.log(message);
+    });
 
-        $http.get("servermonitor/redis").then(function(res){
+    socket.on('disconnect', function () {
+        console.log("Conexion finalizada");
+    });
 
-            $scope.serverList = res.data.status;
+    socket.on('connect', function(){
+        console.log("Conectado");
+        socket.emit('subscribe', 'servermonitor');
+    });
 
-            //$("input[dynamicknob]").val(res.data.status[0].cpu);
+    socket.on('subscribeResponse', function(message){
+        console.log(message);
+    });
 
-            /*
-            $scope.osmonitor.push(res.data.cpu[0]);
-            $scope.memoriamonitor.push(res.data.memoria.porcent);
+    socket.on('message', function(message){
+        var server = JSON.parse(message);
 
-            $("input[dynamicknob]").val(res.data.cpu[0]);
+        var found = false;
+        for(var i = 0; i < $scope.serverList.length; i++) {
+            if ($scope.serverList[i].nombre == server.nombre) {
+                $scope.serverList[i] = server;
+                found = true;
+                break;
+            }
+        }
 
-            $("[data='cpumonitor']").sparkline($scope.osmonitor, {
-                type: 'line',
-                height: '30',
-                width: '120',
-                barWidth: 8,
-                barSpacing: 3,
-                barColor: '#65edae',
-                negBarColor: '#ff5656'
-            });
+        if(!found)
+        {
+            $scope.serverList.push(server);
+        }
 
-            $("[data='memoriamonitor']").sparkline($scope.memoriamonitor, {
-                type: 'line',
-                height: '30',
-                width: '120',
-                barWidth: 8,
-                barSpacing: 3,
-                barColor: '#65edae',
-                negBarColor: '#ff5656'
-            });
-            */
+        $scope.$apply();
 
-        }, function errorCallback(response) {
-        });
-    };
-
-    $interval(function(){
-        $scope.getMonitorStatus();
-    }, 5000);
-
-    $scope.getMonitorStatus();
+    });
 }]);
+

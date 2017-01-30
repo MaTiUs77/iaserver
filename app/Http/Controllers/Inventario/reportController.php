@@ -3,6 +3,7 @@
 namespace IAServer\Http\Controllers\Inventario;
 
 use IAServer\Http\Controllers\Inventario\Model\lpn_generator;
+use IAServer\Http\Controllers\Inventario\Model\planta;
 use Illuminate\Http\Request;
 
 use IAServer\Http\Requests;
@@ -18,7 +19,7 @@ class reportController extends Controller
     public function index()
     {
         //Cargo todas las impresiones al cargar la página
-        $impresiones = lpn_generator::all();
+        $impresiones = planta::all();
         return $impresiones;
 
     }
@@ -50,9 +51,9 @@ class reportController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $date)
     {
-        //
+        dd($date);
     }
 
     /**

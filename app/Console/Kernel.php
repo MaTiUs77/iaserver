@@ -17,6 +17,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         \IAServer\Console\Commands\Inspire::class,
         \IAServer\Console\Commands\AoicollectorStatExport::class,
+        \IAServer\Console\Commands\TestCommand::class,
     ];
 
     /**
@@ -28,14 +29,10 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('inspire')->dailyAt('04:00');
-        $schedule->command('inspire')->dailyAt('09:30');
-        $schedule->command('inspire')->dailyAt('20:30');
 
-        $schedule->command('inspire')->dailyAt('13:50');
-
-        $schedule->call(function () {
+       /* $schedule->call(function () {
             Log::info("Schedule RUN");
-        })->everyMinute();
+        })->everyMinute();*/
 
        /* $schedule->call(function () {
             $rv = new RedisView();

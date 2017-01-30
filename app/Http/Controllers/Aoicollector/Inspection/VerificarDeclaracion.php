@@ -2,11 +2,13 @@
 
 namespace IAServer\Http\Controllers\Aoicollector\Inspection;
 
+use IAServer\Http\Controllers\Aoicollector\Model\Stocker;
 use IAServer\Http\Controllers\Aoicollector\Model\TransaccionWip;
 use IAServer\Http\Controllers\Aoicollector\Stocker\Src\StockerContentDeclaracion;
 use IAServer\Http\Controllers\Trazabilidad\Declaracion\Wip\Wip;
 use IAServer\Http\Requests;
 use IAServer\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 
 class VerificarDeclaracion extends Controller
 {
@@ -178,5 +180,33 @@ class VerificarDeclaracion extends Controller
         }
 
         return $this;
+    }
+
+
+    public function transaccionWipStatusByStocker(Stocker $stocker)
+    {
+        $query =  DB::connection('iaserver')->select(
+            DB::raw("
+            select
+            tr.trans_ok,
+            hib.barcode
+            from aoidata.stocker stk
+            -- Obtengo contenido de stocker
+            inner join aoidata.stocker_detalle stkd on stkd.id_stocker = stk.id
+            -- Obtengo panele con id_panel
+            inner join aoidata.inspeccion_panel ip on ip.id = stkd.id_panel
+            -- Obtengo ultima inspeccion del panel con id_panel
+            inner join aoidata.history_inspeccion_panel hip on hip.id_panel_history = ip.last_history_inspeccion_panel
+            -- Obtengo placas de ultima inspeccion
+            inner join aoidata.history_inspeccion_bloque hib on hib.id_panel_history = hip.id_panel_history
+
+            left join aoidata.transaccion_wip tr on tr.id_panel = ip.id
+            where
+
+            stk.barcode  = '$stocker->barcode'
+            ")
+        );
+
+        return $query;
     }
 }

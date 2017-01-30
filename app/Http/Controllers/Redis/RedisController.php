@@ -6,6 +6,10 @@ use IAServer\Http\Controllers\Controller;
 
 class RedisController extends Controller
 {
+    public function push($canal,$message)
+    {
+        \LRedis::set($canal,$message);
+    }
     public function cached($canal)
     {
         try
@@ -13,7 +17,7 @@ class RedisController extends Controller
             return (object) json_decode(\LRedis::get($canal));
         } catch( \Exception $ex)
         {
-            return ['rediserror' => $ex->getMessage()];
+            return (object) ['rediserror' => $ex->getMessage()];
         }
     }
 

@@ -42,4 +42,13 @@ class viewController extends Controller
     {
         return view('inventario.consulta.consulta');
     }
+    public function plantas()
+    {
+
+        $plantas = new invController();
+        $pl = $plantas->getPlants();
+
+        $output = compact('pl');
+        return Response::multiple($output,'inventario.consulta.consulta');
+    }
 }

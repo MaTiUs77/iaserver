@@ -116,7 +116,9 @@ return [
          */
         Illuminate\Auth\AuthServiceProvider::class,
         Illuminate\Broadcasting\BroadcastServiceProvider::class,
-        Illuminate\Bus\BusServiceProvider::class,
+//        Illuminate\Bus\BusServiceProvider::class,
+        AltThree\Bus\BusServiceProvider::class,
+
         Illuminate\Cache\CacheServiceProvider::class,
         Illuminate\Foundation\Providers\ConsoleSupportServiceProvider::class,
         Illuminate\Cookie\CookieServiceProvider::class,
@@ -146,11 +148,13 @@ return [
         IAServer\Providers\EventServiceProvider::class,
         IAServer\Providers\RouteServiceProvider::class,
         IAServer\Providers\LocalServiceProvider::class,
-        Collective\Bus\BusServiceProvider::class,
+//        Collective\Bus\BusServiceProvider::class,
+
         Maatwebsite\Excel\ExcelServiceProvider::class,
         Arcanedev\LogViewer\LogViewerServiceProvider::class,
         IAServer\Providers\ResponseServiceProvider::class,
-//        Barryvdh\Debugbar\ServiceProvider::class
+
+        //Barryvdh\Debugbar\ServiceProvider::class
     ],
 
     /*
@@ -204,8 +208,9 @@ return [
 
         'Entrust'   => Zizaco\Entrust\EntrustFacade::class,
 		'SoapWrapper' => Artisaninweb\SoapWrapper\Facades\SoapWrapper::class,
-        'Excel' => Maatwebsite\Excel\Facades\Excel::class
-//        'Debugbar' => Barryvdh\Debugbar\Facade::class
+        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+
+        //'Debugbar' => Barryvdh\Debugbar\Facade::class
 
         
     ],

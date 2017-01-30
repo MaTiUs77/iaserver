@@ -103,7 +103,7 @@ return [
         'inventario' => [
             'driver'    => 'mysql',
             'host'      => env('INVENTARIO_HOST', '10.30.10.22'),
-            'database'  => env('INVENTARIO_DATABASE', 'inventario'),
+            'database'  => env('INVENTARIO_DATABASE', 'inventario2016'),
             'username'  => env('INVENTARIO_USERNAME', 'root'),
             'password'  => env('INVENTARIO_PASSWORD', 'apisql'),
             'charset'   => 'utf8',
@@ -309,7 +309,7 @@ return [
         'cluster' => false,
 
         'default' => [
-            'host'     => '127.0.0.1',
+            'host'     => 'ARUSHAP34',
             'port'     => 6379,
             'database' => 0,
         ],

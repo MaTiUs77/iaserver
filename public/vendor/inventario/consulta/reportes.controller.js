@@ -1,5 +1,6 @@
 app.controller('reportController',function($scope,reportFactory,$http){
     reportFactory.getPrints().then(function(response){
-       $scope.impresiones = response.data;
+       $scope.Electronic = response.data;
+        console.log($scope.Electronic);
     });
 });

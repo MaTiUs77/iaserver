@@ -1,5 +1,5 @@
 @if($wip->active)
-    @if(!isset($btnDeclarar))
+    @if(isset($btnDeclarar) && $btnDeclarar)
         <?php
             $lastColor = \IAServer\Http\Controllers\Memorias\Model\Grabacion::where('op',$wip->wip_ot->nro_op)->orderBy('fecha','desc')->first();
         ?>
@@ -51,7 +51,7 @@
 <table class="table table-bordered table-striped table-hover">
     <thead>
     <tr>
-        @if(!isset($btnPrint))
+        @if(isset($btnPrint) && $btnPrint)
             <th></th>
         @endif
         <th>Fecha</th>
@@ -65,13 +65,13 @@
     <tbody>
         @foreach(\IAServer\Http\Controllers\Memorias\Model\Grabacion::where('op',$wip->wip_ot->nro_op)->get() as $grabacion)
         <tr>
-            @if(!isset($btnPrint))
+            @if(isset($btnPrint) && $btnPrint)
                 <td>
-                    @if($grabacion->traza_code==0)
+                    {{--@if($grabacion->traza_code==0)--}}
                         <form method="post" target="_blank" action="{{ route('memorias.zebra.print',[$grabacion->op,$grabacion->cantidad]) }}">
-                            <button type="submit" class="btn btn-xs btn-primary" tooltip-placement="right" tooltip="Imprimir etiqueta"><span class="glyphicon glyphicon-print"></span></button>
+                            <button type="submit" class="btn btn-xs btn-primary" tooltip-placement="right" tooltip="Imprimir etiqueta"><span class="fa fa-print"></span></button>
                         </form>
-                    @endif
+                    {{--@endif--}}
                 </td>
             @endif
             <td>

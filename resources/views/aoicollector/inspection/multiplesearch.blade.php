@@ -74,31 +74,39 @@
                             </thead>
                             <tbody>
                                 @foreach( $barcodes as $inspection)
-                                    <!-- Si hay un error los muestro -->
-                                    <tr class="{{ ($inspection->panel->revision_aoi == 'OK' && $inspection->panel->revision_ins == 'OK' ) ? 'success' : '' }} {{ ($inspection->panel->revision_ins == 'NG' ) ? 'danger' : '' }}">
-                                        <td style="width:50px;">
-                                            <button id_panel="{{ $inspection->panel->id_panel_history }}" route="{{ route('aoicollector.inspection.blocks',$inspection->panel->id_panel_history) }}" ng-click="getInspectionBlocks($event);" class="btn btn-xs btn-default">Bloques</button>
-                                        </td>
-                                        <td>
-                                            @if(isset($inspection->panel->linea))
-                                                SMD-{{ $inspection->panel->linea }}
-                                            @else
-                                                SMD-{{ $inspection->panel->maquina->linea }}
-                                            @endif
-                                        </td>
-                                        <td>{{ $inspection->panel->panel_barcode }}</td>
-                                        <td>{{ $inspection->smt->modelo }}</td>
-                                        <td>{{ $inspection->smt->panel }}</td>
-                                        <td>{{ $inspection->panel->revision_aoi }}</td>
-                                        <td>{{ $inspection->panel->revision_ins }}</td>
-                                        <td>{{ $inspection->panel->errores }}</td>
-                                        <td>{{ $inspection->panel->falsos }}</td>
-                                        <td>{{ $inspection->panel->reales }}</td>
-                                        <td>{{ $inspection->panel->bloques }}</td>
-                                        <td>{{ $inspection->panel->inspected_op }}</td>
-                                        <td>{{ dateToEs($inspection->panel->created_date) }}</td>
-                                        <td>{{ $inspection->panel->created_time }}</td>
-                                    </tr>
+                                    @if(isset($inspection->error))
+                                        <tr>
+                                            <td></td>
+                                            <td>{{ $inspection->barcode }}</td>
+                                            <td colspan="13">{{ $inspection->error }}</td>
+                                        </tr>
+                                    @else
+                                        <!-- Si hay un error los muestro -->
+                                        <tr class="{{ ($inspection->panel->revision_aoi == 'OK' && $inspection->panel->revision_ins == 'OK' ) ? 'success' : '' }} {{ ($inspection->panel->revision_ins == 'NG' ) ? 'danger' : '' }}">
+                                            <td style="width:50px;">
+                                                <button id_panel="{{ $inspection->panel->id_panel_history }}" route="{{ route('aoicollector.inspection.blocks',$inspection->panel->id_panel_history) }}" ng-click="getInspectionBlocks($event);" class="btn btn-xs btn-default">Bloques</button>
+                                            </td>
+                                            <td>
+                                                @if(isset($inspection->panel->linea))
+                                                    SMD-{{ $inspection->panel->linea }}
+                                                @else
+                                                    SMD-{{ $inspection->panel->maquina->linea }}
+                                                @endif
+                                            </td>
+                                            <td>{{ $inspection->panel->panel_barcode }}</td>
+                                            <td>{{ $inspection->smt->modelo }}</td>
+                                            <td>{{ $inspection->smt->panel }}</td>
+                                            <td>{{ $inspection->panel->revision_aoi }}</td>
+                                            <td>{{ $inspection->panel->revision_ins }}</td>
+                                            <td>{{ $inspection->panel->errores }}</td>
+                                            <td>{{ $inspection->panel->falsos }}</td>
+                                            <td>{{ $inspection->panel->reales }}</td>
+                                            <td>{{ $inspection->panel->bloques }}</td>
+                                            <td>{{ $inspection->panel->inspected_op }}</td>
+                                            <td>{{ dateToEs($inspection->panel->created_date) }}</td>
+                                            <td>{{ $inspection->panel->created_time }}</td>
+                                        </tr>
+                                    @endif
                                 @endforeach
                             </tbody>
                         </table>

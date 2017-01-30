@@ -21,7 +21,7 @@ class Memorias extends Controller
     //$host = '10.30.56.116'; // Ultima Zebra en Memorias
     //$host = '10.30.30.128'; // Zebra de Diego
 
-    public $zebra_ip = '10.30.56.116';
+    public $zebra_ip = '10.30.79.194';
     public $zebra_port = 9100;
     public $zebra_prn = 'zebra/memorias';
     public $zebra_ebs = 'P3-UshZebra5';

@@ -57,4 +57,7 @@
     <!-- END BUSQUEDA -->
 
     <a href="{{ route('aoicollector.stat.index') }}" class="btn btn-info">Ir a Estadisticas</a>
+    <a href="{{ route('aoicollector.inspection.defectos.periodo') }}" class="btn btn-info">Defectos por periodo</a>
+
+
 </div>

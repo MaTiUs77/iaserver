@@ -1,10 +1,14 @@
 <?php
 namespace IAServer\Http\Controllers\Aoicollector\Api;
 
+use Carbon\Carbon;
 use IAServer\Http\Controllers\Aoicollector\Model\Produccion;
+use IAServer\Http\Controllers\Aoicollector\Stat\StatExport;
 use IAServer\Http\Controllers\IAServer\Debug;
+use IAServer\Http\Controllers\Redis\RedisController;
 use IAServer\Http\Requests;
-use IAServer\User;
+use IAServer\Jobs\StartExportJob;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
 
@@ -37,7 +41,13 @@ class ApiResponse extends Api
 
     public function p5Response($barcode,$stage)
     {
+
         $placa = (object) $this->verifyPlaca($barcode,$stage);
+
+//        $redis = new RedisController();
+//        $redis->push($barcode.$stage,json_encode($placa));
+//        $cache = $redis->cached($barcode.$stage);
+//        $placa = $cache;
 
         if(isset($placa->error))
         {

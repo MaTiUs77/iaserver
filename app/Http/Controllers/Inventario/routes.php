@@ -12,6 +12,8 @@ Route::group(['prefix' => 'inventario'], function()
     Route::post('/agregar_material','inventario\impresionController@insertMaterial');
     Route::get('/import','inventario\importController@import');
 
+    Route::resource('/excel','inventario\excelController@index');
+
     Route::match(['get','post'],'/consultar/etiqueta/info/{id}',[
         'as'=>'inventario.etiqueta',
         'uses'=>'Inventario\invController@findlabel'
@@ -125,12 +127,17 @@ Route::group(['prefix' => 'inventario'], function()
 
     Route::get('/consultar/reporte',[
         'as'=>'inventario.consultar.reporte',
-        'uses'=>'Inventario\viewController@vistaReportes'
+        'uses'=>'Inventario\viewController@plantas'
     ]);
 
     Route::get('/consultar/reporte/get',[
         'as'=>'inventario.consultar.reporte.get',
         'uses'=>'Inventario\reportController@index'
+    ]);
+
+    Route::get('/consultar/reporte/find',[
+        'as'=>'inventario.consultar.fecha',
+        'uses'=>'Inventario\reportController@show'
     ]);
 
     /************************************/

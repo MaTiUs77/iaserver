@@ -9,6 +9,7 @@ use IAServer\Http\Controllers\Aoicollector\Model\Stocker;
 use IAServer\Http\Controllers\Aoicollector\Stocker\Controller\StockerController;
 use IAServer\Http\Controllers\Aoicollector\Stocker\Src\StockerContent;
 use IAServer\Http\Requests;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
 
 class TrazaStocker extends StockerController
@@ -164,4 +165,50 @@ class TrazaStocker extends StockerController
 
         return $allstocker;
     }
+
+    public function rastrearOp($op="")
+    {
+        $op = strtoupper( $op);
+        if(empty($op))
+        {
+            $op = strtoupper( Input::get('rastrearop') );
+        }
+
+        if(!empty($op))
+        {
+            $allstocker = Stocker::vista()
+                ->where('op', $op)
+                ->where('paneles','>',0)
+                ->whereRaw('(`id_stocker_route` =  1  )')
+               // ->whereRaw('(`id_stocker_route` =  1 or `id_stocker_route` =  2 )')
+                ->orderBy('created_at','desc')
+                ->get();
+//                ->paginate(20);
+        }
+
+        if (count($allstocker) > 0) {
+            foreach ($allstocker as $stk) {
+
+                $verify = new VerificarDeclaracion();
+                $stk->transaccion = collect($verify->transaccionWipStatusByStocker($stk));
+                $stk->declarado_total = $stk->transaccion->where('trans_ok',1)->count();
+                $stk->pendiente_total = $stk->transaccion->where('trans_ok',0)->count();
+
+                $errores = $stk->transaccion->filter(function ($item, $index) {
+                    return ((int) $item->trans_ok > 1) ? true : false;
+                });
+
+                $stk->error_total = 0;
+                if(count($errores)>0)
+                {
+                    $stk->error_total = count($errores);
+                }
+            }
+        }
+
+        $output = compact('op','allstocker');
+
+        return $output;
+    }
+
 }

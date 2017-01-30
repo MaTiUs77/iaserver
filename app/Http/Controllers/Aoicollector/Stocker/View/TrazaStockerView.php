@@ -46,4 +46,11 @@ class TrazaStockerView extends TrazaStocker
 
         return view('trazabilidad.stocker.pocket', $output);
     }
+
+    // Localiza un stocker segun su barcode
+    public function view_rastrearOpView($op="")
+    {
+        $output = $this->rastrearOp($op);
+        return view('trazabilidad.stocker.rastrear_op.index', $output);
+    }
 }

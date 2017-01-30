@@ -93,6 +93,11 @@ Route::group(array('prefix' => 'stocker'), function() {
 
     Route::group(array('prefix' => 'trazabilidad'), function() {
 
+        Route::match(['get', 'post'], '/rastrear/{op?}', [
+            'as' => 'aoicollector.stocker.trazabilidad.rastrearop.view',
+            'uses' => 'Aoicollector\Stocker\View\TrazaStockerView@view_rastrearOpView'
+        ]);
+
         Route::match(['get', 'post'], '/{element?}', [
             'as' => 'aoicollector.stocker.trazabilidad.view',
             'uses' => 'Aoicollector\Stocker\View\TrazaStockerView@view_findElement'

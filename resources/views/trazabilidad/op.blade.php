@@ -47,7 +47,9 @@
             <div class="col-lg-6">
                 <h3>Transacciones en memorias</h3>
                 @include('memorias.widget.declare',[
-                    'wip'=>$wip
+                    'wip'=>$wip,
+                    'btnDeclarar'=>true,
+                    'btnPrint'=>true
                ])
             </div>
         @endif

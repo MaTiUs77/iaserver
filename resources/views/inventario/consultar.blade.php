@@ -40,15 +40,15 @@
             <div class="panel-body">
                 <div class="well well-sm-2">
                     Primer Conteo:
-                    <input class="form-control" ng-model="label.cantidadContada" type="text" name="pconteo">
+                    <input class="form-control" ng-model="label.cantidadContada"  ng-disabled="pconteoDisable" type="text" name="pconteo">
                 </div>
                 <div class="well well-sm-2">
                     Segundo Conteo:
-                    <input class="form-control" ng-model="label.cantidadSegConteo" type="text" name="sconteo">
+                    <input class="form-control" ng-model="label.cantidadSegConteo" ng-disabled="sconteoDisable" type="text" name="sconteo">
                 </div>
                 <div class="well well-sm-2">
                     Tercer Conteo:
-                    <input class="form-control" ng-model="label.cantidadTerConteo" type="text" name="tconteo">
+                    <input class="form-control" ng-model="label.cantidadTerConteo" ng-disabled="tconteoDisable" type="text" name="tconteo">
                 </div>
                 <div class="divider"></div>
                 <div class="panel-footer">

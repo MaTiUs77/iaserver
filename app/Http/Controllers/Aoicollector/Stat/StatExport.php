@@ -90,6 +90,9 @@ class StatExport extends StatController
             $toResume->estado = $item->estado;
             $toResume->total_posicion = $item->total_posicion;
             $toResume->total_defecto_real = $item->total_defecto_real;
+
+            $toResume->total_real_placas = $item->total_real_placas;
+
             $toResume->porcentaje_posicion_real = $item->porcentaje_posicion_real;
             $toResume->total_bloques = $item->total_bloques;
             $toResume->excecuted_at = Carbon::now();
@@ -99,7 +102,7 @@ class StatExport extends StatController
             $toResume->save();
         }
 
-        Log::info("StatExport: toDb() SMD-$maquina->linea $fecha $resume_type (idMaquina: $maquina->id) ");
+        //Log::info("StatExport: toDb() SMD-$maquina->linea $fecha $resume_type (idMaquina: $maquina->id) ");
     }
 
     public function toExcel($linea,$turno,$fecha,$resume_type,$programa="")
@@ -170,6 +173,7 @@ class StatExport extends StatController
                     'estado' => '',
                     'total_posicion' => 0,
                     'total_defecto_real' => 0,
+                    'total_real_placas' => 0,
                     'porcentaje_posicion_real' => 0
                 );
 
@@ -240,6 +244,7 @@ class StatExport extends StatController
                         'estado' => $estado,
                         'total_posicion' => $ref_resume->total,
                         'total_defecto_real' => $det->total,
+                        'total_real_placas' => $ref_resume->total_real_placas,
                         'porcentaje_posicion_real' => ($ref_resume->total > 0) ?  number_format($det->total * 100 / $ref_resume->total,2) . '%' : 0,
                     );
                 }
@@ -272,6 +277,7 @@ class StatExport extends StatController
                 'estado' => '',
                 'total_posicion' => 0,
                 'total_defecto_real' => 0,
+                'total_real_placas' => 0,
                 'porcentaje_posicion_real' => 0
             );
         }
