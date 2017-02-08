@@ -5,6 +5,7 @@ namespace IAServer\Http\Controllers\IAServer;
 use Carbon\Carbon;
 use IAServer\Http\Requests;
 use IAServer\Http\Controllers\Controller;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Session;
 
 class Util extends Controller
@@ -159,6 +160,7 @@ class Util extends Controller
 
         return $collection1;
     }
+
 
 }
 

@@ -4,12 +4,10 @@ namespace IAServer\Http\Controllers\Cogiscan;
 ini_set("default_socket_timeout", 120);
 
 use Carbon\Carbon;
-use DebugBar\DebugBar;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
-use IAServer\Http\Controllers\IAServer\Debug;
+use IAServer\Http\Controllers\Node\RestDB2;
 use IAServer\Http\Requests;
 use IAServer\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
 
@@ -121,20 +119,14 @@ class CogiscanDB2 extends Controller
     /////////////////////////////////////////////////////////////////////////////
     private function query($query)
     {
-        $client = new Client();
-        $apiRest = "http://$this->nodeRestHost:$this->nodeRestPort/cogiscan/query";
-        try {
-            $res = $client->request('GET', $apiRest, [
-                'query' => ['sql' => $query]
-            ]);
-            $content = json_decode($res->getBody()->getContents());
+        $rest = new RestDB2();
 
-            return $content;
-
-        } catch (RequestException $err) {
-
-            return ['error'=>$err->getMessage()];
-        }
+        //$rows = Input::get('rows');
+        //if($rows!=null) {
+        //    return $rest->paginate($query,$rows);
+        //} else {
+            return $rest->get($query);
+        //}
     }
 
     public function materialLoadedAt($fecha_desde = "",$fecha_hasta = "")
@@ -176,6 +168,7 @@ class CogiscanDB2 extends Controller
         INF.UNLOAD_TMST IS NULL
         ORDER BY INF.LOAD_TMST asc
         ";
+
         return self::query($query);
     }
 
