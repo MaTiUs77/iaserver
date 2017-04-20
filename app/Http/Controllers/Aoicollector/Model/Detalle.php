@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Detalle extends Model
 {
-    protected $connection = 'iaserver';
+    protected $connection = 'aoidata';
     protected $table = 'aoidata.inspeccion_detalle';
 
     public function joinFaultcode()

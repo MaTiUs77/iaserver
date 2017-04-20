@@ -24,7 +24,7 @@ trait PrefixedModel
      | ------------------------------------------------------------------------------------------------
      */
     /**
-     * Get the table associated with the model.
+     * Get the table associated with the Model.
      *
      * @return string
      */
@@ -34,7 +34,7 @@ trait PrefixedModel
     }
 
     /**
-     * Get the prefix table associated with the model.
+     * Get the prefix table associated with the Model.
      *
      * @return null|string
      */
@@ -44,7 +44,7 @@ trait PrefixedModel
     }
 
     /**
-     * Set the prefix table associated with the model.
+     * Set the prefix table associated with the Model.
      *
      * @param  string  $prefix
      *

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class StatResume extends Model
 {
-    protected $connection = 'iaserver';
+    protected $connection = 'aoidata';
     protected $table = 'aoidata.stat_resume';
 
     public $timestamps = false;

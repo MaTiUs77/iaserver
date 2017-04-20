@@ -5,6 +5,9 @@ use IAServer\Http\Controllers\Aoicollector\Stocker\Trazabilidad\TrazaStocker;
 use IAServer\Http\Requests;
 use Illuminate\Support\Facades\Input;
 
+set_time_limit(1000);
+
+
 class TrazaStockerView extends TrazaStocker
 {
     // Localiza un stocker o un panel segun el elemento enviado
@@ -52,5 +55,13 @@ class TrazaStockerView extends TrazaStocker
     {
         $output = $this->rastrearOp($op);
         return view('trazabilidad.stocker.rastrear_op.index', $output);
+    }
+
+    public function view_changeOp()
+    {
+        $stockerBarcode = Input::get('stockerBarcode');
+        $toOp = Input::get('toOp');
+
+        $output = $this->changeOp($stockerBarcode,$toOp);
     }
 }

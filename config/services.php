@@ -30,7 +30,7 @@ return [
     ],
 
     'stripe' => [
-        'model'  => IAServer\User::class,
+        'Model'  => IAServer\User::class,
         'key'    => '',
         'secret' => '',
     ],

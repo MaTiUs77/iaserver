@@ -7,13 +7,27 @@ use IAServer\Http\Controllers\Aoicollector\Model\PanelHistory;
 
 use IAServer\Http\Requests;
 use IAServer\Http\Controllers\Controller;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Lista de inspecciones
+ *
+ * @package IAServer\Http\Controllers\Aoicollector\Inspection
+ * @example code
+ * <php>
+ *      $list = new InspectionList(new Carbon::now(),new Carbon::now());
+ *      $list->setIdMaquina(1);
+ *      $list->setMode('MIN');
+ *      $list->programsUsedByIdMaquina();
+ *      $list->getPaneles();
+ * </php>
+ */
 class InspectionList extends Controller
 {
     public $firstApparition = false;
 
-    public $id_maquina = null;
+    public $idMaquina = null;
 
     // Filtro Fecha
     public $desdeCarbon = null;
@@ -28,6 +42,7 @@ class InspectionList extends Controller
     public $porPagina = 50;
     public $paginas = 1;
     public $pagina = 1;
+    public $paginate = false;
 
     // Resultados
     public $filas = 0;
@@ -45,9 +60,14 @@ class InspectionList extends Controller
     */
     public $inspectionMinOrMax = 'MAX';
 
-    public function __construct($id_maquina, Carbon $desde, Carbon $hasta)
+    /**
+     * InspectionList constructor.
+     *
+     * @param Carbon $desde
+     * @param Carbon $hasta
+     */
+    public function __construct(Carbon $desde, Carbon $hasta)
     {
-        $this->id_maquina = $id_maquina;
         $this->desdeCarbon = $desde;
         $this->hastaCarbon = $hasta;
     }
@@ -63,6 +83,11 @@ class InspectionList extends Controller
                 $this->inspectionMinOrMax = $mode;
             break;
         }
+    }
+
+    public function setIdMaquina($idMaquina)
+    {
+        $this->idMaquina= $idMaquina;
     }
 
     public function setPeriod($period)
@@ -83,6 +108,8 @@ class InspectionList extends Controller
 
     public function setPagina($pagina)
     {
+        $this->paginate = true;
+
         if(is_numeric($pagina)) {
             $this->pagina = $pagina;
         } else
@@ -91,32 +118,57 @@ class InspectionList extends Controller
         }
     }
 
-    public function find()
-    {
-        $list = "";
-        if($this->firstApparition)
-        {
-            $list = $this->queryPanelInspectionRange();
-        } else
-        {
-            $list = $this->queryMachineInspectionRange();
+    public function find() {
+        if ($this->firstApparition) {
+            $this->panelFirstGlobalApparition();
+        } else {
+           $this->panelMachineApparition();
         }
-
-        $this->inspecciones = $list->paginate($this->porPagina);
-        $this->filas = $this->inspecciones->total();
-
-        $this->programasUsados();
     }
 
-    public function programasUsados()
+    public function getPaneles() {
+        if ($this->firstApparition) {
+            $this->panelFirstGlobalApparition();
+        } else {
+           $this->panelMachineApparition();
+        }
+    }
+
+    public function getBloques() {
+        if ($this->firstApparition) {
+            $this->bloqueFirstGlobalApparition();
+        } else {
+            //bloqueMachineApparition();
+            dd('bloqueMachineApparition() no implementado');
+        }
+    }
+
+    public function programsUsedByIdMaquina()
     {
         if(empty($this->filterOp))
         {
-            $this->programas = $this->queryProgramUsed();
+            $sql = PanelHistory::select(DB::raw('programa, id_maquina, inspected_op'))
+                ->where('id_maquina',$this->idMaquina);
+
+            if(!empty($turno))
+            {
+                $sql = $sql->where('turno',$turno);
+            }
+
+            $result = $sql->whereRaw("created_date between '".$this->desdeCarbon->toDateString()."' and '".$this->hastaCarbon->toDateString()."'")
+                ->groupBy('programa','inspected_op')
+                ->get();
+
+            $this->programas = $result;
         }
     }
 
-    private function queryMachineInspectionRange()
+    /*
+     * Inspecciones creadas en la jornada y en la maquina
+     * Si la inspeccion fue realizada el mismo dia en otra maquina esta se visualizaria
+     * en su lista
+     */
+    private function panelMachineApparition()
     {
         $q = PanelHistory::select(DB::raw("
             *,
@@ -128,16 +180,23 @@ class InspectionList extends Controller
                 select trans_ok from `aoidata`.`transaccion_wip` as subt where
                 subt.barcode = hp.panel_barcode
                 order by subt.created_at desc limit 1
-            ) as trans_ok
+            ) as trans_ok,
+            (
+                select stkr.name from `aoidata`.`transaccion_wip` as subt
+                inner join aoidata.stocker_route stkr on stkr.id = subt.id_last_route
+                where
+                subt.barcode = hp.panel_barcode
+                order by subt.created_at desc limit 1
+            ) as ultima_ruta
             "))
             ->from("aoidata.history_inspeccion_panel as hp")
-            ->where("hp.id_maquina",$this->id_maquina)
+            ->where("hp.id_maquina",$this->idMaquina)
             ->whereRaw("hp.created_date between '".$this->desdeCarbon->toDateString()."' and '".$this->hastaCarbon->toDateString()."'")
             ->whereIn("hp.created_time",function($sub)
             {
                 $sub->select(DB::raw($this->inspectionMinOrMax."(created_time)"))
                     ->from("aoidata.history_inspeccion_panel")
-                    ->where("id_maquina",$this->id_maquina)
+                    ->where("id_maquina",$this->idMaquina)
                     ->whereRaw('panel_barcode = hp.panel_barcode')
                     ->whereRaw("created_date = hp.created_date")
                     ->groupBy("panel_barcode")
@@ -150,27 +209,48 @@ class InspectionList extends Controller
                $q = $q->whereRaw("SEC_TO_TIME((TIME_TO_SEC(hp.created_time) DIV (60*60)) * (60*60)) = '$this->filterPeriod' ");
             }
 
-        return $q;
+        $this->runQuery($q);
+
+        return $this->inspecciones;
     }
 
-    private function queryProgramUsed($turno="")
+    // Primer inspeccion creada desde su creacion
+    public function panelFirstGlobalApparition()
     {
-        $sql = PanelHistory::select(DB::raw('programa, id_maquina, inspected_op'))
-            ->where('id_maquina',$this->id_maquina);
+        $q = PanelHistory::select(DB::raw("
+            hp.*,
+            (
+                select trans_ok from `aoidata`.`transaccion_wip` as subt where
+                subt.barcode = hp.panel_barcode
+            ) as trans_ok,
+            SEC_TO_TIME((TIME_TO_SEC(hp.created_time) DIV (60*60)) * (60*60)) AS periodo
+	        "))
+            ->from("aoidata.history_inspeccion_panel as hp")
+            ->join('aoidata.inspeccion_panel as p', DB::raw('hp.id_panel_history'), '=', DB::raw('p.first_history_inspeccion_panel'))
 
-        if(!empty($turno))
+            ->where('hp.id_maquina',$this->idMaquina)
+            ->whereRaw("hp.created_date between '".$this->desdeCarbon->toDateString()."' and '".$this->hastaCarbon->toDateString()."'")
+            ->orderBy(DB::raw('hp.created_date'),'asc')
+            ->orderBy(DB::raw('hp.created_time'),'asc');
+
+        // Filtro horario
+        if($this->filterPeriod)
         {
-            $sql = $sql->where('turno',$turno);
+            $q = $q->whereRaw("SEC_TO_TIME((TIME_TO_SEC(hp.created_time) DIV (60*60)) * (60*60)) = '$this->filterPeriod' ");
         }
 
-        $sql = $sql->whereRaw("created_date between '".$this->desdeCarbon->toDateString()."' and '".$this->hastaCarbon->toDateString()."'")
-            ->groupBy('programa','inspected_op')
-            ->get();
+        if($this->filterOp)
+        {
+            $q = $q->whereRaw("hp.inspected_op = '$this->filterOp' ");
+        }
 
-        return $sql;
+        $this->runQuery($q);
+
+        return $this->inspecciones;
     }
 
-    private function queryPanelInspectionRange()
+    // Lista de inspecciones (la primer inspeccion global) de la op solicitada
+    public function panelFirstGlobalApparitionByOp()
     {
         $q = PanelHistory::select(DB::raw("
             hp.*,
@@ -182,23 +262,46 @@ class InspectionList extends Controller
             ->from("aoidata.history_inspeccion_panel as hp")
             ->join('aoidata.inspeccion_panel as p', DB::raw('hp.id_panel_history'), '=', DB::raw('p.first_history_inspeccion_panel'))
 
-            ->where('hp.id_maquina',$this->id_maquina)
-            ->whereRaw("hp.created_date between '".$this->desdeCarbon->toDateString()."' and '".$this->hastaCarbon->toDateString()."'")
+            ->whereRaw("hp.inspected_op = '$this->filterOp' ")
             ->orderBy(DB::raw('hp.created_date'),'asc')
             ->orderBy(DB::raw('hp.created_time'),'asc');
 
-            // Filtro horario
-            if($this->filterPeriod)
-            {
-                $q = $q->whereRaw("SEC_TO_TIME((TIME_TO_SEC(hp.created_time) DIV (60*60)) * (60*60)) = '$this->filterPeriod' ");
-            }
+        $this->runQuery($q);
 
-        return $q;
+        return $this->inspecciones;
     }
 
-    /*
-     * Muestra los errores reales de la primer y unica inspeccion del dia, en periodos de 15 min
-     */
+    // Lista de inspecciones (la primer inspeccion global) de la op solicitada
+    public function bloqueFirstGlobalApparition()
+    {
+        $q = PanelHistory::select(DB::raw("
+            hp.turno,
+            hp.inspected_op,
+            hp.created_date,
+            hb.*,
+            (
+                select trans_ok from `aoidata`.`transaccion_wip` as subt where
+                subt.barcode = hb.barcode
+                order by subt.created_at  desc limit 1
+            ) as trans_ok,
+            SEC_TO_TIME((TIME_TO_SEC(hp.created_time) DIV (60*60)) * (60*60)) AS periodo
+	        "))
+            ->from("aoidata.history_inspeccion_panel as hp")
+            ->join('aoidata.inspeccion_panel as p', DB::raw('hp.id_panel_history'), '=', DB::raw('p.first_history_inspeccion_panel'))
+            ->join('aoidata.history_inspeccion_bloque as hb', DB::raw('hb.id_panel_history'), '=', DB::raw('hp.id_panel_history'))
+
+            ->where('hp.id_maquina',$this->idMaquina)
+            ->whereRaw("hp.created_date between '".$this->desdeCarbon->toDateString()."' and '".$this->hastaCarbon->toDateString()."'")
+
+            ->orderBy(DB::raw('hp.created_date'),'asc')
+            ->orderBy(DB::raw('hp.created_time'),'asc');
+
+        $this->runQuery($q);
+
+        return $this->inspecciones;
+    }
+
+    // Muestra los errores reales de la primer inspeccion global, en periodos de 15 min
     public function queryDefectInspectionRange($allMachine=true)
     {
         $q = PanelHistory::select(DB::raw("
@@ -210,7 +313,6 @@ class InspectionList extends Controller
             ->from("aoidata.history_inspeccion_panel as hp")
             ->join('aoidata.inspeccion_panel as p', DB::raw('hp.id_panel_history'), '=', DB::raw('p.first_history_inspeccion_panel'))
 
-            //->where('hp.id_maquina',$this->id_maquina)
             ->whereRaw("hp.created_date between '".$this->desdeCarbon->toDateString()."' and '".$this->hastaCarbon->toDateString()."'")
             ->groupBy('periodo')
 
@@ -220,12 +322,24 @@ class InspectionList extends Controller
             ->orderBy(DB::raw('hp.created_date'),'asc')
             ->orderBy(DB::raw('hp.created_time'),'asc');
 
-            // Filtro horario
+            // Filtro de maquina
             if(!$allMachine)
             {
                 $q = $q->where('hp.id_maquina',$this->id_maquina);
             }
 
         return $q;
+    }
+
+    private function runQuery(Builder $query)
+    {
+        if($this->paginate)
+        {
+            $this->inspecciones = $query->paginate($this->porPagina);
+            $this->filas = $this->inspecciones->total();
+        } else
+        {
+            $this->inspecciones = $query->get();
+        }
     }
 }

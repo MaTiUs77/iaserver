@@ -1,5 +1,6 @@
 @extends('inventario.index')
 @section('body')
+    @if(hasRole(['inventario_operador','smtdatabase_operador']) || isAdmin())
 <div class="container" ng-controller="LabelCtrl">
     <div class="col col-sm-12 col-sm-offset-3">
         <!--     <header3>-->
@@ -62,6 +63,13 @@
 </div>
         </div>
 </div>
+    @else
+        <div class="container-fluid">
+            <div class="callout callout-warning" style="border-radius: 0;margin:0;">
+                <p><b>ATENCION!!!</b> usted debe <strong>Iniciar Sesion</strong> para efectuar cualquier operación</p>
+            </div>
+        </div>
+    @endif
     {!! IAScript('vendor/iaserver/iaserver.js') !!}
     {!! IAScript('vendor/inventario/inventario.factory.js') !!}
     {!! IAScript('vendor/inventario/consultar.controller.js') !!}

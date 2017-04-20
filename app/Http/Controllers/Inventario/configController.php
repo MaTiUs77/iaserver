@@ -64,7 +64,6 @@ class configController extends Controller
     public function getPrinterType()
     {
         $printer =  printer_type::where('id_printer_type',1);
-
     }
     /* ---------------FIN ABM IMPRESORAS--------------- */
 

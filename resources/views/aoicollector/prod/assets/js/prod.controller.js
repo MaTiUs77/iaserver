@@ -1,17 +1,184 @@
 app.controller("prodController",
-    ["$scope","$rootScope","$http","$timeout","$interval", "IaCore", "Aoi", "Stocker", "Panel", "toasty", "cfpLoadingBar",
-    function($scope,$rootScope,$http,$timeout,$interval, IaCore, Aoi, Stocker, Panel, toasty, cfpLoadingBar) {
-    $rootScope.configprod = {
-        aoibarcode : IaCore.storage({name:'aoibarcode'}),
-        socketio: ':8080'
-    };
+    ["$scope","$rootScope","$http","$timeout","$interval", "IaCore", "Aoi", "Stocker", "Panel","Inspector", "toasty", "cfpLoadingBar",
+    function($scope,$rootScope,$http,$timeout,$interval, IaCore, Aoi, Stocker, Panel, Inspector, toasty, cfpLoadingBar) {
 
+	var io;
+	var client;
+	
+    $rootScope.lastScannerCommand = { cmd:'', toastId:0 };
+    $rootScope.configprod = {
+        aoibarcode : IaCore.storage({name:'aoibarcode'})
+    };
+	
     $rootScope.aoiService = {};
     $rootScope.stockerService = {};
-    $rootScope.userService = {};
+    $rootScope.inspectorService = {};
 
-    $rootScope.printError = function(title,result,modal)
-    {
+//    $rootScope.socketserver = 'arushap34:3333';
+    $rootScope.socketserver = 'localhost:3333';
+
+    io = ws($rootScope.socketserver, {});
+    client = io.channel('inspectordash');
+    client.connect(function (error, connected) {
+        if (error) {
+            console.log(error);
+            return
+        }
+
+        console.log('InspectorDash Connected');
+
+        toasty.wait({
+            title: "Produccion",
+            msg: "Descargando informacion",
+            timeout: false,
+            onAdd: function(){
+                client.emit('start',$rootScope.configprod.aoibarcode,this.id);
+            }
+        });
+
+        $scope.$apply();
+    });
+
+    client.on('start:response',function(result,toastId) {
+        console.log('start:response',result);
+
+        if(result.trycatch)
+        {
+            toasty.clear(toastId);
+            toasty.error({
+                title: "Produccion",
+                msg: result.trycatch,
+                timeout: 3000
+            });
+        } else
+        {
+            toasty.clear(toastId);
+
+            if(result.error)
+            {
+                toasty.error({
+                    title: "Produccion",
+                    msg: result.error,
+                    timeout: 2000
+                });
+            } else {
+                toasty.success({
+                    title: "Produccion",
+                    msg: "Descarga completa",
+                    timeout: 2000
+                });
+            }
+
+            $rootScope.aoiService = result;
+            $rootScope.stockerService = result.produccion.stocker;
+            $rootScope.inspectorService = result.produccion.inspector;
+
+           // client.emit('subscribe:stocker',$rootScope.stockerService.barcode);
+            //client.emit('subscribe:prodinfo',$rootScope.aoiService.produccion.barcode);
+
+            Stocker.autoscroll($rootScope.stockerService.paneles);
+        }
+
+
+        setInterval(function(){
+            client.emit('prod:info',$rootScope.configprod.aoibarcode);
+        },1000);
+
+        $scope.$apply();
+    });
+
+    client.on('stocker:channel:response',function(result) {
+        result = JSON.parse(result);
+        console.log('stocker:channel:response',result);
+        $rootScope.stockerService = result;
+
+        Stocker.autoscroll($rootScope.stockerService.paneles);
+
+        $scope.$apply();
+    });
+
+    client.on('prodinfo:channel:response',function(result) {
+        result = JSON.parse(result);
+        console.log('prodinfo:channel:response',result);
+
+        $rootScope.aoiService = result;
+        $rootScope.stockerService = result.produccion.stocker;
+        $rootScope.inspectorService = result.produccion.inspector;
+
+        Stocker.autoscroll($rootScope.stockerService.paneles);
+
+        $scope.$apply();
+    });
+
+    client.on('prod:info:response',function(result) {
+        console.log('prod:info:response',result);
+
+        if(result.trycatch)
+        {
+            toasty.error({
+                title: "Produccion",
+                msg: result.trycatch,
+                timeout: 3000
+            });
+        } else
+        {
+            if(result.error)
+            {
+                toasty.error({
+                    title: "Produccion",
+                    msg: result.error,
+                    timeout: 2000
+                });
+            }
+
+            $rootScope.aoiService = result;
+            $rootScope.stockerService = result.produccion.stocker;
+            $rootScope.inspectorService = result.produccion.inspector;
+
+            Stocker.autoscroll($rootScope.stockerService.paneles);
+        }
+
+        $scope.$apply();
+    });
+
+    /*
+     client.on('channel:data',function(msg) {
+     console.log(msg.channel,msg.data);
+     switch(msg.channel) {
+     case 'inspectordash:reproceso:stocker':
+     $rootScope.stockerService = msg.data;
+
+     console.log(msg.data);
+     break;
+     }
+
+     $scope.$apply();
+     });
+     */
+
+    client.on('disconnect',function() {
+        console.log("InspectorDash Disconnected");
+        toasty.warning({
+            title: "Produccion",
+            msg: "Desconectado del servidor"
+        });
+
+        $scope.$apply();
+    });
+
+    client.on('connect_error', function(){
+        toasty.error({
+            title: "Produccion",
+            msg: "Error de conexion, servidor caido",
+            timeout: 5000
+        });
+        $scope.$apply();
+    });
+
+    Stocker.nodeInit(client);
+    Inspector.nodeInit(client);
+
+    $rootScope.printError = function(title,result,modal) {
         if(result.error!=undefined) { result = result.error; }
 
         if(result) {
@@ -30,45 +197,9 @@ app.controller("prodController",
         }
     };
 
-    var socket = io.connect($rootScope.configprod.socketio);
+        /*
 
-    socket.on('connect_error', function(){
-        toasty.error({
-            title: "Produccion",
-            msg: "Error de conexion, servidor caido",
-            timeout: 5000
-        });
-        $scope.$apply();
-    });
-
-    socket.on('disconnect', function () {
-        toasty.warning({
-            title: "Produccion",
-            msg: "Conexion finalizada"
-        });
-
-        $scope.$apply();
-    });
-
-    socket.on('connect', function(){
-        socket.emit('produccion', $rootScope.configprod.aoibarcode);
-
-        toasty.success({
-            title: "Produccion",
-            msg: "Descargando informacion"
-        });
-
-        $scope.$apply();
-    });
-
-    socket.on('waitForGetProduction', function () {
-        cfpLoadingBar.start();
-        $scope.$apply();
-    });
-
-    Stocker.nodeInit(socket);
-
-    socket.on('getProduccionResponse', function (data) {
+    client.on('getProduccionResponse', function (data) {
         $rootScope.aoiService = data;
 
         if(data.produccion.inspector!= undefined)
@@ -93,21 +224,15 @@ app.controller("prodController",
             if(data.produccion) {
                 $rootScope.stockerService.stocker = data.produccion.stocker;
                 Stocker.autoscroll($rootScope.stockerService.stocker.paneles);
-                /*if(data.produccion.stocker.barcode)
-                {
-                    socket.emit('stockerInfo',data.produccion.stocker.barcode);
-                }*/
             }
         }
 
         cfpLoadingBar.complete();
 
         $rootScope.$digest();
-
-//        $scope.$apply();
     });
 
-    socket.on('getProduccionResponseError', function (message) {
+        client.on('getProduccionResponseError', function (message) {
         toasty.error({
             title: "Produccion",
             msg: "Error: "+message
@@ -116,9 +241,22 @@ app.controller("prodController",
         cfpLoadingBar.complete();
         $scope.$apply();
     });
+ */
 
     $rootScope.restartAoiData = function(changeAoi)
     {
+        toasty.wait({
+            title: "Configuracion",
+            msg: "Aplicando cambios...",
+            timeout: false,
+            onAdd: function(){
+                /*$rootScope.lastScannerCommand = {
+                    cmd : data.value.toUpperCase(),
+                    toastId: this.id
+                };*/
+            }
+        });
+
         if(changeAoi!=undefined)
         {
             IaCore.storage({
@@ -129,79 +267,49 @@ app.controller("prodController",
         }
 
         $rootScope.aoiService = {};
-        $rootScope.stockerService = {};
-        $rootScope.userService = {};
 
-        socket.emit('produccion', $rootScope.configprod.aoibarcode);
+        client.emit('start', $rootScope.configprod.aoibarcode);
     };
 
     var onScanner = $rootScope.$on('scannerEvent:enter',function(event,data) {
-        $rootScope.UserScanned(data.value);
-        Stocker.add(data.value);
-        Stocker.panelAdd(data.value);
-    });
 
-    $rootScope.UserScanned = function(scannedValue) {
-        // ENVIA EL BARCODE
-        if(
-            (
-                scannedValue.indexOf("LOGIN") === 0 ||
-                scannedValue.indexOf("DLOGIN") === 0
-            ) &&
-            scannedValue.length > 5 &&
-            $rootScope.aoiService.produccion.barcode
-        ) {
-            var userId = scannedValue.match( /\d+/ );
-            if(userId)
-            {
-                userId = userId[0];
-            }
+        switch($rootScope.lastScannerCommand.cmd)
+        {
+            case 'CMDSTKREM':
+                Stocker.remove(data.value);
+                $rootScope.lastScannerCommand.cmd = '';
 
-            var userBarcode = scannedValue.replace("DLOGIN", "").replace("LOGIN", "");
-            var userName = userBarcode.replace(userId, "");
+                toasty.clear($rootScope.lastScannerCommand.toastId);
 
-            toasty.info({
-                title: "Inspector",
-                msg: "Buscando datos de inspector",
-                timeout: 5000
-            });
+                break;
+            case 'CMDPANREM':
+                Stocker.panelRemove(data.value);
+                $rootScope.lastScannerCommand.cmd = '';
 
-            var credentials = {
-                name : userName,
-                userid : userId,
-                aoibarcode: $rootScope.aoiService.produccion.barcode
-            };
+                toasty.clear($rootScope.lastScannerCommand.toastId);
+                break;
+            default:
+                if($rootScope.lastScannerCommand.cmd=='' && data.value.toUpperCase().indexOf("CMD") === 0) {
 
-            $http({method:'POST',url:'prod/user/login',params:credentials})
-            .then(function(result) {
-                result = result.data;
-                if(result) {
-                    if(result.error) {
-                        $rootScope.printError('Stocker',result,'modal');
-                    } else {
-                        toasty.success({
-                            title: "Inspector",
-                            msg: "Operacion completa",
-                            timeout: 5000
-                        });
-
-                        $rootScope.userService = result;
-
-                        $timeout(function() {
-                            //window.location.reload();
-                        },2000);
-                    }
-                }
-            }, function (error) {
-                if(error) {
-                    if(error.error != undefined) { error = error.error; }
-                    toasty.error({
-                        title: "Atencion",
-                        msg: error,
-                        timeout: 5000
+                    toasty.wait({
+                        title: "Comando de etiqueta",
+                        msg: "Esperando escaneo del elemento",
+                        timeout: false,
+                        onAdd: function(){
+                            $rootScope.lastScannerCommand = {
+                                cmd : data.value.toUpperCase(),
+                                toastId: this.id
+                            };
+                        }
                     });
+
                 }
-            });
+
+                Inspector.auth(data.value);
+                Stocker.add(data.value);
+                Stocker.panelAdd(data.value);
+            break;
         }
-    };
+
+    });
 }]);

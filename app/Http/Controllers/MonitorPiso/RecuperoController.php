@@ -3,13 +3,10 @@
 namespace IAServer\Http\Controllers\MonitorPiso;
 
 use IAServer\Http\Controllers\Cogiscan\CogiscanDB2;
-use Illuminate\Http\Request;
 use IAServer\Http\Requests;
-use IAServer\Http\Controllers\Controller;
 use IAServer\Http\Controllers\Cogiscan\Cogiscan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Input;
-use Illuminate\Support\Facades\Config;
 
 
 class RecuperoController extends Controller

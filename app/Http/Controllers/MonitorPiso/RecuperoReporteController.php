@@ -3,7 +3,6 @@
 namespace IAServer\Http\Controllers\MonitorPiso;
 
 use IAServer\Http\Requests;
-use IAServer\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Input;
 use IAServer\Http\Controllers\IAServer\Util;
 use Illuminate\Support\Facades\Session;

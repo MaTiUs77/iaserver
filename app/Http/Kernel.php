@@ -31,6 +31,7 @@ class Kernel extends HttpKernel
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'guest' => \IAServer\Http\Middleware\RedirectIfAuthenticated::class,
         'role' => \IAServer\Http\Middleware\RoleMiddleware::class,
+        'responselog' => \IAServer\Http\Middleware\ResponseLog::class
 //        'cors' => \IAServer\Http\Middleware\Cors::class,
     ];
 }

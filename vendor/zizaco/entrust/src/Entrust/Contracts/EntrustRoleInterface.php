@@ -11,14 +11,14 @@
 interface EntrustRoleInterface
 {
     /**
-     * Many-to-Many relations with the user model.
+     * Many-to-Many relations with the user Model.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function users();
     
     /**
-     * Many-to-Many relations with the permission model.
+     * Many-to-Many relations with the permission Model.
      * Named "perms" for backwards compatibility. Also because "perms" is short and sweet.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany

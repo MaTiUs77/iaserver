@@ -1174,7 +1174,7 @@
 		 * @name _append_html_data(obj, data)
 		 * @param  {mixed} obj the node to append to
 		 * @param  {String} data the HTML string to parse and append
-		 * @trigger model.jstree, changed.jstree
+		 * @trigger Model.jstree, changed.jstree
 		 */
 		_append_html_data : function (dom, data, cb) {
 			dom = this.get_node(dom);
@@ -1230,7 +1230,7 @@
 		 * @name _append_json_data(obj, data)
 		 * @param  {mixed} obj the node to append to
 		 * @param  {String} data the JSON object to parse and append
-		 * @trigger model.jstree, changed.jstree
+		 * @trigger Model.jstree, changed.jstree
 		 */
 		_append_json_data : function (dom, data, cb) {
 			dom = this.get_node(dom);
@@ -1575,13 +1575,13 @@
 			}
 		},
 		/**
-		 * parses a node from a jQuery object and appends them to the in memory tree model. Used internally.
+		 * parses a node from a jQuery object and appends them to the in memory tree Model. Used internally.
 		 * @private
 		 * @name _parse_model_from_html(d [, p, ps])
 		 * @param  {jQuery} d the jQuery object to parse
 		 * @param  {String} p the parent ID
 		 * @param  {Array} ps list of all parents
-		 * @return {String} the ID of the object added to the model
+		 * @return {String} the ID of the object added to the Model
 		 */
 		_parse_model_from_html : function (d, p, ps) {
 			if(!ps) { ps = []; }
@@ -1684,13 +1684,13 @@
 			return data.id;
 		},
 		/**
-		 * parses a node from a JSON object (used when dealing with flat data, which has no nesting of children, but has id and parent properties) and appends it to the in memory tree model. Used internally.
+		 * parses a node from a JSON object (used when dealing with flat data, which has no nesting of children, but has id and parent properties) and appends it to the in memory tree Model. Used internally.
 		 * @private
 		 * @name _parse_model_from_flat_json(d [, p, ps])
 		 * @param  {Object} d the JSON object to parse
 		 * @param  {String} p the parent ID
 		 * @param  {Array} ps list of all parents
-		 * @return {String} the ID of the object added to the model
+		 * @return {String} the ID of the object added to the Model
 		 */
 		_parse_model_from_flat_json : function (d, p, ps) {
 			if(!ps) { ps = []; }
@@ -1779,13 +1779,13 @@
 			return tmp.id;
 		},
 		/**
-		 * parses a node from a JSON object and appends it to the in memory tree model. Used internally.
+		 * parses a node from a JSON object and appends it to the in memory tree Model. Used internally.
 		 * @private
 		 * @name _parse_model_from_json(d [, p, ps])
 		 * @param  {Object} d the JSON object to parse
 		 * @param  {String} p the parent ID
 		 * @param  {Array} ps list of all parents
-		 * @return {String} the ID of the object added to the model
+		 * @return {String} the ID of the object added to the Model
 		 */
 		_parse_model_from_json : function (d, p, ps) {
 			if(!ps) { ps = []; }
@@ -2999,7 +2999,7 @@
 			}
 			i = $.inArray(obj.id, this._data.core.selected);
 			if(i !== -1) { this._data.core.selected[i] = id; }
-			// update model and obj itself (obj.id, this._model.data[KEY])
+			// update Model and obj itself (obj.id, this._model.data[KEY])
 			i = this.get_node(obj.id, true);
 			if(i) {
 				i.attr('id', id);
@@ -3125,7 +3125,7 @@
 		 * @param  {Function} callback a function to be called once the node is created
 		 * @param  {Boolean} is_loaded internal argument indicating if the parent node was succesfully loaded
 		 * @return {String}            the ID of the newly create node
-		 * @trigger model.jstree, create_node.jstree
+		 * @trigger Model.jstree, create_node.jstree
 		 */
 		create_node : function (par, node, pos, callback, is_loaded) {
 			if(par === null) { par = "#"; }
@@ -3502,7 +3502,7 @@
 		 * @param  {mixed} pos the position to insert at (besides integer values, "first" and "last" are supported, as well as "before" and "after"), defaults to integer `0`
 		 * @param  {function} callback a function to call once the move is completed, receives 3 arguments - the node, the new parent and the position
 		 * @param  {Boolean} internal parameter indicating if the parent node has been loaded
-		 * @trigger model.jstree copy_node.jstree
+		 * @trigger Model.jstree copy_node.jstree
 		 */
 		copy_node : function (obj, par, pos, callback, is_loaded) {
 			var t1, t2, dpc, tmp, i, j, node, old_par, new_par, old_ins, is_multi;

@@ -7,7 +7,7 @@
             <div class="col-sm-2 col-md-2 col-lg-2" style="border: 1px solid #efefef;">
                 <div style="padding: 5px;">
                     <button type="submit" class="btn btn-xs btn-success" tooltip="Oculta lineas seleccionadas">Aplicar filtro</button>
-                    <a href="{{ route('aoicollector.pizarra.general.filter.remove') }}" class="btn btn-xs btn-default">Quitar filtro</a>
+                    <a href="{{ route('aoicollector.pizarra.general.filter',['remove']) }}" class="btn btn-xs btn-default">Quitar filtro</a>
                 </div>
                 <div style="height:250px;overflow: auto;">
                     @foreach(\IAServer\Http\Controllers\Aoicollector\Model\Produccion::vista()->where('id_maquina','<>',null)->groupBy('linea')->orderBy('numero_linea')->get()  as $prod)

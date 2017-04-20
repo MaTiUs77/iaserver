@@ -31,6 +31,7 @@
                 </blockquote>
             </div>
             <div class="col-sm-6 col-md-6 col-lg-6">
+{{--
 
                 <blockquote>
                     <h4>Seleccionar ruta</h4>
@@ -52,33 +53,56 @@
                         </select>
                     </div>
                 </blockquote>
+--}}
 
-                @if(isset($routeop) && count($routeop)>0)
                 <blockquote>
-                    <h4>IAServer route</h4>
-                    <div class="form-group">
-                        <select class="form-control" name="id_puesto">
-                            @foreach($routeop as $route)
-                                <option value="{{ $route->id }}">
-                                    {{ $route->name }} -
-                                    @if($route->declare)
-                                        Declara
-                                        @else
-                                        No declara
-                                    @endif
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
+                    <h4>Seleccionar puesto</h4>
+                    @if(isset($routeop) && count($routeop)>0)
+                        <div class="form-group">
+                            <select class="form-control" name="id_route_op" ng-model="id_route_op" style="font-size:18px;">
+                                <option value="">- Elegir una opcion -</option>
+                                @foreach($routeop as $route)
+                                    <option value="{{ $route->id }}">
+                                        {{ $route->name }} -
+                                        @if($route->declare)
+                                            Declara
+                                            @else
+                                            No declara
+                                        @endif
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @else
+                        <div class="callout callout-danger">
+                            <p>No existen rutas</p>
+                            <small style="color:#FFF;">Solicitar a un programador que genere las rutas de produccion</small>
+                        </div>
+                        @if(isAdmin())
+                            <a href="{{ url("aoicollector/prod/routeop/?op=$op") }}" target="_blank" class="btn btn-xs btn-block btn-default">Crear ruta para {{ $op }}</a>
+                        @endif
+                    @endif
                 </blockquote>
-                @endif
+
+                <blockquote>
+                    <h4>Seleccionar modo</h4>
+                        <div class="form-group" >
+                            <select class="form-control" name="id_modo" ng-model="id_modo" style="font-size:18px;">
+                                <option value="0">AOI</option>
+                                <option value="1">MANUAL</option>
+                                <option value="3">COGISCAN->TH</option>
+                            </select>
+                        </div>
+                </blockquote>
             </div>
         </div>
-            <input ng-if="puesto_id" class="form-control btn btn-block btn-info"  type="submit" value="Usar esta configuracion de OP">
+            <input ng-if="id_route_op && id_modo" class="form-control btn btn-block btn-info"  type="submit" value="Usar esta configuracion de OP">
         </form>
     @else
-        <h3>{{ $op }}</h3>
-        No fue localizada en Wip_ot
+        <div class="callout callout-danger">
+            <h4>{{ $op }}</h4>
+            <p>No fue localizada en la interfaz, esta seguro que la OP es la correcta?</p>
+        </div>
     @endif
 
 @endif

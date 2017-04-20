@@ -45,6 +45,7 @@
     {!! IAStyle('adminlte/plugins/datatables/dataTables.bootstrap.css') !!}
     {!! IAScript('adminlte/plugins/datatables/jquery.dataTables.min.js') !!}
     {!! IAScript('adminlte/plugins/datatables/dataTables.bootstrap.min.js') !!}
+
     <script>
       function remoteLink(uri)
       {

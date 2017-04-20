@@ -2238,7 +2238,7 @@ drieën hadden ze 't een heel eind soldaat gemaakt en toen had Japi
 dikke boterhammen gesneden van Bavink z'n brood en toen waren ze met
 hun drieën naar 't Amstelveld gegaan en hadden voor 70 cent een nieuw
 kacheltje gekocht ('t was Maandag), een kachel van een voorwereldlijk
-model; en met z' drieën hadden ze die op een handkar naar huis gekruid.
+Model; en met z' drieën hadden ze die op een handkar naar huis gekruid.
 
 Ik presenteerde Japi een kop thee. Hij dronk uit een spoelkom, een
 kopje had ik niet voor 'm, steunde behagelijk en zette de kom hard

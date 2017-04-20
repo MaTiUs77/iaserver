@@ -7,15 +7,31 @@ use Artisaninweb\SoapWrapper\Facades\SoapWrapper;
 use IAServer\Http\Controllers\Trazabilidad\Declaracion\Wip\Wip;
 use IAServer\Http\Requests;
 use IAServer\Http\Controllers\Controller;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
 
+/**
+ * Webservice para comunicacion WSDL de cogiscan tiene un default_socket_timeout 120seg
+ *
+ * Lista de metodos disponibles {@url http://arushap34/iaserver/public/cogiscan/services}
+ *
+ * @author Matias Flores <matius77@gmail.com>
+ * @author Diego Maidana <dmaidana@newsan.com.ar>
+ * @author Jose Maria Cassarotto <jmcasarotto@newsan.com.ar>
+ *
+ * @package IAServer\Http\Controllers\Cogiscan
+ */
 class Cogiscan extends Controller
 {
+
+    /**
+     * @var string Ruta al servidor WSDL de Cogiscan
+     */
     public $wdsl = "http://arus3ap07/cgsrpc/RPCServices?WSDL";
 
+    /**
+     * Genera una conexion al service WSDL de Cogiscan mediante el controlador SoapWrapper
+     */
     public function __construct() {
         try
         {
@@ -33,7 +49,7 @@ class Cogiscan extends Controller
     /**
      * Ejecuta los metodos sin necesidad de definir las rutas
      *
-     * @return mixed
+     * @return Response Response::multiple()
      */
     public function dynamicCommands()
     {
@@ -55,17 +71,25 @@ class Cogiscan extends Controller
         return Response::multiple($output);
     }
 
-    private function normalizeAttributes($attributes)
+    /**
+     * @param array $uriSegments Segmentos de la url, se ejecutan como parametros del metodo, definido en el primer segmento
+     *
+     * @ignore
+     * @return array
+     */
+    protected function normalizeAttributes($uriSegments=array())
     {
-        foreach($attributes as $index => $att)
-        {
-            $attributes[$index] = urldecode($att);
+        foreach($uriSegments as $index => $att) {
+            $uriSegments[$index] = urldecode($att);
         }
-
-        return $attributes;
+        return $uriSegments;
     }
 
-    private function services()
+    /**
+     * Lista de metodos disponibles por el webservice, se debe consultar por URL {@url http://arushap34/iaserver/public/cogiscan/services}
+     * @return array
+     */
+    protected function services()
     {
         $class = 'IAServer\Http\Controllers\Cogiscan\Cogiscan';
 
@@ -101,6 +125,11 @@ class Cogiscan extends Controller
     //                          COGISCAN WEBSERVICES
     /////////////////////////////////////////////////////////////////////////////
 
+
+    /**
+     * @param string $itemId
+     * @return mixed Retorna JSON o XML
+     */
     public function queryItem($itemId)
     {
         $param = [
@@ -114,22 +143,42 @@ class Cogiscan extends Controller
 
         return $cmd->result();
     }
-    public function releaseProduct($modelo,$route,$op,$sn1,$sn2)
-    {
 
-           $param = ['releaseProduct',
-                  '<Parameters>
-                      <Parameter name="assembly">'.$modelo.'</Parameter>
-                      <Parameter name="route">'.$route.'</Parameter>
-                      <Parameter name="batchId">'.$op.'</Parameter>
-                      <Parameter name="maxReleaseQty">15</Parameter>
-                       <Extensions>
-                        <ProductGroup>
-                          <Product location="A1">'.$sn1.'</Product>
-                          <Product location="A2">'.$sn2.'</Product>
-                        </ProductGroup>
-                      </Extensions>
-                    </Parameters>'];
+    public function getLowLevel()
+    {
+        $param = [
+                'getComponentLowLevelWarnings',
+                '<Parameters></Parameters>
+        '];
+
+        $cmd = new CogiscanCommand($param);
+
+        return $cmd->result();
+    }
+
+	public function releaseProduct($modelo,$route,$op,$qty,$panelBarcode,$sn=array())
+    {
+        $sns = "";
+        foreach($sn as $index => $n) {
+            $index++;
+            $sns .= '
+            <Product location="A'.$index.'">'.$n.'</Product>
+            ';
+        }
+
+       $param = ['releaseProduct',
+          '<Parameters>
+              <Parameter name="assembly">'.$modelo.'</Parameter>
+              <Parameter name="route">'.$route.'</Parameter>
+              <Parameter name="batchId">'.$op.'</Parameter>
+              <Parameter name="maxReleaseQty">'.$qty.'</Parameter>
+               <Extensions>
+                <ProductGroup barcode="'.$panelBarcode.'">
+                    '.$sns.'
+                </ProductGroup>
+              </Extensions>
+            </Parameters>'];
+
 
         $cmd = new CogiscanCommand($param);
 
@@ -225,7 +274,7 @@ class Cogiscan extends Controller
         return $cmd->result();
     }
 
-    public function unload($contentId,$containerId,$location="",$deleteContent=false)
+    public function unload($contentId,$containerId="",$location="",$deleteContent=false)
     {
         $param = [
             'unload',
@@ -236,6 +285,7 @@ class Cogiscan extends Controller
                 <Parameter name="deleteContent">' . $deleteContent . '</Parameter>
             </Parameters>'
         ];
+
         $cmd = new CogiscanCommand($param);
         return $cmd->result();
     }
@@ -299,7 +349,15 @@ class Cogiscan extends Controller
         return $this->getContents($printerName);
     }
 
-    public function getPrinters($desde="",$hasta="") {
+    /**
+     * Obtiene lista de printers
+     *
+     * @param string $desde Opcional
+     * @param string $hasta Opcional
+     * @return array
+     *
+     */
+    public function getPrinters($desde="", $hasta="") {
         $output = array();
         if(!$desde) { $desde = 1;}
         if(!$hasta) { $hasta = 20;}
@@ -316,7 +374,9 @@ class Cogiscan extends Controller
             '<Parameters>
                 <Parameter name="fromDate">'.$desde.'</Parameter>
                 <Parameter name="batchId">'.$batchId.'</Parameter>
-                <Parameter name="groupBy">recipe,toolId</Parameter>
+
+                <Parameter name="byRawMatId">true</Parameter>
+                <Parameter name="groupBy">recipe,batchId,toolId</Parameter>
                 <Parameter name="include">rawMatPN</Parameter>
             </Parameters>'
         ];
@@ -324,15 +384,51 @@ class Cogiscan extends Controller
         return $cmd->result();
     }
 
-    public function getConsRawMat($rawMatPN,$desde){
+    public function getConsRawMat($rawMatPN,$desde,$op){
+
         $param = [
             'getProductionAndConsumptionData',
             '<Parameters>
                 <Parameter name="fromDate">'.$desde.'</Parameter>
-                <Parameter name="rawMatPN">'.$rawMatPN.'</Parameter>
+                <Parameter name="rawMatPn">'.$rawMatPN.'</Parameter>
+                <Parameter name="batchId">'.$op.'</Parameter>
+                <Parameter name="byRawMatId">true</Parameter>
                 <Parameter name="groupBy">recipe,batchId,toolId</Parameter>
             </Parameters>'
         ];
+        $cmd = new  CogiscanCommand($param);
+        return $cmd->result();
+    }
+
+    public function getConsRawMatByLine($fromDate,$toDate,$line,$rawMat=""){
+        if ($rawMat!=="")
+        {
+            $param = [
+                'getProductionAndConsumptionData',
+                '<Parameters>
+                <Parameter name="fromDate">'.$fromDate.'</Parameter>
+                <Parameter name="toDate">'.$toDate.'</Parameter>
+                <Parameter name="lineName">'.$line.'</Parameter>
+                <Parameter name="rawMatPN">'.$rawMat.'</Parameter>
+                <Parameter name="groupBy">batchId</Parameter>
+                <Parameter name="include">rawMatPN</Parameter>
+            </Parameters>'
+            ];
+        }
+        else
+        {
+            $param = [
+                'getProductionAndConsumptionData',
+                '<Parameters>
+                <Parameter name="fromDate">'.$fromDate.'</Parameter>
+                <Parameter name="toDate">'.$toDate.'</Parameter>
+                <Parameter name="lineName">'.$line.'</Parameter>
+                <Parameter name="groupBy">batchId</Parameter>
+                <Parameter name="include">rawMatPN</Parameter>
+            </Parameters>'
+            ];
+        }
+
         $cmd = new  CogiscanCommand($param);
         return $cmd->result();
     }
@@ -361,8 +457,8 @@ class Cogiscan extends Controller
 
     public function aoicollectorPassed($panelBarcode)
     {
-        $release = $this->releaseProduct('modelotest','routemain','OP-123456',$panelBarcode,'0001007942');
-        $startSmt = $this->startOperation($panelBarcode,'SMT');
+        //$release = $this->releaseProduct('modelotest','routemain','OP-123456',$panelBarcode,'0001007942');
+        //$startSmt = $this->startOperation($panelBarcode,'SMT');
         $endSmt = $this->endOperation($panelBarcode,'SMT');
         $start = $this->startOperation($panelBarcode,'AOI');
         $set = $this->setProcessStepStatus($panelBarcode,'AOI','PASSED');
@@ -381,4 +477,19 @@ class Cogiscan extends Controller
 
         return compact('start','set','end');
     }
+
+    public function queryPartNumberProduct($partNumber) {
+        $param = [
+            'queryPartNumber',
+            '<Parameters>
+                <Parameter name="itemTypeClass">Product</Parameter>
+                <Parameter name="partNumber">'.$partNumber.'</Parameter>
+            </Parameters>
+        '];
+
+        $cmd = new CogiscanCommand($param);
+
+        return $cmd->result();
+    }
+
 }

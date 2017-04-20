@@ -5,6 +5,7 @@ namespace IAServer\Events;
 use IAServer\Events\Event;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Support\Facades\Log;
 
 class RedisSend extends Event
 {

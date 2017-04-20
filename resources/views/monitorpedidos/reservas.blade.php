@@ -72,7 +72,7 @@
 
                     <td>{{$r->ubicacion}}</td>
 
-                    <td>{{\IAServer\Http\Controllers\MonitorOp\GetWipOtInfo::tiempoAlmacen($r->tiempopedido)}}</td>
+                    <td>-</td>
 
                     <td><form method="post" action="{{url('amr/entregar/'.$r->id)}}"><button class="btn btn-success btn-xs btn-detail" name="entregar">ENTREGAR</button></form>
                         {{--<form method="post" action="{{url('amr/cancelar/'.$r->id)}}"><button class="btn btn-danger btn-xs btn-detail" name="cancelar">CANCELAR</button></form>--}}

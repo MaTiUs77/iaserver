@@ -4,7 +4,7 @@ namespace IAServer\Http\Controllers\Cogiscan;
 ini_set("default_socket_timeout", 120);
 
 use Carbon\Carbon;
-use IAServer\Http\Controllers\Node\RestDB2;
+use IAServer\Http\Controllers\Node\RestDB2CGS;
 use IAServer\Http\Requests;
 use IAServer\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Input;
@@ -96,7 +96,7 @@ class CogiscanDB2 extends Controller
         $output = array();
         exec($cmd,$output);
         $output = implode("",$output);
-		
+
         return self::toJson($output);
     }
     private function toJson($xml)
@@ -119,7 +119,7 @@ class CogiscanDB2 extends Controller
     /////////////////////////////////////////////////////////////////////////////
     private function query($query)
     {
-        $rest = new RestDB2();
+        $rest = new RestDB2CGS();
 
         //$rows = Input::get('rows');
         //if($rows!=null) {
@@ -252,6 +252,24 @@ class CogiscanDB2 extends Controller
     public function opByPartNumber($partNumber)
     {
         $query = "select * from CGSPCM.product_batch where product_pn_key = (select part_number_key from CGS.part_number where part_number = '$partNumber')";
+
+        return self::query($query);
+    }
+
+    public function opByComplexTool($complexId)
+    {
+        if($complexId ==="all"){
+            $query = "SELECT pb.BATCH_ID,ii.ITEM_ID FROM CGSPCM.PRODUCT p
+                  LEFT JOIN cgs.ITEM_INFO ii ON ii.ITEM_KEY = p.TOOL_KEY
+                  LEFT JOIN cgspcm.PRODUCT_BATCH pb ON pb.batch_key = p.batch_key
+                  WHERE ii.ITEM_ID like 'SMT%' OR ii.ITEM_ID like 'L%'";
+        }else{
+            $query = "SELECT pb.BATCH_ID,ii.ITEM_ID FROM CGSPCM.PRODUCT p
+                  LEFT JOIN cgs.ITEM_INFO ii ON ii.ITEM_KEY = p.TOOL_KEY
+                  LEFT JOIN cgspcm.PRODUCT_BATCH pb ON pb.batch_key = p.batch_key
+                  WHERE ii.ITEM_ID = 'SMT$complexId' OR ii.ITEM_ID like 'L$complexId-NPM-D%'
+                  ORDER BY p.LAST_STATUS_CHANGE_TMST FETCH FIRST 1 ROWS ONLY";
+        }
 
         return self::query($query);
     }

@@ -1,9 +1,7 @@
 <?php
 namespace IAServer\Http\Controllers\Aoicollector\Stocker\View;
 
-use IAServer\Events\RedisSend;
 use IAServer\Http\Controllers\Aoicollector\Model\Produccion;
-use IAServer\Http\Controllers\Redis\RedisController;
 use IAServer\Http\Controllers\SMTDatabase\SMTDatabase;
 use IAServer\Http\Requests;
 use Illuminate\Support\Facades\Response;
@@ -14,6 +12,7 @@ class StockerView extends TrazaStockerView
     {
         $produccion = Produccion::where('barcode',$aoibarcode)->first();
         $output = $this->addStocker($produccion,$stockerBarcode);
+
         return Response::multiple($output);
     }
 

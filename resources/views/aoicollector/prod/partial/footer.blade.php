@@ -1,5 +1,9 @@
 @include('iaserver.common.footer')
 
+{!! IAScript('assets/adonis/ws.min.js') !!}
+{!! IAScript('assets/moment.min.js') !!}
+{!! IAScript('assets/bootstrap/js/bootstrap-switch.js') !!}
+
 {!! IAScript('vendor/aoicollector/prod/prod.js') !!}
 
 <script>

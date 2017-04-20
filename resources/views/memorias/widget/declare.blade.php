@@ -68,7 +68,7 @@
             @if(isset($btnPrint) && $btnPrint)
                 <td>
                     {{--@if($grabacion->traza_code==0)--}}
-                        <form method="post" target="_blank" action="{{ route('memorias.zebra.print',[$grabacion->op,$grabacion->cantidad]) }}">
+                        <form method="post" target="_blank" action="{{ route('memorias.zebra.print',[$grabacion->op,$grabacion->cantidad,$grabacion->id]) }}">
                             <button type="submit" class="btn btn-xs btn-primary" tooltip-placement="right" tooltip="Imprimir etiqueta"><span class="fa fa-print"></span></button>
                         </form>
                     {{--@endif--}}

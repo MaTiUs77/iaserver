@@ -41,10 +41,9 @@ class StatView extends StatController
         {
             $turno = Filter::turnoSession();
         }
-        if(!$fecha)
-        {
-            $fecha = Filter::dateSession();
-        }
+
+        $carbonDate = Util::dateRangeFilterEs('inspection_date_session');
+        $fecha = $carbonDate->desde->format('d-m-Y');
 
         // Cambio el formato de la fecha
         $fecha_eng = Util::dateToEn($fecha);
@@ -68,7 +67,7 @@ class StatView extends StatController
         Filter::dateSession();
 
         // Obtengo la fecha, y cambio el formato 16-09-2015 -> 2015-09-16
-        $fecha = Util::dateToEn(Session::get('date_session'));
+        $fecha = Util::dateToEn(Session::get('inspection_date_session'));
 
         $resume = StatResume::where('fecha',$fecha)
             ->where('turno','M')

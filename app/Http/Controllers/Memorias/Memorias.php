@@ -69,7 +69,7 @@ class Memorias extends Controller
         return $output;
     }
 
-    public function zebraPrint($op="",$cantidad="")
+    public function zebraPrint($op="",$cantidad="",$idMemoria=null)
     {
         $smt = OrdenTrabajo::findMemoryByOp($op);
 
@@ -85,7 +85,8 @@ class Memorias extends Controller
             $smt->wip->wip_ot->codigo_producto,
             'DV',
             '1',
-            $this->zebra_ebs
+            $this->zebra_ebs,
+            $idMemoria
         ];
 
         $label = new Zebra($this->zebra_ip, $this->zebra_port, $this->zebra_prn);

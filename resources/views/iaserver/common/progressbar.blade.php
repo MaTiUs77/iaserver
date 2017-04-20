@@ -1,7 +1,7 @@
 <!-- PROGRESSBAR -->
 @if(isset($leyend))
     <div>
-        {{  $now }} / {{  $max }}
+        {{  $now }} de {{  $max }}
         <div class="pull-right">
             @if(($now - $max)>0)
                 +
@@ -30,14 +30,14 @@
         </div>
     </div>
 @else
-<div class="progress" style="margin-bottom: 5px; {{ isset($height) ? 'height:'.$height.'px;' : '' }}">
-    <div class="progress-bar progress-bar-{{ $type }} progress-bar-striped {{ (!isset($active)) ? 'active' : '' }}" role="progressbar" aria-valuenow="{{ $porcentaje }}" aria-valuemin="0" aria-valuemax="{{ $max }}" style="width: {{ $porcentaje .'%' }}; min-width: 4em;">
-        @if(isset($percent) && $percent)
-            {{ $porcentaje }}%
-        @else
-            {{ $now }} / {{  $max }}
-        @endif
+    <div class="progress" style="margin-bottom: 5px; {{ isset($height) ? 'height:'.$height.'px;' : '' }}">
+        <div class="progress-bar progress-bar-{{ $type }} progress-bar-striped {{ (!isset($active)) ? 'active' : '' }}" role="progressbar" aria-valuenow="{{ $porcentaje }}" aria-valuemin="0" aria-valuemax="{{ $max }}" style="width: {{ $porcentaje .'%' }}; min-width: 4em;">
+            @if(isset($percent) && $percent)
+                {{ $porcentaje }}%
+            @else
+                {{ $now }} / {{  $max }}
+            @endif
+        </div>
     </div>
-</div>
 @endif
 <!-- END PROGRESSBAR -->

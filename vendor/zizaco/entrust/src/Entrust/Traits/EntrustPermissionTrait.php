@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Config;
 trait EntrustPermissionTrait
 {
     /**
-     * Many-to-Many relations with role model.
+     * Many-to-Many relations with role Model.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
@@ -23,9 +23,9 @@ trait EntrustPermissionTrait
     }
 
     /**
-     * Boot the permission model
+     * Boot the permission Model
      * Attach event listener to remove the many-to-many records when trying to delete
-     * Will NOT delete any records if the permission model uses soft deletes.
+     * Will NOT delete any records if the permission Model uses soft deletes.
      *
      * @return void|bool
      */

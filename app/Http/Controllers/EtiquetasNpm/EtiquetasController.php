@@ -224,7 +224,7 @@ class EtiquetasController extends Controller
             }else{
                 return redirect('/etiquetasnpm/registrar')->with('message','Ocurrio un error en la impresion');
             }
-        }elseif($string == "FA0240" || $string == "FA0440")
+        }elseif($string == "FA0240" || $string == "FA0440" || $string == "FA0250")
         {
             $parse = substr($sn,0,-13);
             $parse1 = substr($sn,2,-9);
@@ -286,7 +286,7 @@ class EtiquetasController extends Controller
     public function imprimir($zpl)
     {
         $zebra_host = '10.30.30.128';
-//        $zebra_host = '10.30.100.205';
+       //  $zebra_host = '10.30.100.205';
         $zebra_port = '9100';
 
         try {

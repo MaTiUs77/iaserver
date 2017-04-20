@@ -27,7 +27,7 @@
         }
     </style>
 
-    <div id="prodController" ng-controller="prodController">
+    <div id="prodController" ng-controller="prodController" ng-init="setEnvironment('production')">
         @include('aoicollector.prod.partial.header')
 
         <div class="container">
@@ -43,7 +43,6 @@
         </div>
     </div>
 
-    {!! IAScript('assets/socket.io/socket.io.js') !!}
-
     @include('aoicollector.prod.partial.footer')
+
 @endsection

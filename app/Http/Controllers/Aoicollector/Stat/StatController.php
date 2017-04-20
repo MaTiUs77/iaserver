@@ -20,7 +20,7 @@ class StatController extends Controller
     {
         $query = "CALL aoidata.sp_getResumenFromHistoryWithOp('".$id_maquina."','".$programa."','".$turno."','".$fecha."','".$resume_type."','".$op."');";
 
-        $sql = DB::connection('iaserver')->select($query);
+        $sql = DB::connection('aoidata')->select($query);
         $resume = head($sql);
 
         if($resume)
@@ -101,7 +101,7 @@ class StatController extends Controller
     {
         $query = "CALL aoidata.sp_getResumenBodyFromHistoryWithOp('".$id_maquina."','".$programa."','".$turno."','".$fecha."','".$resume_type."','".$op."');";
 
-        $sql = DB::connection('iaserver')->select($query);
+        $sql = DB::connection('aoidata')->select($query);
 
         $resume = array();
 
@@ -145,7 +145,7 @@ class StatController extends Controller
     public function periodoInspeccion($id_maquina, $programa, $turno, $fecha)
     {
         $query = "CALL aoidata.sp_getPeriodo_opt('".$id_maquina."','".$programa."','".$turno."','".$fecha."');";
-        $sql = DB::connection('iaserver')->select($query);
+        $sql = DB::connection('aoidata')->select($query);
 
         return $sql;
     }
@@ -192,7 +192,7 @@ class StatController extends Controller
         total DESC;
         ";
 
-        $sql = DB::connection('iaserver')->select($query);
+        $sql = DB::connection('aoidata')->select($query);
 
         return $sql;
     }

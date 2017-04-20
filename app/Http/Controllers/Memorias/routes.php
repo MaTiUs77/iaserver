@@ -25,7 +25,7 @@ Route::group(['prefix' => 'memorias'], function() {
         'uses' => 'Memorias\MemoriasView@formDeclararSubmit'
     ]);
 
-    Route::post('/zebra/{op?}/{cantidad?}', [
+    Route::post('/zebra/{op?}/{cantidad?}/{id?}', [
         'as' => 'memorias.zebra.print',
         'uses' => 'Memorias\Memorias@zebraPrint'
     ]);

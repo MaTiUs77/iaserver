@@ -10,8 +10,10 @@ use Illuminate\Support\Facades\DB;
 
 class Stocker extends Model
 {
-    protected $connection = 'iaserver';
+    protected $connection = 'aoidata';
     protected $table = 'aoidata.stocker';
+
+    protected $fillable = ['semielaborado'];
 
     public function joinPanel()
     {
@@ -68,7 +70,7 @@ class Stocker extends Model
     public static function sp_stockerSet(Produccion $produccion, $stocker, $semielaborado)
     {
         $query = "CALL aoidata.sp_stockerSet('".$produccion->barcode."','".$stocker->barcode."','".$produccion->op."','".$stocker->limite."','".$stocker->bloques."','".$semielaborado."');";
-        $sql = DB::connection('iaserver')->select($query);
+        $sql = DB::connection('aoidata')->select($query);
 
         return $sql;
     }
@@ -76,14 +78,14 @@ class Stocker extends Model
     public static function sp_stockerReset($stocker)
     {
         $query = "CALL aoidata.sp_stockerReset('".$stocker->barcode."');";
-        $sql = DB::connection('iaserver')->select($query);
+        $sql = DB::connection('aoidata')->select($query);
         return $sql;
     }
 
     public static function sp_stockerAddPanel($idPanel,$idStocker, $manualMode=0)
     {
         $query = "CALL aoidata.sp_stockerAddPanel_opt('".$idPanel."','".$idStocker."', ".$manualMode.");";
-        $sql = DB::connection('iaserver')->select($query);
+        $sql = DB::connection('aoidata')->select($query);
         return $sql;
     }
 

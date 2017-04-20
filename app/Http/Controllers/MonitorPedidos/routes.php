@@ -26,5 +26,5 @@ Route::group(['prefix' => 'amr'], function()
     Route::post('/cancelar/{id}','MonitorPedidos\CogiscanPedidos@cancelRequest');
     Route::get('/pedidos/transito','MonitorPedidos\ViewPedidos@reservaTransito');
     Route::get('/pedidos/transito/{smt}','MonitorPedidos\ViewPedidos@reservaTransitoXlinea');
-    Route::get('/gestionop','MonitorPedidos\ViewGestionOp@getMaterialOp');
+    //Route::get('/gestionop','MonitorPedidos\ViewGestionOp@getMaterialOp');
 });

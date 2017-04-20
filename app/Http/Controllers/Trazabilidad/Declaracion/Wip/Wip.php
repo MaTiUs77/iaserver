@@ -241,4 +241,18 @@ class Wip extends Controller
         $wipserie = new WipSerie();
         return $wipserie->declarar($organization,$op,$semielaborado,$cantidad,$referencia);
     }
+
+    public function declared($referencia,$op)
+    {
+        $wipserie = new WipSerie();
+        $result = $wipserie->findBarcode($referencia,$op);
+
+        if($result!=null && count($result)>0)
+        {
+            return $result->first();
+        } else
+        {
+            return false;
+        }
+    }
 }

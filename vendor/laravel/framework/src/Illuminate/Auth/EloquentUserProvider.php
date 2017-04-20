@@ -17,7 +17,7 @@ class EloquentUserProvider implements UserProvider
     protected $hasher;
 
     /**
-     * The Eloquent user model.
+     * The Eloquent user Model.
      *
      * @var string
      */
@@ -92,7 +92,7 @@ class EloquentUserProvider implements UserProvider
 
         // First we will add each credential element to the query as a where clause.
         // Then we can execute the query and, if we found a user, return it in a
-        // Eloquent User "model" that will be utilized by the Guard instances.
+        // Eloquent User "Model" that will be utilized by the Guard instances.
         $query = $this->createModel()->newQuery();
 
         foreach ($credentials as $key => $value) {
@@ -119,7 +119,7 @@ class EloquentUserProvider implements UserProvider
     }
 
     /**
-     * Create a new instance of the model.
+     * Create a new instance of the Model.
      *
      * @return \Illuminate\Database\Eloquent\Model
      */
@@ -154,7 +154,7 @@ class EloquentUserProvider implements UserProvider
     }
 
     /**
-     * Gets the name of the Eloquent user model.
+     * Gets the name of the Eloquent user Model.
      *
      * @return string
      */
@@ -164,7 +164,7 @@ class EloquentUserProvider implements UserProvider
     }
 
     /**
-     * Sets the name of the Eloquent user model.
+     * Sets the name of the Eloquent user Model.
      *
      * @param  string  $model
      * @return $this

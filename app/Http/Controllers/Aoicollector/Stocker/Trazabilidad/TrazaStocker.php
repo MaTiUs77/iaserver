@@ -68,10 +68,12 @@ class TrazaStocker extends StockerController
 
         foreach($content as $stkdet)
         {
-            $fi = new FindInspection();
-            $panel = $fi->barcode($stkdet->joinPanel->panel_barcode);
+            $find = new FindInspection();
+            $find->onlyLast = true;
 
-            $panel = $panel->last->panel;
+            $result = $find->barcode($stkdet->joinPanel->panel_barcode);
+
+            $panel = $result->last->panel;
 
             $addPanel = new \stdClass();
             $addPanel->panel = $panel;

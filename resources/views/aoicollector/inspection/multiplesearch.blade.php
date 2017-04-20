@@ -34,19 +34,6 @@
                 <td style="vertical-align: top;">
                     @include('aoicollector.inspection.partial.header')
 
-                    <div>
-                    <form method="POST" action="{{ route('aoicollector.inspection.multiplesearch') }}">
-                                <!-- BUSQUEDA -->
-                                <div style="width: 500px;margin-bottom: 5px;">
-                                    <textarea name="barcodes" rows=6 class="form-control" placeholder="Ingresar multiples barcode" ng-required="true"/></textarea>
-                                  </div>
-
-                                <button type="submit" style="float:left;" name="mode" value="first" class="btn btn-info"><i class="glyphicon glyphicon-search"></i> Primer resultado de inspeccion</button>
-                                <button type="submit" style="float:left;margin-left:5px;"  name="mode" value="last" class="btn btn-info"><i class="glyphicon glyphicon-search"></i> Ultimo resultado de inspeccion</button>
-                            <!-- END BUSQUEDA -->
-                    </form>
-                    </div>
-
                     <div class="clearfix"></div>
                     <h3>Resultado de busqueda multiple</h3>
 
@@ -121,4 +108,30 @@
 
     @include('iaserver.common.footer')
     {!! IAScript('vendor/aoicollector/inspection/inspection.js') !!}
+
+
+            <!-- Include Date Range Picker -->
+    {!! IAScript('assets/moment.min.js') !!}
+    {!! IAScript('assets/moment.locale.es.js') !!}
+    {!! IAScript('assets/jquery/daterangepicker/daterangepicker.js') !!}
+    {!! IAStyle('assets/jquery/daterangepicker/daterangepicker.css') !!}
+    <script type="text/javascript">
+        moment.locale("es");
+
+        $(function() {
+            $('input[name="inspection_date_session"]').daterangepicker({
+                locale: {
+                    format: 'DD/MM/YYYY',
+                    customRangeLabel: 'Definir rango'
+                },
+                ranges: {
+                    'Hoy': [moment(), moment()],
+                    'Ayer': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Ultimos 7 dias': [moment().subtract(6, 'days'), moment()]
+                },
+                autoApply: true,
+                singleDatePicker: true
+            });
+        });
+    </script>
 @endsection

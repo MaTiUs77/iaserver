@@ -3,7 +3,7 @@
 namespace IAServer\Http\Controllers\Aoicollector\Pizarra;
 
 use Carbon\Carbon;
-use IAServer\Http\Controllers\Aoicollector\Model\PanelHistory;
+use IAServer\Http\Controllers\Aoicollector\Inspection\InspectionList;
 use IAServer\Http\Controllers\Aoicollector\Model\Produccion;
 use IAServer\Http\Controllers\Aoicollector\Pizarra\PizarraCone\ProduccionCone;
 use IAServer\Http\Controllers\Aoicollector\Pizarra\Src\PizarraItemObj;
@@ -18,17 +18,16 @@ class PizarraResume extends Controller
     public $proyectado = null;
     public $produccion = null;
 
-    public $byHour = array();
+    public $byPeriod = array();
     public $byOp = array();
-    public $byTurn = array();
+    public $smt = array();
 
     public $proyectadoCone = null;
     public $produccionAoi= array();
 
     public $produccionLine= null;
 
-    //public $dateEn = null;
-
+    public $linea = null;
     public $desdeCarbon = null;
     public $hastaCarbon = null;
 
@@ -43,32 +42,42 @@ class PizarraResume extends Controller
         ],
     ];
 
-    public function __construct($linea,Carbon $desdeCarbon,Carbon $hastaCarbon)
-    {
+    public function __construct($linea,Carbon $desdeCarbon,Carbon $hastaCarbon) {
         $this->desdeCarbon = $desdeCarbon;
         $this->hastaCarbon = $hastaCarbon;
+        $this->linea = $linea;
 
+        // Creo -objetos para resumen
         $this->proyectado = new PizarraItemObj();
         $this->produccion = new PizarraItemObj();
 
-        $this->getInfoFromLine($linea);
+        $this->getInfoFromLine();
 
-        $this->byTurn = collect($this->byHour)->groupBy('turno')->all();
+        if($this->proyectado->cone->total>0)
+        {
+            $this->produccion->aoi->porcentaje = ($this->produccion->aoi->total / $this->proyectado->cone->total) * 100;
+            $this->produccion->cone->porcentaje = ($this->produccion->cone->total / $this->proyectado->cone->total) * 100;
+        }
+
+        foreach($this->byOp as $op => $data) {
+            $this->smt[$op] = SMTDatabase::findOp($op);
+        }
+
         return $this;
     }
 
-    private function getInfoFromLine($linea)
-    {
-        if(is_numeric($linea)) {
+    private function getInfoFromLine(){
+        if(is_numeric($this->linea)) {
             /*
             Obtengo el la produccion proyectada para esa linea
             Los datos por ahora solo funciona con las lineas con AOI
             */
-            $this->proyectadoCone = $this->prepareProyectadoCone($linea, $this->desdeCarbon, $this->hastaCarbon);
 
-            //$this->fillByHourWithProyectadoCone();
+            $this->proyectadoCone = $this->prepareProyectadoCone();
 
-            $this->aoiProduccionByLine($linea);
+            $this->aoiProduccionByLine();
+
+            $this->computeProyectedWithProduccion();
 
             /*$this->proyectado->cone->reporteIncompleto->M = $this->calculateIncompleteReport('M');
             $this->proyectado->cone->reporteIncompleto->T = $this->calculateIncompleteReport('T');
@@ -76,200 +85,108 @@ class PizarraResume extends Controller
             if($this->proyectado->cone->total > 0) {
                 $this->produccion->aoi->porcentaje = number_format((($this->produccion->aoi->total / $this->proyectado->cone->total ) * 100), 1, '.', '');
             }*/
-        } else
-        {
+        } else {
             $this->error = "La linea no es valida";
         }
     }
 
-    private function aoiProduccionByLine($linea)
+    // Computa los datos de produccion contra los datos de proyeccion
+    private function computeProyectedWithProduccion()
+    {
+        $this->proyectado->cone->faltante = $this->proyectado->cone->total - $this->produccion->aoi->total;
+        $this->proyectado->cone->faltanteM = $this->proyectado->cone->M  - $this->produccion->aoi->M;
+        $this->proyectado->cone->faltanteT = $this->proyectado->cone->T - $this->produccion->aoi->T;
+
+        $this->produccion->cone->faltante = $this->proyectado->cone->total - $this->produccion->cone->total;
+        $this->produccion->cone->faltanteM = $this->proyectado->cone->M  - $this->produccion->cone->M;
+        $this->produccion->cone->faltanteT = $this->proyectado->cone->T - $this->produccion->cone->T;
+
+        foreach ($this->byPeriod as $periodo => $data)
+        {
+            $produccionAoi = count($data->aoi);
+
+            $cone = collect($data->cone);
+            $proyectado = $cone->sum('proyectado');
+            $produccionCone = $cone->sum('produccion');
+
+            $eficienciaAoi = 0;
+            $eficienciaCone = 0;
+
+            if($proyectado>0)
+            {
+                $eficienciaAoi = ($produccionAoi / $proyectado) * 100;
+                $eficienciaCone = ($produccionCone / $proyectado) * 100;
+            }
+            $this->byPeriod[$periodo]->proyectado = $proyectado;
+            $this->byPeriod[$periodo]->eficiencia->aoi = $eficienciaAoi;
+            $this->byPeriod[$periodo]->produccion->aoi = $produccionAoi;
+
+            $this->byPeriod[$periodo]->eficiencia->cone = $eficienciaCone;
+            $this->byPeriod[$periodo]->produccion->cone = $produccionCone;
+        }
+
+        ksort($this->byPeriod);
+
+        $this->byPeriod = collect($this->byPeriod);
+    }
+
+    private function aoiProduccionByLine()
     {
         // Obtengo todas las AOI de esa linea ( trae 2 AOI en casos de dual lines)
-        $produccion = Produccion::byLine($linea);
+        $produccion = Produccion::byLine($this->linea);
 
         // Recorro las AOI asignadas a esa linea
-
         foreach ($produccion as $aoi) {
             if($this->produccionLine == null) {
                 $this->produccionLine = $aoi;
             }
 
-            $produccionByRange = PanelHistory::produccionByRange($aoi->id_maquina, 'MIN', $this->desdeCarbon, $this->hastaCarbon)->get();
+            $inspectionList = new InspectionList($this->desdeCarbon, $this->hastaCarbon);
+            $inspectionList->setIdMaquina($aoi->id_maquina);
+            $inspectionList->bloqueFirstGlobalApparition();
+            $inspectionByOp = $inspectionList->inspecciones->groupBy('inspected_op');
 
-            $groupByOp = $produccionByRange->groupBy('op');
+            // Recorre todas las inspecciones agrupadas por OP de la maquina
+            foreach($inspectionByOp as $op => $items) {
 
-            foreach($groupByOp as $op => $items)
-            {
-                $smt = SMTDatabase::findOp($op);
-                /*
-                              $coneByFecha = $this->proyectadoCone->groupBy('fecha');
-                          /*foreach($items as $period)
-                              {
-                                  if(isset($coneByFecha[$period->created_date]))
-                                  {
-                                      $coneByPeriod = $coneByFecha[$period->created_date]->groupBy('periodo');
-                                      $periodoCone = $coneByPeriod->get($period->periodo);
-                                      if(isset($periodoCone))
-                                      {
-                                          $period->operadorCone = $periodoCone->sum('produccion');
-                                          $period->proyectadoCone = $periodoCone->sum('proyectado');
-                                      }
-                                  }
-                              }*/
+                $produccionTotal = $items->count('barcode');
+                $produccionM = $items->where('turno','M')->count('barcode');
+                $produccionT = $items->where('turno','T')->count('barcode');
 
-                $inspected_op = (object) [
-                    'smt' => $smt,
-                    'produccion' => (object) [
-                        'total' => $items->sum('placas'),
-                        'M' => $items->where('turno','M')->sum('placas'),
-                        'T' => $items->where('turno','T')->sum('placas')
-                    ],
-                    'result' => $items
-                ];
+                $items->each(function($x) use($op) {
+                    $x->chartPeriodo = "$x->created_date $x->periodo";
+                    if(!isset($this->byPeriod[$x->chartPeriodo])) {
+                        $this->byPeriod[$x->chartPeriodo] = (object)[
+                            'aoi' => [],
+                            'cone' => [],
+                            'turno' => $x->turno,
+                            'proyectado' => 0,
+                            'eficiencia' => (object) [
+                                'aoi' => 0,
+                                'cone' => 0,
+                            ],
+                            'produccion' => (object) [
+                                'aoi' => 0,
+                                'cone' => 0,
+                            ]
+                        ];
+                    }
+                    $this->byPeriod[$x->chartPeriodo]->aoi[] = $x;
+                });
 
-                if(isset($this->byOp[$op]))
-                {
-                    $this->byOp[$op]->produccion->total += $inspected_op->produccion->total;
-                    $this->byOp[$op]->produccion->M += $inspected_op->produccion->M;
-                    $this->byOp[$op]->produccion->T += $inspected_op->produccion->T;
-
-                    $items->each(function($x) use($op)
-                    {
-                        $exist = $this->byOp[$op]->result->where('periodo',$x->periodo)->first();
-                        if(isset($exist))
-                        {
-                            $exist->placas += $x->placas;
-                        } else {
-                            $this->byOp[$op]->result[] = $x;
-                        }
-                    });
-
-//                    $this->byOp[$op]->result->merge($items);
-
-                    dump($this->byOp[$op]);
-
-                } else
-                {
-                    $this->byOp[$op] = $inspected_op;
+                // Inspecciones separadas por OP, adjunta en una misma OP en caso de las lineas duales
+                if(isset($this->byOp[$op])) {
+                    foreach ($items as $addItem) {
+                        $this->byOp[$op][] = $addItem;
+                    }
+                } else {
+                    $this->byOp[$op] = $items;
                 }
-
-
-                $this->produccion->aoi->total += $inspected_op->produccion->total;
-                $this->produccion->aoi->M += $inspected_op->produccion->M;
-                $this->produccion->aoi->T += $inspected_op->produccion->T;
+                // Sumo produccion de OP y de maquina a produccion de jornada
+                $this->produccion->aoi->total += $produccionTotal;
+                $this->produccion->aoi->M += $produccionM;
+                $this->produccion->aoi->T += $produccionT;
             }
-
-          /*  foreach($groupByTurno as $turno => $items)
-            {
-                foreach($items as $panelHistory)
-                {
-                    list($hora,$minutos,$segundos) = explode(":",$panelHistory->periodo);
-
-                    $hora = (int)$hora;
-                    $this->byTurn[$turno][$hora]['ops'][] = $panelHistory->op;
-                }
-            }*/
-
-            /*
-
-                        foreach ($produccionByRange as $period)
-                        {
-                            /////////// DEFINO HORA Y PRODUCCION POR OP ///////////
-                            list($hora, $minuto, $segundo) = explode(':', $period->periodo);
-
-                            $hora = (int)$hora;
-                            if ($hora >= $this->config['M']['desde'] && $hora < $this->config['M']['hasta']) {
-                                $period->turno = 'M';
-                            } else {
-                                $period->turno = 'T';
-                            }
-
-                            if (!isset($this->byOp[$period->op])) {
-                                $smt = SMTDatabase::findOp($period->op);
-
-                                // Creo op en byOp
-                                $this->byOp[$period->op] = (object) [
-                                    'smt'=>$smt,
-                                    'produccion' => 0,
-                                    'produccionM' => 0,
-                                    'produccionT' => 0,
-                                    'periodo' => [
-                                        'M'=>array(),
-                                        'T'=>array()
-                                    ],
-                                ];
-                            }
-
-                            $this->byOp[$period->op]->produccion += $period->placas;
-
-                            /////////// SUMA PRODUCCION TOTAL POR TURNO ///////////
-                            switch($period->turno)
-                            {
-                                case 'M':
-                                    $this->byOp[$period->op]->produccionM += $period->placas;
-                                    break;
-                                case 'T':
-                                    $this->byOp[$period->op]->produccionT += $period->placas;
-                                    break;
-                            }
-
-                            /////////// SUMA PRODUCCION TOTAL EN DUAL LINES ///////////
-                            if(isset($this->byOp[$period->op]->periodo[$period->turno][$hora]))
-                            {
-                                $this->byOp[$period->op]->periodo[$period->turno][$hora] += $period->total;
-                            } else
-                            {
-                                $this->byOp[$period->op]->periodo[$period->turno][$hora] = $period->total;
-                            }
-
-                            /////////// VERIFICA SI EXISTE PRODUCCION AOI ///////////
-                            if($this->byHour[$hora]->aoi == null)
-                            {
-                                if(isset($this->byHour[$hora]->cone->proyectado) && $this->byHour[$hora]->cone->proyectado>0)
-                                {
-                                    $this->byHour[$hora]->aoi = (object) [
-                                        "produccion" => $period->total,
-                                        "porcentaje" => number_format((($period->total / $this->byHour[$hora]->cone->proyectado) * 100), 1, '.', '')
-                                    ];
-                                } else
-                                {
-                                    // No hay proyeccion, no es posible calcular porcentaje de produccion
-                                    $this->byHour[$hora]->aoi = (object) [
-                                        "produccion" => $period->total,
-                                        "porcentaje" => 0
-                                    ];
-                                }
-                            } else
-                            {
-                                $this->byHour[$hora]->aoi->produccion += $period->total;
-
-                                if($this->byHour[$hora]->cone == null)
-                                {
-                                    $this->byHour[$hora]->aoi->porcentaje = 0;
-                                } else
-                                {
-                                    $this->byHour[$hora]->aoi->porcentaje = number_format((($this->byHour[$hora]->aoi->produccion / $this->byHour[$hora]->cone->proyectado) * 100), 1, '.', '');
-                                }
-                            }
-
-                            $this->byHour[$hora]->ops[$period->op] = $period->total;
-
-                        }
-                        $aoiPeriod = $produccionByRange->groupBy('turno');
-
-                        if(isset($aoiPeriod['M']))
-                        {
-                            $this->produccion->aoi->M += collect($aoiPeriod['M'])->sum('total');
-                        }
-
-                        if(isset($aoiPeriod['T']))
-                        {
-                            $this->produccion->aoi->T += collect($aoiPeriod['T'])->sum('total');
-                        }
-
-                        $this->produccion->aoi->total = $this->produccion->aoi->M + $this->produccion->aoi->T;
-
-                        $this->produccionAoi[$aoi->barcode] = $aoiPeriod;*/
         }
     }
 
@@ -312,12 +229,12 @@ class PizarraResume extends Controller
      * @param $dateEn
      * @return mixed
      */
-    private function prepareProyectadoCone($linea, Carbon $desdeCarbon, Carbon $hastaCarbon)
+    private function prepareProyectadoCone()
     {
-        $proyectado = ProduccionCone::where('linea', $linea)
-            ->whereRaw("dia >= '$desdeCarbon->day' and dia <= '$hastaCarbon->day'")
-            ->whereRaw("mes >= '$desdeCarbon->month' and mes <= '$hastaCarbon->month'")
-            ->whereRaw("anio >= '$desdeCarbon->year' and anio <= '$hastaCarbon->year'")
+        $proyectado = ProduccionCone::where('linea', $this->linea)
+            ->whereRaw("dia >= '" . $this->desdeCarbon->day . "' and dia <= '" . $this->hastaCarbon->day . "'")
+            ->whereRaw("mes >= '" . $this->desdeCarbon->month . "' and mes <= '" . $this->hastaCarbon->month . "'")
+            ->whereRaw("anio >= '" . $this->desdeCarbon->year . "' and anio <= '" . $this->hastaCarbon->year . "'")
             ->whereNotNull('proyectado')
             ->orderBy('dia', 'asc')
             ->orderBy('mes', 'asc')
@@ -325,7 +242,35 @@ class PizarraResume extends Controller
             ->orderBy('horario', 'asc')
             ->get();
 
-        $output = ProduccionCone::prepareProyectado($proyectado,$this->config);
+        $output = ProduccionCone::prepareProyectado($proyectado, $this->config);
+
+        $this->proyectado->cone->total = $output->sum('proyectado');
+        $this->proyectado->cone->M = $output->where('turno', 'M')->sum('proyectado');
+        $this->proyectado->cone->T = $output->where('turno', 'T')->sum('proyectado');
+
+        $this->produccion->cone->total = $output->sum('p_real');
+        $this->produccion->cone->M = $output->where('turno', 'M')->sum('p_real');
+        $this->produccion->cone->T = $output->where('turno', 'T')->sum('p_real');
+
+        $output->each(function ($x) {
+            if (!isset($this->byPeriod[$x->chartPeriodo])) {
+                $this->byPeriod[$x->chartPeriodo] = (object)[
+                    'aoi' => [],
+                    'cone' => [],
+                    'turno' => $x->turno,
+                    'proyectado' => 0,
+                    'eficiencia' => (object) [
+                        'aoi' => 0,
+                        'cone' => 0,
+                    ],
+                    'produccion' => (object) [
+                        'aoi' => 0,
+                        'cone' => 0,
+                    ]
+                ];
+            }
+            array_push($this->byPeriod[$x->chartPeriodo]->cone, $x);
+        });
 
         return $output;
     }

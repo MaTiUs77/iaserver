@@ -3,7 +3,6 @@
 namespace IAServer\Http\Controllers\Aoicollector\Model;
 
 use Carbon\Carbon;
-use IAServer\Http\Controllers\Aoicollector\Inspection\VerificarDeclaracion;
 use IAServer\Http\Controllers\Cogiscan\Cogiscan;
 use IAServer\Http\Controllers\SMTDatabase\SMTDatabase;
 use IAServer\Http\Controllers\Trazabilidad\Declaracion\Wip\Wip;
@@ -12,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 class PanelHistory extends Model
 {
-    protected $connection = 'iaserver';
+    protected $connection = 'aoidata';
     protected $table = 'aoidata.history_inspeccion_panel';
     public $timestamps = false;
 
@@ -110,7 +109,6 @@ class PanelHistory extends Model
      * @param string $fecha
      * @param string $op
      * @return null
-     */
     public static function listar($id_maquina, $fecha, $op, $minOrMax = 'MAX')
     {
         $q = null;
@@ -148,7 +146,8 @@ class PanelHistory extends Model
 
         return $q;
     }
-
+     */
+/*
     public static function listarOp($id_maquina, $fecha, $op)
     {
         $q = null;
@@ -168,7 +167,7 @@ class PanelHistory extends Model
 
         return $q;
     }
-
+*/
     public function scopePeriod($query, $idMaquinaOrOP, $maxOrmin='MAX', $fecha='CURDATE()',$minutes=60)
     {
         $id_maquina = null;
@@ -232,7 +231,7 @@ class PanelHistory extends Model
         return $q;
     }
 
-    public static function periodFirstApparation($idMaquinaOrOP, $maxOrmin='MAX', Carbon $desdeCarbon, Carbon $hastaCarbon,$minutes=60)
+    public static function periodFirstApparation($idMaquinaOrOP, $maxOrmin='MAX', Carbon $desdeCarbon=null, Carbon $hastaCarbon=null,$minutes=60)
     {
         $id_maquina = null;
         $op = null;

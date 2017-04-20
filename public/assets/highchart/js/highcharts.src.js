@@ -2596,7 +2596,7 @@
                     }
                 };
             } else {
-                // simplest possible event model for internal use
+                // simplest possible event Model for internal use
                 element['on' + eventType] = handler;
             }
             return this;
@@ -5328,7 +5328,7 @@
          * @param {Function} handler
          */
         on: function (eventType, handler) {
-            // simplest possible event model for internal use
+            // simplest possible event Model for internal use
             this.element['on' + eventType] = function () {
                 var evt = win.event;
                 evt.target = evt.srcElement;

@@ -2,26 +2,44 @@
 
 namespace IAServer\Http\Controllers\Aoicollector\Inspection;
 
-use IAServer\Http\Controllers\Aoicollector\Model\PanelHistory;
 use IAServer\Http\Controllers\Aoicollector\Model\Maquina;
 
 use IAServer\Http\Controllers\IAServer\Util;
 use IAServer\Http\Requests;
 use IAServer\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Session;
 use Maatwebsite\Excel\Facades\Excel;
 
+/**
+ * Exporta las inspecciones de una maquina especifica
+ *
+ * @package IAServer\Http\Controllers\Aoicollector\Inspection
+ */
 class InspectionExport extends Controller
 {
+    /**
+     * Exporta la lista de inspecciones en formato excel
+     *
+     * @param int $id_maquina
+     * @param string $fecha Actualmente en desuso, utiliza una fecha definida en la Session inspection_date_session
+     * @param string $minOrMax Existen 3 modos MIN, MINA y MAX
+     *
+     * @return mixed Crea un downstream de un archivo XLS
+     */
     public function toExcel($id_maquina,$fecha,$minOrMax)
     {
         $maquina = Maquina::findOrFail($id_maquina);
-        $fecha = Util::dateToEn(Session::get('date_session'));
 
-        $insp = PanelHistory::listar($id_maquina, $fecha, "",$minOrMax)->get();
-        $filename = 'SMD-'.$maquina->linea.'_'.$fecha;
+        $carbonDate = Util::dateRangeFilterEs('inspection_date_session');
 
-        $insp->makeHidden([
+        $inspectionList = new InspectionList($carbonDate->desde,$carbonDate->hasta);
+        $inspectionList->setIdMaquina($id_maquina);
+        $inspectionList->setMode($minOrMax);
+        $inspectionList->programsUsedByIdMaquina();
+        $inspectionList->getPaneles();
+
+        $filename =  'SMD-'.$maquina->linea.'_'.$carbonDate->desde->format('d-m-Y');
+
+        $inspectionList->inspecciones->makeHidden([
             'id_panel_history',
             'modo',
             'id',
@@ -31,28 +49,19 @@ class InspectionExport extends Controller
             'test_machine_id',
             'program_name_id',
             'pendiente_inspeccion',
-            'etiqueta'
+            'etiqueta',
+            'id_user',
+            'first_history_inspeccion_panel'
         ]);
 
-        Excel::create('Stat_'.$filename, function($excel) use($insp,$filename) {
+        Excel::create('Stat_'.$filename, function($excel) use($inspectionList,$filename) {
 
-            $excel->sheet($filename, function($sheet) use($insp) {
+            $excel->sheet($filename, function($sheet) use($inspectionList) {
                 $sheet->setOrientation('landscape');
-                $sheet->fromModel($insp);
+                //$sheet->fromArray($inspectionList->inspecciones);
+                $sheet->fromModel($inspectionList->inspecciones);
             });
 
         })->download('xls');
     }
-/*
-    public function collectionToExcel($filename, $collection)
-    {
-        Excel::create('Export_'.$filename, function($excel) use($collection,$filename) {
-
-            $excel->sheet($filename, function($sheet) use($collection) {
-                $sheet->setOrientation('landscape');
-                $sheet->fromModel($collection);
-            });
-
-        })->download('xls');
-    }*/
 }

@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 class TransaccionWip extends Model
 {
-    protected $connection = 'iaserver';
+    protected $connection = 'aoidata';
     protected $table = 'aoidata.transaccion_wip';
 
     public function scopeCountOk($query)
@@ -15,5 +15,10 @@ class TransaccionWip extends Model
         return $this
             ->where('trans_code',1)
             ->count();
+    }
+
+    public function joinRoute()
+    {
+        return $this->hasOne('IAServer\Http\Controllers\Aoicollector\Model\StockerRoute', 'id', 'id_last_route');
     }
 }

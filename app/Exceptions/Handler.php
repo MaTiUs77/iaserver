@@ -51,6 +51,23 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $e)
     {
+        if($request->is('api/*')){
+
+            if($e instanceof NotFoundHttpException)
+            {
+                return response()->json([
+                    'error' => 'La ruta a la que intenta acceder no existe',
+                    'error_code' => 404
+                ]);
+            } else
+            {
+                return response()->json([
+                    'error' => $e->getMessage(),
+                    'error_code' => $e->getCode()
+                ]);
+            }
+        }
+
         $this->prepareMessage($e);
 
         $this->cogiscanError($request,$e);
@@ -130,7 +147,6 @@ class Handler extends ExceptionHandler
         if(app()->environment() != 'local') {
             $this->emailSend('Diego Ezequiel Maidana Kobalc', 'Diego.Maidana@newsan.com.ar', $this->messageArray);
             $this->emailSend('Jose Maria Casarotto', 'JoseMaria.Casarotto@newsan.com.ar', $this->messageArray);
-            $this->emailSend('Santiago Gabriel Romero', 'SantiagoGabriel.Romero@newsan.com.ar', $this->messageArray);
         }
     }
 

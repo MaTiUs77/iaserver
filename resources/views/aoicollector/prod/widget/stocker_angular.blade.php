@@ -67,8 +67,8 @@
     }*/
 </style>
 
-<div ng-hide="stockerService.stocker.barcode" >
-    <div class="panel panel-danger" ng-show="aoiService.produccion.op && !stockerService.stocker.barcode">
+<div ng-hide="stockerService.barcode" >
+    <div class="panel panel-danger" ng-show="aoiService.produccion.op && !stockerService.barcode">
         <div class="panel-heading">ATENCION</div>
         <div class="panel-body">
             Debe asignar un stocker!, puede usar la opcion
@@ -78,51 +78,39 @@
     </div>
 </div>
 
-<div id="stocker_box" class="list-group" ng-show="stockerService.stocker.barcode">
+<div id="stocker_box" class="list-group" ng-show="stockerService.barcode">
     <!-- STOCKER HEADER -->
     <a class="list-group-item header">
-        <div class="text-center">Codigo: @{{ stockerService.stocker.barcode }}</div>
+        <div class="text-center">Codigo: @{{ stockerService.barcode }}</div>
 
-        <div class="text-center" ng-hide="stockerConfigMode">
-            <small>Stocker x@{{stockerService.stocker.limite}} - Panel x@{{stockerService.stocker.bloques}} </small>
-            <button type="button" class="btn btn-xs btn-default btn-block" ng-click="stockerConfigMode=!stockerConfigMode" ><span class="glyphicon glyphicon-wrench"></span> Cambiar configuracion</button>
+        <div ng-show="inspectorService.id">
+            <div class="text-center" ng-hide="stockerConfigMode">
+                <small>Stocker x@{{stockerService.limite}} - Panel x@{{stockerService.bloques}} </small>
+                <button type="button" class="btn btn-xs btn-default btn-block" ng-click="stockerConfigMode=!stockerConfigMode" ><span class="glyphicon glyphicon-wrench"></span> Cambiar configuracion</button>
+            </div>
+
+            <!-- CONFIGURADOR DE STOCKER -->
+            <div ng-show="stockerConfigMode">
+                        <input type="number" class="form-control" ng-model="stockerConfigModeNewlimite" placeholder="Filas de stocker"/>
+                        <input type="number" class="form-control" ng-model="stockerConfigModeNewbloques" placeholder="Bloques de panel"/>
+                <button type="button" class="btn btn-xs btn-success btn-block" ng-click="stockerConfig('save');" >Guardar</button>
+                <button type="button" class="btn btn-xs btn-default btn-block" ng-click="stockerConfigMode=!stockerConfigMode" >Cancelar</button>
+            </div>
+            <!-- FIN CONFIGURADOR DE STOCKER -->
         </div>
 
-        <!-- CONFIGURADOR DE STOCKER -->
-        <div ng-show="stockerConfigMode">
-                    <input type="number" class="form-control" ng-model="stockerConfigModeNewlimite" placeholder="Filas de stocker"/>
-                    <input type="number" class="form-control" ng-model="stockerConfigModeNewbloques" placeholder="Bloques de panel"/>
-            <button type="button" class="btn btn-xs btn-success btn-block" ng-click="stockerConfig('save');" >Guardar</button>
-            <button type="button" class="btn btn-xs btn-default btn-block" ng-click="stockerConfigMode=!stockerConfigMode" >Cancelar</button>
-        </div>
-        <!-- FIN CONFIGURADOR DE STOCKER -->
     </a>
     <!-- FIN STOCKER HEADER -->
 
     <a href="javascript:;" class="list-group-item total">
-        <div>Total: <span id="stocker_count_unity">@{{stockerService.stocker.unidades}}</span></div>
+        <div>Total: <span id="stocker_count_unity">@{{stockerService.unidades}}</span></div>
     </a>
 
     <div class="panel_trace">
-        <a id="panel_@{{n}}" ng-repeat="n in [] | range:stockerService.stocker.limite" class="list-group-item panel_item" ng-class="n <= stockerService.stocker.paneles ? 'panel_declarado' : 'panel_empty'">
+        <a ng-attr-id="panel_@{{n}}" ng-repeat="n in [] | range:stockerService.limite" class="list-group-item panel_item" ng-class="n <= stockerService.paneles ? 'panel_declarado' : 'panel_empty'">
            Panel: @{{ n }}
         </a>
     </div>
 
-    <!-- PANELES EN STOCKER CON VERIFICACION DE TRAZA
-    <div class="panel_trace">
-        <a id="panel_@{{n}}" ng-repeat="n in [] | range:stockerService.stocker.limite" class="list-group-item panel_item">
-            <span ng-if="!stockerService.contenido.paneles[n-1].panel.panel_barcode">
-               Panel: @{{ n }}
-            </span>
-            @{{ stockerService.contenido.paneles[n-1].panel.panel_barcode }}
-            <span ng-if="!stockerService.contenido.paneles[n-1].declaracion.declarado && stockerService.contenido.paneles[n-1].panel.panel_barcode" class="fa fa-thumbs-o-down  fa-1x text-danger panelsize pull-right"></span>
-            <span ng-if="stockerService.contenido.paneles[n-1].declaracion.declarado" class="fa fa-thumbs-o-up fa-1x text-success panelsize pull-right"></span>
-            <span ng-if="stockerService.contenido.paneles[n-1].declaracion.pendiente" class="fa fa-clock-o fa-1x text-info panelsize pull-right"></span>
-            <span ng-if="stockerService.contenido.paneles[n-1].declaracion.error" class="fa fa-thumbs-o-up fa-1x text-danger panelsize pull-right"></span>
-            <span ng-if="stockerService.contenido.paneles[n-1].declaracion.parcial" class="fa fa-thumbs-o-up fa-1x text-warning panelsize pull-right"></span>
-        </a>
-    </div>
-    FIN -->
 </div>
 

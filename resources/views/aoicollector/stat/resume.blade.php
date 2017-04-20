@@ -3,17 +3,7 @@
 @section('mini',false)
 @section('title','Aoicollector - Resumen de Estadisticas')
 @section('body')
-
-    <div class="well">
-        <a href="{{ route('aoicollector.stat.index') }}" class="btn btn-info">Ir a Estadisticas</a>
-
-        <div class="pull-right">
-            @include('iaserver.common.datepicker',[
-                'date_session' => Session::get('date_session'),
-                'route' => route('aoicollector.stat.resume')
-            ])
-        </div>
-    </div>
+        @include('aoicollector.inspection.partial.stat.header')
 
         <table class="table table-striped">
             <thead>

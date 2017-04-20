@@ -845,7 +845,7 @@ class Router implements RegistrarContract
     }
 
     /**
-     * Substitute the implicit Eloquent model bindings for the route.
+     * Substitute the implicit Eloquent Model bindings for the route.
      *
      * @param  \Illuminate\Routing\Route  $route
      * @return void
@@ -971,7 +971,7 @@ class Router implements RegistrarContract
     }
 
     /**
-     * Register a model binder for a wildcard.
+     * Register a Model binder for a wildcard.
      *
      * @param  string  $key
      * @param  string  $class
@@ -987,8 +987,8 @@ class Router implements RegistrarContract
                 return;
             }
 
-            // For model binders, we will attempt to retrieve the models using the first
-            // method on the model instance. If we cannot retrieve the models we'll
+            // For Model binders, we will attempt to retrieve the models using the first
+            // method on the Model instance. If we cannot retrieve the models we'll
             // throw a not found exception otherwise we will return the instance.
             $instance = $this->container->make($class);
 
@@ -997,7 +997,7 @@ class Router implements RegistrarContract
             }
 
             // If a callback was supplied to the method we will call that to determine
-            // what we should do when the model is not found. This just gives these
+            // what we should do when the Model is not found. This just gives these
             // developer a little greater flexibility to decide what will happen.
             if ($callback instanceof Closure) {
                 return call_user_func($callback, $value);

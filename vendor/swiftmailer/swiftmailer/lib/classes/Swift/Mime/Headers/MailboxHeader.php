@@ -50,7 +50,7 @@ class Swift_Mime_Headers_MailboxHeader extends Swift_Mime_Headers_AbstractHeader
     }
 
     /**
-     * Set the model for the field body.
+     * Set the Model for the field body.
      *
      * This method takes a string, or an array of addresses.
      *
@@ -64,7 +64,7 @@ class Swift_Mime_Headers_MailboxHeader extends Swift_Mime_Headers_AbstractHeader
     }
 
     /**
-     * Get the model for the field body.
+     * Get the Model for the field body.
      *
      * This method returns an associative array like {@link getNameAddresses()}
      *

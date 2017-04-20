@@ -47,7 +47,8 @@ class ResponseServiceProvider extends ServiceProvider
 
                     try
                     {
-                        Util::array_to_xml(json_decode($prepareOutput  ,true),$xml);
+                        $decode = json_decode($prepareOutput  ,true);
+                        Util::array_to_xml($decode,$xml);
                         return Response::make($xml->asXML(), $status, $header);
                     } catch(\Exception $e)
                     {

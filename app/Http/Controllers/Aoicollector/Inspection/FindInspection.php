@@ -3,24 +3,48 @@
 namespace IAServer\Http\Controllers\Aoicollector\Inspection;
 
 use IAServer\Http\Controllers\Aoicollector\Model\BloqueHistory;
-use IAServer\Http\Controllers\Aoicollector\Model\DetalleHistory;
 use IAServer\Http\Controllers\Aoicollector\Model\PanelHistory;
-use IAServer\Http\Controllers\Aoicollector\Model\Produccion;
 use IAServer\Http\Requests;
 use IAServer\Http\Controllers\Controller;
 
 class FindInspection extends Controller
 {
+    /**
+     * @var bool Verifica si la placa se encuentra en TransaccionesWip y adjunta el resultado
+     */
     public $withWip = false;
+    /**
+     * @var bool
+     */
     public $withDetail = false;
+    /**
+     * @var bool
+     */
     public $withProductioninfo = false;
+    /**
+     * @var bool Adjunta informacion de SMT relacionada a la OP de la inspeccion
+     */
     public $withSmt = false;
+    /**
+     * @var bool Adjunta trazabilidad de Cogiscan
+     */
     public $withCogiscan = false;
+    /**
+     * @var bool Devuelve solo la ultima inspeccion de la placa
+     */
     public $onlyLast = false;
+    /**
+     * @var bool Adjunta el historial de inspecciones de la placa
+     */
     public $withHistory = false;
+    /**
+     * @var bool Adjunta ultima ruta de la placa
+     */
+    public $withLastRoute = false;
 
     public function barcode($barcode)
     {
+        $barcode = trim($barcode);
         $db = 'current';
 
         // El barcode es valido??
@@ -28,20 +52,34 @@ class FindInspection extends Controller
             // Buscar en BloqueHistory, retorna los resultados en orden descendiente
             // la primer inspeccion seria la ultima en el array de resultados
 
-            $placa = BloqueHistory::buscar($barcode);
+            $placas = BloqueHistory::buscar($barcode);
 
+            if(count($placas)>0)  {
+                if(count($placas)==1)  {
+                    $result = new \stdClass();
+                    $result->first = $this->panelDataHandler($placas->last());
+                    $result->last = $result->first;
 
-            if(count($placa)>0)
-            {
-                $result = new \stdClass();
-                $result->first = $this->panelDataHandler($placa->last());
-                $result->last = $this->panelDataHandler($placa->first());
+                    if($this->withHistory ) {
+                        $result->historial[] = $result->first;
+                    }
+                } else  {
+                    $result = new \stdClass();
 
-                if($this->withHistory ) {
-                    $result->historial = null;
+                    if($this->onlyLast) {
+                        $result->first = null;
+                    } else {
+                        $result->first = $this->panelDataHandler($placas->last());
+                    }
 
-                    foreach ($placa as $history) {
-                        $result->historial[] = $this->panelDataHandler($history);
+                    $result->last = $this->panelDataHandler($placas->first());
+
+                    if($this->withHistory ) {
+                        $result->historial = null;
+
+                        foreach ($placas as $history) {
+                            $result->historial[] = $this->panelDataHandler($history);
+                        }
                     }
                 }
 

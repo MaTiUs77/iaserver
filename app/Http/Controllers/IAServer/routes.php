@@ -2,6 +2,8 @@
 // IASERVER HOME
 Route::get('/', ['as' =>'iaserver.home', 'uses' => 'IAServer\IAServerController@index']);
 
+Route::get('/documentacion', ['as' =>'iaserver.documentacion', 'uses' => 'IAServer\Documentacion\Documentacion@index']);
+
 Route::get('/home', 'IAServer\IAServerController@index');
 
 Route::get('/logo', ['as' =>'iaserver.logo', 'uses' => 'IAServer\IAServerController@logo']);

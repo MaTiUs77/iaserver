@@ -2,10 +2,8 @@
 
 namespace IAServer\Console;
 
-use IAServer\Http\Controllers\Redis\RedisView;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-use Illuminate\Support\Facades\Log;
 
 class Kernel extends ConsoleKernel
 {
@@ -15,9 +13,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        \IAServer\Console\Commands\Inspire::class,
-        \IAServer\Console\Commands\AoicollectorStatExport::class,
-        \IAServer\Console\Commands\TestCommand::class,
+        \IAServer\Console\Commands\AoicollectorStatExport::class
     ];
 
     /**
@@ -28,12 +24,15 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('inspire')->dailyAt('04:00');
+        /*
+        /*$schedule->call(function () {
+            Log::info("Tarea cada 5 minutos");
+        })->everyFiveMinutes();
 
-       /* $schedule->call(function () {
-            Log::info("Schedule RUN");
-        })->everyMinute();*/
-
+        $schedule->call(function () {
+            Log::info("Tarea cada 10 minutos");
+        })->everyTenMinutes();
+*/
        /* $schedule->call(function () {
             $rv = new RedisView();
             $exec = $rv->index();

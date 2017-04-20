@@ -134,7 +134,7 @@ class MemoriasView extends Memorias
 
         $grabacion->save();
 
-        $this->zebraPrint($op,$cantidad);
+        $this->zebraPrint($op,$cantidad,$grabacion->id);
 
         if(empty($redir))
         {

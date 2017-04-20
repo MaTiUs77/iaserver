@@ -18,14 +18,14 @@ class EntrustPermission extends Model implements EntrustPermissionInterface
     use EntrustPermissionTrait;
 
     /**
-     * The database table used by the model.
+     * The database table used by the Model.
      *
      * @var string
      */
     protected $table;
 
     /**
-     * Creates a new instance of the model.
+     * Creates a new instance of the Model.
      *
      * @param array $attributes
      */

@@ -50,7 +50,7 @@ class Swift_Mime_Headers_UnstructuredHeader extends Swift_Mime_Headers_AbstractH
     }
 
     /**
-     * Set the model for the field body.
+     * Set the Model for the field body.
      *
      * This method takes a string for the field value.
      *
@@ -62,7 +62,7 @@ class Swift_Mime_Headers_UnstructuredHeader extends Swift_Mime_Headers_AbstractH
     }
 
     /**
-     * Get the model for the field body.
+     * Get the Model for the field body.
      *
      * This method returns a string.
      *

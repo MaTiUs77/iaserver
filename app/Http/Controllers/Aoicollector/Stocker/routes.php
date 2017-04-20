@@ -1,106 +1,96 @@
 <?php
-Route::group(array('prefix' => 'stocker'), function() {
-
+Route::group([
+    'prefix' => 'stocker',
+    'namespace' => 'Aoicollector\Stocker'], function() {
     Route::get('/info/{stkbarcode}', [
         'as' => 'aoicollector.stocker.view.info',
-        'uses' => 'Aoicollector\Stocker\View\StockerView@view_stockerInfo'
+        'uses' => 'View\StockerView@view_stockerInfo'
     ]);
 
     Route::get('/declared/{stkbarcode}', [
         'as' => 'aoicollector.stocker.view.info',
-        'uses' => 'Aoicollector\Stocker\View\StockerView@view_stockerInfoDeclared'
+        'uses' => 'View\StockerView@view_stockerInfoDeclared'
     ]);
 
-    Route::get('/pocket/{stkbarcode?}', [
-        'as' => 'aoicollector.stocker.view.pocket',
-        'uses' => 'Aoicollector\Stocker\View\StockerView@view_findStockerPocketPc'
-    ]);
-
-    Route::group(array('prefix' => 'abm'), function() {
-
-        Route::get('/', [
-            'as' => 'aoicollector.stocker.abm.index',
-            'uses' => 'Aoicollector\Stocker\Controller\AbmStocker@index'
-        ]);
-    });
-
-    Route::group(array('prefix' => 'lavado'), function()
-    {
+    Route::group(['prefix' => 'lavado'], function(){
         Route::match(['get', 'post'], '/', [
             'as' => 'aoicollector.stocker.lavado.index',
-            'uses' => 'Aoicollector\Stocker\Controller\LavadoController@index'
+            'uses' => 'Lavado\LavadoController@index'
         ]);
 
         Route::get('/imprimir/{etiqueta}/{qty}', [
             'as' => 'aoicollector.stocker.lavado.imprimir.etiqueta',
-            'uses' => 'Aoicollector\Stocker\Controller\LavadoController@imprimir'
+            'uses' => 'Lavado\LavadoController@imprimir'
         ]);
 
         Route::get('/finish/{etiqueta}', [
             'as' => 'aoicollector.stocker.lavado.imprimir.etiqueta.finish',
-            'uses' => 'Aoicollector\Stocker\Controller\LavadoController@finishClean'
+            'uses' => 'Lavado\LavadoController@finishClean'
         ]);
 
         Route::match(['get', 'post'], '/etiquetar', [
-            'as' => 'aoicollector.stocker.lavado.etiquetar',
-            'uses' => 'Aoicollector\Stocker\Controller\LavadoController@etiquetar'
+            'as' => 'stocker.lavado.etiquetar',
+            'uses' => 'Lavado\LavadoController@etiquetar'
         ]);
     });
 
-    Route::group(array('prefix' => 'route'), function() {
+    Route::group(['prefix' => 'route'], function() {
 
         Route::get('/controldeplacas/{stkbarcode}', [
             'as' => 'aoicollector.stocker.view.controldeplacas',
-            'uses' => 'Aoicollector\Stocker\View\StockerView@view_stockerControldeplacas'
+            'uses' => 'View\StockerView@view_stockerControldeplacas'
         ]);
     });
 
-    Route::group(array('prefix' => 'prod'), function() {
-
+    Route::group(['prefix' => 'prod'], function() {
         Route::get('/set/{stkbarcode}/{aoibarcode}', [
             'as' => 'aoicollector.stocker.prod.view.set',
-            'uses' => 'Aoicollector\Stocker\View\StockerView@view_setStockerToAoi'
+            'uses' => 'View\StockerView@view_setStockerToAoi'
         ]);
 
         Route::get('/remove/{stkbarcode}', [
             'as' => 'aoicollector.stocker.prod.view.remove',
-            'uses' => 'Aoicollector\Stocker\View\StockerView@view_removeStocker'
+            'uses' => 'View\StockerView@view_removeStocker'
         ]);
     });
 
-    Route::group(array('prefix' => 'panel'), function() {
+    Route::group(['prefix' => 'panel'], function() {
+            Route::get('/add/{panelbarcode}/{aoibarcode}', [
+                'as' => 'aoicollector.stocker.panel.view.add',
+                'uses' => 'PanelStockerController@addPanel'
+            ]);
 
-        Route::get('/add/{panelbarcode}/{aoibarcode}', [
-            'as' => 'aoicollector.stocker.panel.view.add',
-            'uses' => 'Aoicollector\Stocker\View\PanelStockerView@view_addPanel'
-        ]);
+            Route::get('/remove/{panelbarcode}', [
+                'as' => 'aoicollector.stocker.panel.view.remove',
+                'uses' => 'PanelStockerController@removePanel'
+            ]);
 
-        Route::get('/addmanual/{panelbarcode}/{aoibarcode}', [
-            'as' => 'aoicollector.stocker.panel.view.addmanual',
-            'uses' => 'Aoicollector\Stocker\View\PanelStockerView@view_addPanelManual'
-        ]);
+            Route::get('/declare/{panelbarcode}', [
+                'as' => 'aoicollector.stocker.panel.view.declare',
+                'uses' => 'PanelStockerController@declarePanel'
+            ]);
 
-        Route::get('/remove/{panelbarcode}', [
-            'as' => 'aoicollector.stocker.panel.view.remove',
-            'uses' => 'Aoicollector\Stocker\View\PanelStockerView@view_removePanel'
-        ]);
+            Route::get('/declare/force/{panelbarcode}', [
+                'as' => 'aoicollector.stocker.panel.view.declare.force',
+                'uses' => 'PanelStockerController@forceTransaccionWip'
+            ]);
+        }
+    );
 
-        Route::get('/declare/{panelbarcode}', [
-            'as' => 'aoicollector.stocker.panel.view.declare',
-            'uses' => 'Aoicollector\Stocker\View\PanelStockerView@view_declarePanel'
-        ]);
-    });
-
-    Route::group(array('prefix' => 'trazabilidad'), function() {
-
+    Route::group(['prefix' => 'trazabilidad'], function() {
         Route::match(['get', 'post'], '/rastrear/{op?}', [
             'as' => 'aoicollector.stocker.trazabilidad.rastrearop.view',
-            'uses' => 'Aoicollector\Stocker\View\TrazaStockerView@view_rastrearOpView'
+            'uses' => 'View\TrazaStockerView@view_rastrearOpView'
+        ]);
+
+        Route::match(['get', 'post'], '/changeop', [
+            'as' => 'aoicollector.stocker.trazabilidad.changeop',
+            'uses' => 'View\TrazaStockerView@view_changeOp'
         ]);
 
         Route::match(['get', 'post'], '/{element?}', [
             'as' => 'aoicollector.stocker.trazabilidad.view',
-            'uses' => 'Aoicollector\Stocker\View\TrazaStockerView@view_findElement'
+            'uses' => 'View\TrazaStockerView@view_findElement'
         ]);
     });
 });

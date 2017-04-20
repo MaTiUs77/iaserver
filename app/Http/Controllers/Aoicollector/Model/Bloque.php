@@ -6,8 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Bloque extends Model
 {
-    protected $connection = 'iaserver';
+    protected $connection = 'aoidata';
     protected $table = 'aoidata.inspeccion_bloque';
+    public $timestamps = false;
 
     public function panel()
     {

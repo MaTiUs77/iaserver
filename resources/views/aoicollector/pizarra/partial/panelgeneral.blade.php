@@ -34,6 +34,7 @@
             @endif
         </blockquote>
     </div>
+
     <div class="col-lg-9 col-md-9">
         <table class="table">
             <thead>
@@ -46,27 +47,31 @@
             </tr>
             </thead>
             <tbody>
-            @foreach($resume->byOp as $op => $item)
-                @if(count($item->periodo[$turno]))
+            @foreach($resume->byOp as $op => $list)
+                <?php
+                $totalInspection = count(collect($list)->where('turno',$turno));
+                ?>@if($totalInspection>0)
+
                     <tr>
                         <td>
                             {{ $op }}
                         </td>
+                        @if(isset($resume->smt[$op]))
+                            <?php
+                            $smt = $resume->smt[$op];
+                            ?>
+                            <td>
+                                {{ (isset($smt)) ? $smt->modelo : 'Desconocido '}}
+                            </td>
+                            <td>
+                                {{ (isset($smt)) ? $smt->lote : 'Desconocido '}}
+                            </td>
+                            <td>
+                                {{ (isset($smt)) ? $smt->panel : 'Desconocido '}}
+                            </td>
+                        @endif
                         <td>
-                            {{ (isset($item->smt)) ? $item->smt->modelo : 'Desconocido '}}
-                        </td>
-                        <td>
-                            {{ (isset($item->smt)) ? $item->smt->lote : 'Desconocido '}}
-                        </td>
-                        <td>
-                            {{ (isset($item->smt)) ? $item->smt->panel : 'Desconocido '}}
-                        </td>
-                        <td>
-                            @if($turno=='M')
-                                {{ $item->produccionM }}
-                            @else
-                                {{ $item->produccionT }}
-                            @endif
+                            {{ $totalInspection }}
                         </td>
                     </tr>
                 @endif

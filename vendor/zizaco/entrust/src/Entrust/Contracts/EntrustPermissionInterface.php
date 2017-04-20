@@ -12,7 +12,7 @@ interface EntrustPermissionInterface
 {
     
     /**
-     * Many-to-Many relations with role model.
+     * Many-to-Many relations with role Model.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */

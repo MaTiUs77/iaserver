@@ -8,14 +8,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class BloqueHistory extends Model
 {
-    protected $connection = 'iaserver';
+    protected $connection = 'aoidata';
     protected $table = 'aoidata.history_inspeccion_bloque';
+    public $timestamps = false;
 
     public static function buscar($barcode)
     {
-        return self::where('barcode', $barcode)
-            ->orderBy('id_panel_history', 'desc')
-            ->get();
+        $q = self::where('barcode', $barcode)
+            ->where('etiqueta','E')
+            ->orderBy('id_panel_history', 'desc');
+
+        return $q->get();
     }
 
     public function panel()

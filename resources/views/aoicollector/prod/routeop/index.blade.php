@@ -33,6 +33,7 @@
                                 <th>Regex</th>
                                 <th>Etiquetas</th>
                                 <th>Bloques</th>
+                                <th>Cogiscan</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -54,6 +55,7 @@
                                     <td>{{ $route->regex }}</td>
                                     <td>{{ $route->qty_etiquetas }}</td>
                                     <td>{{ $route->qty_bloques }}</td>
+                                    <td>{{ $route->cogiscan_partnumber }}</td>
                                 </tr>
                             @endforeach
                             </tbody>
@@ -90,6 +92,6 @@
 
     </div>
 
-@include('aoicollector.prod.partial.footer')
+@include('iaserver.common.footer')
 @endsection
 

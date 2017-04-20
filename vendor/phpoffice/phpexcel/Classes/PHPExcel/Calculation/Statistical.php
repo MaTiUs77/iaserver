@@ -1470,7 +1470,7 @@ class PHPExcel_Calculation_Statistical {
 	/**
 	 * EXPONDIST
 	 *
-	 *	Returns the exponential distribution. Use EXPONDIST to model the time between events,
+	 *	Returns the exponential distribution. Use EXPONDIST to Model the time between events,
 	 *		such as how long an automated bank teller takes to deliver cash. For example, you can
 	 *		use EXPONDIST to determine the probability that the process takes at most 1 minute.
 	 *

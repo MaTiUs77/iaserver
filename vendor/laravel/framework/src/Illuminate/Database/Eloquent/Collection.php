@@ -10,7 +10,7 @@ use Illuminate\Support\Collection as BaseCollection;
 class Collection extends BaseCollection implements QueueableCollection
 {
     /**
-     * Find a model in the collection by key.
+     * Find a Model in the collection by key.
      *
      * @param  mixed  $key
      * @param  mixed  $default
@@ -338,7 +338,7 @@ class Collection extends BaseCollection implements QueueableCollection
 
         $this->each(function ($model) use ($class) {
             if (get_class($model) !== $class) {
-                throw new LogicException('Queueing collections with multiple model types is not supported.');
+                throw new LogicException('Queueing collections with multiple Model types is not supported.');
             }
         });
 

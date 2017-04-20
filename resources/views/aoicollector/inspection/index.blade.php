@@ -19,8 +19,9 @@
                 </button>
 
                 <ul class="dropdown-menu" aria-labelledby="dropdownMenu" ng-hide="statExporting">
-                    <li><a href="{{ route('aoicollector.inspection.export',[$maquina->id,Session::get('date_session'),'MIN']) }}" ng-click="statExporting = true">Primer estado de cada placa</a></li>
-                    <li><a href="{{ route('aoicollector.inspection.export',[$maquina->id,Session::get('date_session'),'MAX']) }}" ng-click="statExporting = true">Ultimo estado de cada placa</a></li>
+                    <li><a href="{{ route('aoicollector.inspection.export',[$maquina->id,str_replace('/','-',Session::get('inspection_date_session')),'MIN']) }}" ng-click="statExporting = true">Primer estado de cada placa en maquina</a></li>
+                    <li><a href="{{ route('aoicollector.inspection.export',[$maquina->id,str_replace('/','-',Session::get('inspection_date_session')),'MAX']) }}" ng-click="statExporting = true">Ultimo estado de cada placa  en maquina</a></li>
+                    <li><a href="{{ route('aoicollector.inspection.export',[$maquina->id,str_replace('/','-',Session::get('inspection_date_session')),'MINA']) }}" ng-click="statExporting = true">Primer estado de cada placa</a></li>
                 </ul>
             </div>
 
@@ -28,31 +29,38 @@
                 <button class="btn btn-sm btn-primary" ng-click="detalledeop=!detalledeop">
                     Ver detalle de OP
                 </button>
-
-                <button class="btn btn-sm btn-primary" ng-click="multiplebarcode=!multiplebarcode">
-                    Busqueda multiple
-                </button>
             </div>
 
             <h3>Inspecciones en <b>SMD-{{ $maquina->linea }}</b> - Paneles en Total: <b>{{ $inspectionList->filas  }}</b></h3>
             <hr>
 
-            <div ng-show="multiplebarcode">
-                    <form method="POST" action="{{ route('aoicollector.inspection.multiplesearch') }}">
-                        <!-- BUSQUEDA -->
-                        <div style="width: 500px;margin-bottom: 5px;">
-                            <textarea name="barcodes" rows=6 class="form-control" placeholder="Ingresar multiples barcode" ng-required="true"/></textarea>
-                        </div>
+            @if(isAdmin())
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav">
+                <li class="dropdown user user-menu" >
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        <span class="hidden-xs"><i class="glyphicon glyphicon-add"></i> Alta de panel</span>
+                    </a>
 
-                        <button type="submit" style="float:left;" name="mode" value="first" class="btn btn-info"><i class="glyphicon glyphicon-search"></i> Primer resultado de inspeccion</button>
-                        <button type="submit" style="float:left;margin-left:5px;"  name="mode" value="last" class="btn btn-info"><i class="glyphicon glyphicon-search"></i> Ultimo resultado de inspeccion</button>
-                        <!-- END BUSQUEDA -->
-                    </form>
+                    <ul class="dropdown-menu" style="width:300px;height:200px;">
+                        <!-- The user image in the menu -->
+                        <form method="POST" action="{{ route('aoicollector.inspection.admin.createinspection') }}">
+                            <div class="box box-primary box-solid" style="width:100%;height:100%">
+                                <div class="box-body">
+                                    <textarea style="height:100px;" name="barcodes" class="form-control" placeholder="Ingresar barcodes de panel" ng-required="true"/></textarea>
+                                    <input type="text" name="op" placeholder="Asignar OP" class="form-control">
+                                </div>
+                                <div class="box-footer">
+                                    <button type="submit" style="float:left;" class="btn btn-info">Crear inspeccion</button>
+                                </div>
+                            </div>
+                        </form>
+                    </ul>
+                </li></ul></div>
+            @endif
 
-                <div class="clearfix"></div>
-            </div>
 
-            @foreach( $inspectionList->programas as $p )
+        @foreach( $inspectionList->programas as $p )
                 <?php
                 $smt = \IAServer\Http\Controllers\SMTDatabase\SMTDatabase::findOp($p->inspected_op);
                 ?>
@@ -106,7 +114,23 @@
     {!! IAScript('assets/moment.locale.es.js') !!}
     {!! IAScript('assets/jquery/daterangepicker/daterangepicker.js') !!}
     {!! IAStyle('assets/jquery/daterangepicker/daterangepicker.css') !!}
-    <script>
+    <script type="text/javascript">
         moment.locale("es");
+
+        $(function() {
+            $('input[name="inspection_date_session"]').daterangepicker({
+                locale: {
+                    format: 'DD/MM/YYYY',
+                    customRangeLabel: 'Definir rango'
+                },
+                ranges: {
+                    'Hoy': [moment(), moment()],
+                    'Ayer': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Ultimos 7 dias': [moment().subtract(6, 'days'), moment()]
+                },
+                autoApply: true,
+                singleDatePicker: true
+            });
+        });
     </script>
 @endsection

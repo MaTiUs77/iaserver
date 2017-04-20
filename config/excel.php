@@ -178,7 +178,7 @@ return array(
         | Auto generate table heading
         |--------------------------------------------------------------------------
         |
-        | If set to true, the array indices (or model attribute names)
+        | If set to true, the array indices (or Model attribute names)
         | will automatically be used as first row (table heading)
         |
         */

@@ -48,7 +48,7 @@ class CellCollection extends ExcelCollection {
     }
 
     /**
-     * Determine if an attribute exists on the model.
+     * Determine if an attribute exists on the Model.
      *
      * @param  string  $key
      * @return bool

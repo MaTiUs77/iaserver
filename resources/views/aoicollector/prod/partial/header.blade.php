@@ -2,19 +2,33 @@
     <div class="navbar-form">
         <div class="navbar-left">
 
-            <a class="btn btn-primary" ng-click="promptAoiSet('{{ route('iaserver.forms.prompt',['holder'=>'Ingresar codigo de aoi']) }}')">
-                <span ng-show="aoiService.produccion.linea">Linea <b>@{{ aoiService.produccion.linea  }}</b></span>
-                <span ng-hide="aoiService.produccion.linea">Seleccionar linea</span>
-            </a>
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary" ng-click="promptAoiSet('{{ route('iaserver.forms.prompt',['holder'=>'Ingresar codigo de aoi']) }}')">
+                    <span ng-show="aoiService.produccion.linea">Linea <b>@{{ aoiService.produccion.linea  }}</b></span>
+                    <span ng-hide="aoiService.produccion.linea">Seleccionar linea</span>
+                </button>
+                @if(isAdmin())
+                    <button type="button" class="btn btn-primary active dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu" style="height: 350px;width:300px; overflow: auto;">
+                        @foreach(\IAServer\Http\Controllers\Aoicollector\Model\Produccion::allBarcode() as $produccion)
+                            <li>
+                                <a href="javascript:;" ng-click="restartAoiData('{{ $produccion->barcode }}')">{{ $produccion->linea }}
+                                    <span class="pull-right badge bg-blue">{{ $produccion->barcode }}</span>
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+            </div>
 
-            <!--
-            <a href="" class="btn btn-default" ng-show="userService.id">
-               Inspector:  <b>@{{ userService.fullname }}</b>
+            <a href="#" class="btn bg-purple" ng-show="inspectorService.id">
+               Inspector:  <b>@{{ inspectorService.fullname }}</b>
             </a>
-            !-->
 
             <div class="btn-group">
-                <div class="btn-group" ng-show="aoiService.produccion.op" >
+                <div class="btn-group" ng-show="aoiService.produccion.op && inspectorService.id" >
                     <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
                         Stocker <span class="caret"></span>
                     </button>
@@ -37,7 +51,7 @@
             </div>
         </div>
 
-        <div class="navbar-left">
+        <div class="navbar-left" ng-show="inspectorService.id">
             <table><tbody><tr>
                     <td>
                         <h4> &nbsp;&nbsp; Declaracion: </h4>
@@ -63,9 +77,7 @@
         </div>
 
         <div class="navbar-right">
-            <a ng-show="aoiService.produccion.op" ng-href="{{ url('aoicollector/prod/removeop') }}/@{{ aoiService.produccion.barcode }}" class="btn btn-danger">Remover op</a>
+            <a ng-show="aoiService.produccion.op && inspectorService.id" ng-href="{{ url('aoicollector/prod/removeop') }}/@{{ aoiService.produccion.barcode }}" class="btn btn-danger">Remover op</a>
         </div>
     </div>
 </nav>
-
-{!! IAScript('assets/moment.min.js') !!}

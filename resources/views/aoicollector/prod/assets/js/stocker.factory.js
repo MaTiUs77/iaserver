@@ -25,7 +25,7 @@ app.factory('Stocker',[
     {
         socket = _socket;
 
-        socket.on('stockerDeclaredResponse', function (result,toastId) {
+        socket.on('stocker:info:response', function (result,toastId) {
             toasty.clear(toastId);
 
             if(result) {
@@ -39,26 +39,16 @@ app.factory('Stocker',[
             $rootScope.$digest();
         });
 
-        socket.on('stockerInfoResponse', function (result,toastId) {
+        socket.on('stocker:add:response', function (result,toastId) {
             toasty.clear(toastId);
 
             if(result) {
                 if(result.error) {
-                    console.log('Error',result);
-                } else {
-                    $rootScope.stockerService = result;
-                    interfaz.autoscroll($rootScope.stockerService.stocker.paneles);
-                }
-            }
-            $rootScope.$digest();
-        });
-
-        socket.on('stockerAddResponse', function (result,toastId) {
-            toasty.clear(toastId);
-
-            if(result) {
-                if(result.error) {
-                    $rootScope.printError('Stocker',result,'modal');
+                    toasty.error({
+                        title: "Stocker",
+                        msg: result.error,
+                        timeout: 5000
+                    });
                 } else {
                     toasty.success({
                         title: "Stocker",
@@ -69,15 +59,23 @@ app.factory('Stocker',[
                     $rootScope.stockerService = result;
                 }
             }
+
+
+            console.log('stocker:add:response',result);
+
             $rootScope.$digest();
         });
 
-        socket.on('stockerRemoveResponse', function (result,toastId) {
+        socket.on('stocker:remove:response', function (result,toastId) {
             toasty.clear(toastId);
 
             if(result) {
                 if(result.error) {
-                    $rootScope.printError('Stocker',result,'modal');
+                    toasty.error({
+                        title: "Stocker",
+                        msg: result.error,
+                        timeout: 5000
+                    });
                 } else {
                     toasty.success({
                         title: "Stocker",
@@ -88,15 +86,22 @@ app.factory('Stocker',[
                     $rootScope.stockerService = {};
                 }
             }
+
+            console.log('stocker:remove:response',result);
+
             $rootScope.$digest();
         });
 
-        socket.on('panelAddResponse', function (result,toastId) {
+        socket.on('panel:add:response', function (result,toastId) {
             toasty.clear(toastId);
 
             if(result) {
                 if(result.error) {
-                    $rootScope.printError('Panel',result,'modal');
+                    toasty.error({
+                        title: "Stocker",
+                        msg: result.error,
+                        timeout: 5000
+                    });
                 } else {
                     toasty.success({
                         title: "Panel",
@@ -104,33 +109,42 @@ app.factory('Stocker',[
                         timeout: 2000
                     });
 
-                    $rootScope.stockerService.stocker = result;
+                    $rootScope.stockerService = result;
+                    interfaz.autoscroll(result.paneles);
                 }
             }
+
+            console.log('panel:add:response',result);
+
             $rootScope.$digest();
         });
 
-        socket.on('panelRemoveResponse', function (result,toastId) {
+        socket.on('panel:remove:response', function (result,toastId) {
             toasty.clear(toastId);
 
             if(result) {
                 if(result.error) {
-                    $rootScope.printError('Panel',result,'modal');
+                    toasty.error({
+                        title: "Stocker",
+                        msg: result.error,
+                        timeout: 5000
+                    });
                 } else {
                     toasty.success({
                         title: "Panel",
                         msg: "Removido correctamente",
                         timeout: 2000
                     });
-
-                    $rootScope.stockerService.stocker = result;
+                    //interfaz.autoscroll(result.paneles);
+                    //$rootScope.stockerService = result;
                 }
             }
+
+            console.log('panel:remove:response',result);
+
             $rootScope.$digest();
         });
     };
-
-
 
     interfaz.valid = function(stkbarcode) {
         if(stkbarcode) {
@@ -155,7 +169,7 @@ app.factory('Stocker',[
                 msg: "Agregando stocker a produccion",
                 timeout: false,
                 onAdd: function(){
-                    socket.emit('stockerAdd',stkbarcode,this.id);
+                    socket.emit('stocker:add',stkbarcode,this.id);
                 }
             });
         }
@@ -169,7 +183,7 @@ app.factory('Stocker',[
                 msg: "Liberando de produccion",
                 timeout: false,
                 onAdd: function(){
-                    socket.emit('stockerRemove',stkbarcode,this.id);
+                    socket.emit('stocker:remove',stkbarcode,this.id);
                 }
             });
         }
@@ -182,7 +196,7 @@ app.factory('Stocker',[
                 msg: "Agregando panel al stocker",
                 timeout: false,
                 onAdd: function(){
-                    socket.emit('panelAdd',panelbarcode,this.id);
+                    socket.emit('panel:add',panelbarcode,this.id);
                 }
             });
         }
@@ -195,7 +209,7 @@ app.factory('Stocker',[
                 msg: "Removiendo panel de stocker",
                 timeout: false,
                 onAdd: function(){
-                    socket.emit('panelRemove',panelbarcode,this.id);
+                    socket.emit('panel:remove',panelbarcode,this.id);
                 }
             });
         }

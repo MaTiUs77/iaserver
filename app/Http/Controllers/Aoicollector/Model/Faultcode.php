@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Faultcode extends Model
 {
-    protected $connection = 'iaserver';
+    protected $connection = 'aoidata';
     protected $table = 'aoidata.rns_faultcode';
 
 }

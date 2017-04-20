@@ -2,6 +2,9 @@
 
 namespace IAServer\Http\Controllers\MonitorPiso;
 
+use Carbon\Carbon;
+use IAServer\Http\Controllers\MonitorPiso\Quarantine;
+use IAServer\Http\Controllers\MonitorPiso\Controller;
 use Illuminate\Http\Request;
 use IAServer\Http\Requests;
 use Maatwebsite\Excel\Facades\Excel;
@@ -19,12 +22,19 @@ class ExportToExcel extends Controller
 
             $excel->sheet('Almacen IA', function($sheet) {
                 $sheet->setOrientation('landscape');
-//                if (AlmacenIA::notWorking('ALMACEN'))
-//                {}
-//                else
-//                { sleep(15); }
-                $array = AlmacenIA::getAllItems();
-                $sheet->fromArray($array,null,'A2',false,false);
+                $array = collect(AlmacenIA::getAllItems(true));
+                $toArray = $array->map(function ($item) {
+                    unset(
+                        $item->ITEM_KEY,
+                        $item->CNTR_KEY,
+                        $item->QUARANTINE_LOCKED
+                    );
+                    $item->QUANTITY = (int)$item->QUANTITY;
+                    $item->INIT_TMST = Carbon::parse($item->INIT_TMST)->toDateTimeString();
+                    $item->LAST_LOAD_TMST = Carbon::parse($item->LAST_LOAD_TMST)->toDateTimeString();
+                    return (array) $item;
+                });
+                $sheet->fromArray($toArray,null,'A2',false,false);
                 $sheet->row(1,array('ID','PART NUMBER','CANTIDAD','UBICACION','FECHA CREACION','FECHA ULTIMA CARGA','USUARIO DE CARGA'));
             });
 
@@ -37,11 +47,8 @@ class ExportToExcel extends Controller
 
             $excel->sheet('Cuarentena', function($sheet) {
                 $sheet->setOrientation('landscape');
-//                if (AlmacenIA::notWorking('CUARENTENA'))
-//                {}
-//                else
-//                { sleep(15); }
                 $arrayQ = Quarantine::getQuarantineAsObj();
+                dd($arrayQ);
                 $sheet->fromArray($arrayQ,null,'A2',false,false);
                 $sheet->row(1,array('ID','PART NUMBER','MOTIVO','FECHA CREACION','FECHA DESBLOQUEO','USUARIO DE CARGA','BLOQUEADO','USUARIO DESBLOQUEO'));
             });

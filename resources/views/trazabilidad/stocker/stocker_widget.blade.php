@@ -34,6 +34,20 @@
                     <small>Op</small>
                     {{ $find->stocker->op }}
 
+                    @if(isAdmin())
+                        <button class="btn btn-xs btn-info" ng-hide="cambiarOp" ng-click="cambiarOp=true">Cambiar</button>
+                        <form ng-show="cambiarOp" method="POST" action="{{ route('aoicollector.stocker.trazabilidad.changeop') }}"  >
+                            <div class="input-group" >
+                                <input style="display: none;" type="text" name="stockerBarcode" value="{{ $find->stocker->barcode }}"/>
+                                <input type="text" name="toOp" class="form-control" placeholder="Nueva OP" value=""/>
+                                <span class="input-group-btn">
+                                    <button type="submit" class="btn btn-info">Aceptar</button>
+                                    <button type="button" class="btn btn-default" ng-click="cambiarOp=false">Cancelar</button>
+                                </span>
+                            </div>
+                        </form>
+                    @endif
+
                     <small>Semielaborado</small>
                     {{ $find->stocker->semielaborado }}
 
@@ -137,7 +151,8 @@
                             </td>
                             <td>
                                 @if(isAdmin())
-                                    <a href="{{ route('aoicollector.stocker.panel.view.declare', $panel->panel_barcode) }}" class="btn btn-info" target="_blank">Re-declarar</a>
+                                    <a href="{{ route('aoicollector.stocker.panel.view.declare', $panel->panel_barcode) }}" class="btn btn-sm btn-info" target="_blank">Re-declarar</a>
+                                    <a href="{{ route('aoicollector.stocker.panel.view.declare.force', $panel->panel_barcode) }}" class="btn btn-sm btn-primary" target="_blank">Forzar envio</a>
                                 @endif
                             </td>
                         </tr>

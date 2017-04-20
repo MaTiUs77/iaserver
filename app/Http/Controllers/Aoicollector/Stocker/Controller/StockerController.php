@@ -2,6 +2,7 @@
 
 namespace IAServer\Http\Controllers\Aoicollector\Stocker\Controller;
 
+use IAServer\Http\Controllers\Aoicollector\Model\PanelHistory;
 use IAServer\Http\Controllers\Aoicollector\Model\Produccion;
 use IAServer\Http\Controllers\Aoicollector\Model\Stocker;
 use IAServer\Http\Controllers\Aoicollector\Model\StockerDetalle;
@@ -108,6 +109,34 @@ class StockerController extends Controller
     }
     //////////////////////////////////////////////////////////////////
 
+    public function changeOp($stockerBarcode,$toOp)
+    {
+        $stocker = Stocker::where('barcode',$stockerBarcode)->first();
+        $content = $this->getStockerContent($stocker->id);
+
+        $fromOp = $stocker->op;
+        $stocker->op = $toOp;
+
+        foreach($content as $stkDetalle)
+        {
+            $panel = $stkDetalle->joinPanel;
+            $history = PanelHistory::where('panel_barcode',$panel->panel_barcode)->get();
+
+
+            foreach($history as $his)
+            {
+                $his->inspected_op = $toOp;
+                $his->save();
+            }
+
+            $panel->inspected_op = $toOp;
+            $panel->save();
+        }
+
+        $stocker->save();
+
+    }
+
     public function stockerControldeplacas($stockerBarcode)
     {
         $output = null;
@@ -205,13 +234,17 @@ class StockerController extends Controller
 
         if(isset($produccion->op))
         {
-            if((!isset($stocker->limite) || $stocker->limite<=0))
-            {
+            //if((!isset($stocker->limite) || $stocker->limite<=0))
+            //{
                 $w = new Wip();
 
                 $wip = $w->findOp(str_replace('-B','',$produccion->op),false);
 
                 $semielaborado = $wip->wip_ot->codigo_producto;
+
+                $stocker->fill([
+                    'semielaborado'=>$semielaborado
+                ]);
 
                 $lastStocker = Stocker::where('op',$produccion->op)
                     ->orderBy('updated_at','desc')
@@ -221,7 +254,7 @@ class StockerController extends Controller
                     $stocker->bloques = $lastStocker->bloques;
                     $stocker->limite = $lastStocker->limite;
                 }
-            }
+            //}
         } else
         {
             $output = array('error'=>'No se definio OP de produccion.');

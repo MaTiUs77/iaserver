@@ -28,6 +28,11 @@ class PizarraItemObj extends Controller
             'porcentaje' => 0,
             'porcentajeM' => 0,
             'porcentajeT' => 0,
+
+            'faltante' => 0,
+            'faltanteM' => 0,
+            'faltanteT' => 0,
+
             'reporteIncompleto' => (object) [
                 'M' => 0,
                 'T' => 0

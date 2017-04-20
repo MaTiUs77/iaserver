@@ -10,7 +10,7 @@ Route::group(['prefix' => 'inventario'], function()
     Route::get('/impresoras/tipo','inventario\configController@getPrinterType');
     Route::get('/unidad_medida','inventario\impresionController@getUnit');
     Route::post('/agregar_material','inventario\impresionController@insertMaterial');
-    Route::get('/import','inventario\importController@import');
+    //Route::get('/import','inventario\importController@import');
 
     Route::resource('/excel','inventario\excelController@index');
 

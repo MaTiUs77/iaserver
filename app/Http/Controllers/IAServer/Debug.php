@@ -19,6 +19,8 @@ class Debug extends Controller
     private $queryDebug = false;
     public $monolog = null;
 
+    private $lastValue = '';
+
     public function __construct($controller,$query_debug=false,$customLogFileName=null,$header=true)
     {
         $this->queryDebug = $query_debug;
@@ -83,6 +85,8 @@ class Debug extends Controller
         {
             $this->monolog->debug($value);
         }
+
+        $this->lastValue = $value;
     }
     private function customLog($filename)
     {
@@ -102,7 +106,7 @@ class Debug extends Controller
 
     private function finish()
     {
-        $microtime = "********************************* ProccessTime: ".$this->microtimeToHuman(microtime(true),$this->microtime)." *********************************";
+        $microtime = $this->lastValue ." *** ProccessTime: ".$this->microtimeToHuman(microtime(true),$this->microtime)." ";
         if($this->monolog==null)
         {
             Log::debug($microtime);

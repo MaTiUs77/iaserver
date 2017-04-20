@@ -8,6 +8,7 @@ app.controller('printerController',function($scope,$http, API_URL){
         .success(function(response)
         {
             $scope.printersType = response;
+            console.log($scope.printersType);
         });
     //show modal
     $scope.toggle = function (modalstate, id){

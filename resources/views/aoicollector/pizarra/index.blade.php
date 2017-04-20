@@ -28,9 +28,19 @@
                     <a href="{{ route('aoicollector.pizarra.general') }}">Resumen general</a>
                 </li>
             </ul>
+
             <form method="GET" action="?" class="navbar-form navbar-left">
                 <div class="form-group">
-                    <input type="text" name="pizarra_fecha" value="{{ Session::get('pizarra_fecha') }}" placeholder="Seleccionar fecha" class="form-control"/>
+<!--
+                    <select class="form-control">
+                        <option>SMD-1</option>
+                        <option>SMD-2</option>
+                        <option>SMD-3</option>
+                        <option>SMD-4</option>
+                        <option>SMD-5</option>
+                    </select>
+-->
+                    <input type="text" name="pizarra_fecha_range" value="{{ Session::get('pizarra_fecha_range') }}" placeholder="Seleccionar fecha" class="form-control"/>
                 </div>
                 <button type="submit" class="btn btn-info"><i class="glyphicon glyphicon-calendar"></i> Aplicar</button>
             </form>
@@ -44,35 +54,87 @@
             <h3  style="padding-left: 10px;">La linea solicitada no existe</h3>
         @else
             @if($resume->produccion->aoi->total==0 && $resume->produccion->cone->total==0)
-                <h3 style="padding-left: 10px;">{{ $resume->produccionLine->linea  }} | No se detecto produccion el dia {{ Session::get('pizarra_fecha') }}</h3>
+                <h3 style="padding-left: 10px;">{{ $resume->produccionLine->linea  }} | No se detecto produccion el dia {{ Session::get('pizarra_fecha_range') }}</h3>
             @else
-                <h3>{{ $resume->produccionLine->linea  }}</h3>
-                <h4>Resumen <small>{{ Session::get('pizarra_fecha') }}</small></h4>
-
+                <h3>{{ $resume->produccionLine->linea  }} <small>{{ Session::get('pizarra_fecha_range') }}</small></h3>
 
                 <div class="row">
-                    <div class="col-md-6">
-                        @include('aoicollector.pizarra.partial.chart.pie',[
-                            'turno' => 'M'
-                        ])
+                    <div class="col-md-{{ ($resume->produccion->aoi->M) ? 6 : 12 }}">
 
-                        @include('aoicollector.pizarra.partial.chart.produccion_x_hora',[
-                            'turno' => 'M'
-                        ]);
+                        <div class="col-md-12">
+                            @include('aoicollector.pizarra.partial.chart.pie',[
+                                'turno' => 'M'
+                            ])
+                        </div>
+
+                        <div class="col-md-12">
+                            @if($resume->proyectado->cone->total>0)
+                                @include('aoicollector.pizarra.partial.chart.eficiencia_x_hora',[
+                                    'turno' => 'M'
+                                ])
+                            @else
+                                <div class="alert alert-danger">
+                                    No es posible calcular la eficiencia, no hay datos de proyeccion.
+                                </div>
+                            @endif
+                        </div>
+
+                        <div class="col-md-12">
+                            @include('aoicollector.pizarra.partial.chart.produccion_x_hora',[
+                               'turno' => 'M'
+                           ])
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        @include('aoicollector.pizarra.partial.chart.pie',[
-                            'turno' => 'T'
-                        ])
 
-                        @include('aoicollector.pizarra.partial.chart..produccion_x_hora',[
-                            'turno' => 'T'
-                        ]);
+                    @if($resume->produccion->aoi->T>0)
+                        <div class="col-md-6">
+                            @include('aoicollector.pizarra.partial.chart.pie',[
+                                'turno' => 'T'
+                            ])
+
+                            @if($resume->proyectado->cone->total>0)
+                                @include('aoicollector.pizarra.partial.chart.eficiencia_x_hora',[
+                                    'turno' => 'T'
+                                ]);
+                            @else
+                                <div class="alert alert-danger">
+                                    No es posible calcular la eficiencia, no hay datos de proyeccion.
+                                </div>
+                            @endif
+
+
+                            @include('aoicollector.pizarra.partial.chart.produccion_x_hora',[
+                               'turno' => 'T'
+                           ]);
+                        </div>
+                    @endif
+
+                    <div class="col-xs-12">
+                        @foreach($resume->byOp as $op => $item)
+                                <div class="col-md-4">
+                                    @if(isset($resume->smt[$op]))
+                                        <?php
+                                        $smt = $resume->smt[$op];
+                                        ?>
+                                        <blockquote>
+                                            {{ $op }}
+                                            <small>Modelo</small>
+                                            {{ $smt->modelo }} -
+                                            {{ $smt->panel }}
+                                            <small>Lote</small>
+                                            {{ $smt->lote }}
+                                        </blockquote>
+                                    @else
+                                        <blockquote>
+                                            {{ $op }}
+                                            <small>Modelo</small>
+                                            <span class="label label-danger">Error al obtener datos</span>
+                                        </blockquote>
+                                    @endif
+                                </div>
+                        @endforeach
                     </div>
                 </div>
-
-                {{ dump($resume) }}
-               {{-- @include('aoicollector.pizarra.partial.panel')--}}
             @endif
         @endif
     </div>
@@ -177,7 +239,7 @@
     moment.locale("es");
 
     $(function() {
-        $('input[name="pizarra_fecha"]').daterangepicker({
+        $('input[name="pizarra_fecha_range"]').daterangepicker({
             locale: {
                 format: 'DD/MM/YYYY',
                 customRangeLabel: 'Definir rango'
@@ -190,11 +252,10 @@
                 'Este Mes': [moment().startOf('month'), moment().endOf('month')],
                 'Ultimo Mes': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
             },
-            autoApply: true
+            autoApply: true,
+            singleDatePicker: true
         });
     });
-
-
 </script>
 
 @endsection

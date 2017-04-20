@@ -1,13 +1,45 @@
 <?php
     $prodchart = 'drillchart'.rand(0,99999);
 ?>
+<style>
+    .highcharts-tooltip>span {
+        max-height:100px;
+        overflow-y: auto;
+    }
+    .tooltip {
+        position: absolute;
+        display: inline-block;
+        border-bottom: 1px dotted black;
+    }
 
+    .tooltip .tooltiptext {
+        visibility: hidden;
+        width: 120px;
+        background-color: black;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 5px 0;
+        position: absolute;
+        z-index: 1;
+        bottom: 100%;
+        left: 50%;
+        margin-left: -60px;
 
+        /* Fade in tooltip - takes 1 second to go from 0% to 100% opac: */
+        opacity: 0;
+        transition: opacity 1s;
+    }
+
+    .tooltip:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+    }
+</style>
 <div style="border:2px solid #efefef;margin-bottom:2px;">
    {{-- <button id="{{ $prodchart }}drillUp" tooltip="Subir nivel" class="btn btn-xs btn-default"><span class="fa fa-mail-reply"></span></button>--}}
     <div id="{{ $prodchart }}container" style="width: 95%;height:{{ isset($height) ? $height : '300' }}px;"></div>
 </div>
-
 
 <script>
     $(function () {
@@ -47,10 +79,49 @@
                 }
             },
             legend: {
-                enabled: false
+                enabled: true
             },
             credits: {
                 enabled: false
+            },
+
+            tooltip: {
+                useHTML: true,
+                borderColor: 'black',
+                borderRadius: 10,
+                borderWidth: 2,
+                formatter: function () {
+
+                    var fecha = '<b>' + Highcharts.dateFormat('%e/%m', this.x) +'</b> ';
+                    var lista = [];
+
+                    var partnumbers = this.point.partnumbers;
+                    var lpn = this.point.lpn;
+
+                    if(partnumbers!=undefined)
+                    {
+                        lista.push("<b>PARTNUMBERS</b>");
+                        $.each( partnumbers, function( i, val ) {
+                            lista.push(val);
+                        });
+
+                        lista = lista.join("<br>");
+                    }
+
+                    if(lpn!=undefined)
+                    {
+                        lista.push("<b>LPN</b>");
+                        $.each( lpn, function( i, val ) {
+                            lista.push("<span class='tooltiptext'>" + val.lpn +' - '+val.partnumber + "</span>");
+                        });
+
+                        lista = lista.join("<br>");
+                    }
+
+
+                    var div = '<div> ' + fecha + ' <br> '+lista+'</div>';
+                    return div;
+                }
             },
 
             plotOptions: {
@@ -83,10 +154,16 @@
                         {
                             x:  moment("{{ $fecha }}", "YYYY-MM-DD").valueOf(),
                             y: {{ $total }},
-                            drilldown: 'drill{{ $fecha }}'
+                            drilldown: 'drill{{ $fecha }}',
+                            partnumbers:[
+                            @foreach($info['lpn'] as $lpn => $datos)
+
+                             '{{ $lpn }}',
+
+                            @endforeach
+                            ]
                         },
                         @endforeach
-
                     ]
                 }
             ],
@@ -115,7 +192,15 @@
                         @endif
                             {
                                 x:  moment("{{ $fechaConHora }}", "YYYY-MM-DD HH").valueOf(),
-                                y: {{ count($data) }}
+                                y: {{ count($data) }},
+                                lpn: [
+                                    @foreach($data as $detalleCargaIndex => $detalleCarga)
+                                    {
+                                        lpn: "{{ $detalleCarga->ITEM_ID }}",
+                                        partnumber: "{{ $detalleCarga->PART_NUMBER }}"
+                                    },
+                                    @endforeach
+                                ]
                             },
                     @endforeach
 

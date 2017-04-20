@@ -37,6 +37,7 @@
     <thead class="panel">
        <tr>
             <th></th>
+            <th></th>
             <th>Panel</th>
             <th>Programa</th>
             <th>AOI</th>
@@ -45,31 +46,33 @@
             <th>Falsos</th>
             <th>Reales</th>
             <th>Bloques</th>
-            <th>Etiqueta</th>
+{{--            <th>Etiqueta</th>--}}
             <th>OP</th>
             <th>Fecha</th>
             <th>Hora</th>
+            <th>Ruta</th>
         </tr>
     </thead>
     <tbody>
     <!-- Si hay un error los muestro -->
     @if ( isset($inspectionList->inspecciones ->error))
         <tr>
-            <td colspan="13">
+            <td colspan="14">
                 {{ $insp->error }}
             </td>
         </tr>
     @else
         @if (count($inspectionList->inspecciones ) == 0)
             <tr>
-                <td colspan="13">
+                <td colspan="14">
                     No se registraron inspecciones
                 </td>
             </tr>
         @else
             <!-- Muestro resultados de paneles inspeccionados -->
-            @foreach( $inspectionList->inspecciones as $panel)
+            @foreach( $inspectionList->inspecciones as $index => $panel)
                 <tr class="{{ ($panel->revision_aoi == 'OK' && $panel->revision_ins == 'OK' ) ? 'success' : '' }} {{ ($panel->revision_ins == 'NG' ) ? 'danger' : '' }}">
+                    <td>{{ ($index + 1) }}</td>
                     <td style="width:50px;">
                         <button id_panel="{{ $panel->id_panel_history }}" route="{{ route('aoicollector.inspection.blocks',$panel->id_panel_history) }}" ng-click="getInspectionBlocks($event);" class="btn btn-xs btn-default">Bloques</button>
                     </td>
@@ -81,50 +84,33 @@
                     <td>{{ $panel->falsos }}</td>
                     <td>{{ $panel->reales }}</td>
                     <td>{{ $panel->bloques }}</td>
-                    <td>
+                 {{--   <td>
                         @if ($panel->etiqueta === 'E')
                             Fisica
                         @else
                             Virtual
                         @endif
-                    </td>
+                    </td>--}}
                     <td>{{ $panel->inspected_op }}</td>
                     <td>{{  \IAServer\Http\Controllers\IAServer\Util::dateToEs($panel->created_date) }}</td>
                     <td>{{ $panel->created_time }}</td>
                     <td>
-                        <?php
-                       // $verify = new \IAServer\Http\Controllers\Aoicollector\Inspection\VerificarDeclaracion();
-                        //$twip = (object) $verify->bloqueEnTransaccionWip($panel->panel_barcode);
-                        ?>
-
-                            @if($panel->trans_ok == null)
-                                <i class="fa fa-exclamation-circle text-danger icosize" tooltip-placement="left" tooltip="Sin declarar"></i>
-                            @endif
-                            @if($panel->trans_ok==1)
-                                <i class="fa fa-thumbs-o-up text-success icosize" tooltip-placement="left" tooltip="Declarado"></i>
-                            @endif
-<?php
-                            /*
-                        @if(isset($twip) && isset($twip->last))
-                            @if($twip->declarado)
-                                <i class="fa fa-thumbs-o-up text-success" tooltip-placement="left" tooltip="Declarado"></i>
-                            @else
-                                @if($twip->error)
-                                    <i class="fa fa-thumbs-o-down text-danger" tooltip-placement="left" tooltip="Declarado con errores"></i>
-                                @endif
-
-                                @if($twip->pendiente)
-                                    <i class="fa fa-clock-o text-info" tooltip-placement="left" tooltip="Pendiente"></i>
-                                @endif
-
-                                @if(!$twip->errores && !$twip->pendiente)
-                                    <i class="fa fa-exclamation-circle text-warning" tooltip-placement="left" tooltip="Declaracion parcial"></i>
-                                @endif
-                            @endif
-                        @else
-                            <i class="fa fa-eye text-info" tooltip-placement="left" tooltip="Sin verificar"></i>
+                        @if(isset($panel->ultima_ruta))
+                            {{ $panel->ultima_ruta }}
                         @endif
-                            */ ?>
+                    </td>
+                    <td>
+                        @if($panel->trans_ok == null)
+                            <i class="fa fa-exclamation-circle text-danger icosize" tooltip-placement="left" tooltip="Sin declarar"></i>
+                        @endif
+
+                        @if($panel->trans_ok==1)
+                            <i class="fa fa-thumbs-o-up text-success icosize" tooltip-placement="left" tooltip="Declarado"></i>
+                        @endif
+
+                        @if($panel->trans_ok>1)
+                            <i class="fa fa-thumbs-o-down text-danger icosize" tooltip-placement="left" tooltip="Declarado con errores"></i>
+                        @endif
 
                         @if($maquina->cogiscan=='T')
                             <?php
@@ -178,7 +164,7 @@
                 <tr>
                     <td colspan="14">
                         {!! $inspectionList->inspecciones->appends([
-                            'date_session' => Input::get('date_session'),
+                            'inspection_date_session' => Input::get('inspection_date_session'),
                             'listMode' => Input::get('listMode'),
                             'filterPeriod' => Input::get('filterPeriod')
                             ])->links()

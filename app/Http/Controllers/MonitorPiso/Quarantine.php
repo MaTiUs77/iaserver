@@ -1,6 +1,6 @@
 <?php
 
-namespace IAServer\Http\Controllers\MonitorPiso\Model;
+namespace IAServer\Http\Controllers\MonitorPiso;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -28,9 +28,9 @@ class Quarantine extends Controller
             'field4',
             'field6',
             'field7',
-            'field9',
             'field8',
-            'field10'
+            'field9\',
+            \'field10'
         )
             ->where('id_instruction','14')
             ->orderBy('field8','DESC')

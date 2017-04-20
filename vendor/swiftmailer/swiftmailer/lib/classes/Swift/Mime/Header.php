@@ -44,7 +44,7 @@ interface Swift_Mime_Header
     public function getFieldType();
 
     /**
-     * Set the model for the field body.
+     * Set the Model for the field body.
      *
      * The actual types needed will vary depending upon the type of Header.
      *
@@ -60,7 +60,7 @@ interface Swift_Mime_Header
     public function setCharset($charset);
 
     /**
-     * Get the model for the field body.
+     * Get the Model for the field body.
      *
      * The return type depends on the specifics of the Header.
      *

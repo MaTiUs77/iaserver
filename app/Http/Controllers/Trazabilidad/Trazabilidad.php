@@ -92,6 +92,8 @@ class Trazabilidad extends Controller
                 $controldeplacas = (object) DatosController::salidaByOp($op);
             }
 
+            $sinDeclarar = Panel::sinDeclarar($op);
+
 //            $wipPeriod = collect($wip->period($op)->get());
 
             $manualWip = new WipSerie();
@@ -101,7 +103,7 @@ class Trazabilidad extends Controller
             $manualWipHistory = $manualWiph->transactionResume($op,true);
         }
 
-        $output = compact('op','wip','smt','controldeplacas','manualWipSerie','manualWipHistory','enIa','enWip');
+        $output = compact('op','wip','smt','controldeplacas','manualWipSerie','manualWipHistory','enIa','enWip','sinDeclarar');
 
         return $output;
    }

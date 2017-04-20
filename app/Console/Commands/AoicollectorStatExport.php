@@ -40,7 +40,7 @@ class AoicollectorStatExport extends Command
      */
     public function handle()
     {
-        $stat = new StatExport();
+        //$stat = new StatExport();
 
         $now = false;
 

@@ -85,6 +85,7 @@ function isAdmin()
 {
     return hasRole('admin');
 }
+
 function isInventoryOper()
 {
     return hasRole('inventario_operador');

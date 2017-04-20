@@ -48,7 +48,7 @@ class Swift_Mime_Headers_PathHeader extends Swift_Mime_Headers_AbstractHeader
     }
 
     /**
-     * Set the model for the field body.
+     * Set the Model for the field body.
      * This method takes a string for an address.
      *
      * @param string $model
@@ -61,7 +61,7 @@ class Swift_Mime_Headers_PathHeader extends Swift_Mime_Headers_AbstractHeader
     }
 
     /**
-     * Get the model for the field body.
+     * Get the Model for the field body.
      * This method returns a string email address.
      *
      * @return mixed

@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Input;
 
 class Produccion extends Model
 {
-    protected $connection = 'iaserver';
+    protected $connection = 'aoidata';
     protected $table = 'aoidata.produccion';
     public $timestamps = false;
 
@@ -163,6 +163,9 @@ class Produccion extends Model
 
                         $prod->wip = $wip;
                     }
+
+                    // Adhiero informacion de ROUTA IASERVER
+                    $prod->route = RouteOp::where('id',$prod->id_route_op)->first();
 
                     // Adhiero informacion de SFCS
                     if ($option->sfcsroute) {

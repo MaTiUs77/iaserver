@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 class HasManyThrough extends Relation
 {
     /**
-     * The distance parent model instance.
+     * The distance parent Model instance.
      *
      * @var \Illuminate\Database\Eloquent\Model
      */
@@ -186,7 +186,7 @@ class HasManyThrough extends Relation
     }
 
     /**
-     * Build model dictionary keyed by the relation's foreign key.
+     * Build Model dictionary keyed by the relation's foreign key.
      *
      * @param  \Illuminate\Database\Eloquent\Collection  $results
      * @return array
@@ -218,7 +218,7 @@ class HasManyThrough extends Relation
     }
 
     /**
-     * Execute the query and get the first related model.
+     * Execute the query and get the first related Model.
      *
      * @param  array   $columns
      * @return mixed
@@ -248,7 +248,7 @@ class HasManyThrough extends Relation
     }
 
     /**
-     * Find a related model by its primary key.
+     * Find a related Model by its primary key.
      *
      * @param  mixed  $id
      * @param  array  $columns
@@ -284,7 +284,7 @@ class HasManyThrough extends Relation
     }
 
     /**
-     * Find a related model by its primary key or throw an exception.
+     * Find a related Model by its primary key or throw an exception.
      *
      * @param  mixed  $id
      * @param  array  $columns
@@ -317,7 +317,7 @@ class HasManyThrough extends Relation
     {
         // First we'll add the proper select columns onto the query so it is run with
         // the proper columns. Then, we will get the results and hydrate out pivot
-        // models with the result of those columns as a separate model relation.
+        // models with the result of those columns as a separate Model relation.
         $columns = $this->query->getQuery()->columns ? [] : $columns;
 
         $select = $this->getSelectColumns($columns);
@@ -393,7 +393,7 @@ class HasManyThrough extends Relation
     }
 
     /**
-     * Get the qualified foreign key on the related model.
+     * Get the qualified foreign key on the related Model.
      *
      * @return string
      */
@@ -403,7 +403,7 @@ class HasManyThrough extends Relation
     }
 
     /**
-     * Get the qualified foreign key on the "through" model.
+     * Get the qualified foreign key on the "through" Model.
      *
      * @return string
      */

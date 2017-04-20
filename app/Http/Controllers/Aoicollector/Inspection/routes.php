@@ -67,4 +67,17 @@ Route::group(['prefix' => 'inspection'], function()
         'as' => 'aoicollector.inspection.detail',
         'uses' => 'Aoicollector\Inspection\InspectionController@listDetail'
     ]);
+
+    Route::group(['prefix' => 'admin'], function()
+    {
+        Route::get('/forceok/{barcode}', [
+            'as' => 'aoicollector.inspection.admin.forceok',
+            'uses' => 'Aoicollector\Inspection\InspectionController@forceOK'
+        ]);
+
+        Route::post('/createinspection', [
+            'as' => 'aoicollector.inspection.admin.createinspection',
+            'uses' => 'Aoicollector\Inspection\InspectionController@createInspection'
+        ]);
+    });
 });

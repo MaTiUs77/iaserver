@@ -6,6 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class StockerRoute extends Model
 {
-    protected $connection = 'iaserver';
+    protected $connection = 'aoidata';
     protected $table = 'aoidata.stocker_route';
 }

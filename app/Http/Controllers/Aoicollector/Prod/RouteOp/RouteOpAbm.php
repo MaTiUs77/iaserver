@@ -70,6 +70,7 @@ class RouteOpAbm extends Controller
             $store->regex = Input::get('regex');
             $store->qty_etiquetas = Input::get('qty_etiquetas');
             $store->qty_bloques = Input::get('qty_bloques');
+            $store->cogiscan_partnumber = strtoupper(Input::get('cogiscan_partnumber'));
 
             $store->save();
 

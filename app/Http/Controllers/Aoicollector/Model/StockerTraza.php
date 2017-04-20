@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class StockerTraza extends Model
 {
-    protected $connection = 'iaserver';
+    protected $connection = 'aoidata';
     protected $table = 'aoidata.stocker_traza';
 
     public function joinRoute()

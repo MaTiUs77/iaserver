@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Sector extends Model
 {
-    protected $connection = 'iaserver';
+    protected $connection = 'reparacion';
     protected $table = 'reparacion.sector';
 
     public $timestamps = false;

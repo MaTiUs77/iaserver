@@ -13,17 +13,17 @@ use Illuminate\Support\Facades\Config;
 trait EntrustRoleTrait
 {
     /**
-     * Many-to-Many relations with the user model.
+     * Many-to-Many relations with the user Model.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function users()
     {
-        return $this->belongsToMany(Config::get('auth.model'), Config::get('entrust.role_user_table'));
+        return $this->belongsToMany(Config::get('auth.Model'), Config::get('entrust.role_user_table'));
     }
 
     /**
-     * Many-to-Many relations with the permission model.
+     * Many-to-Many relations with the permission Model.
      * Named "perms" for backwards compatibility. Also because "perms" is short and sweet.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
@@ -34,9 +34,9 @@ trait EntrustRoleTrait
     }
 
     /**
-     * Boot the role model
+     * Boot the role Model
      * Attach event listener to remove the many-to-many records when trying to delete
-     * Will NOT delete any records if the role model uses soft deletes.
+     * Will NOT delete any records if the role Model uses soft deletes.
      *
      * @return void|bool
      */

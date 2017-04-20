@@ -587,7 +587,7 @@ class LaravelExcelWorksheet extends PHPExcel_Worksheet {
         }
         else
         {
-            // Transform model/collection to array
+            // Transform Model/collection to array
             if ($array instanceof Collection)
                 $array = $array->toArray();
 

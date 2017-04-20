@@ -10,14 +10,14 @@ use Illuminate\Database\Eloquent\Collection;
 class BelongsTo extends Relation
 {
     /**
-     * The foreign key of the parent model.
+     * The foreign key of the parent Model.
      *
      * @var string
      */
     protected $foreignKey;
 
     /**
-     * The associated key on the parent model.
+     * The associated key on the parent Model.
      *
      * @var string
      */
@@ -232,7 +232,7 @@ class BelongsTo extends Relation
     }
 
     /**
-     * Associate the model instance to the given parent.
+     * Associate the Model instance to the given parent.
      *
      * @param  \Illuminate\Database\Eloquent\Model|int  $model
      * @return \Illuminate\Database\Eloquent\Model
@@ -251,7 +251,7 @@ class BelongsTo extends Relation
     }
 
     /**
-     * Dissociate previously associated model from the given parent.
+     * Dissociate previously associated Model from the given parent.
      *
      * @return \Illuminate\Database\Eloquent\Model
      */
@@ -263,7 +263,7 @@ class BelongsTo extends Relation
     }
 
     /**
-     * Update the parent model on the relationship.
+     * Update the parent Model on the relationship.
      *
      * @param  array  $attributes
      * @return mixed

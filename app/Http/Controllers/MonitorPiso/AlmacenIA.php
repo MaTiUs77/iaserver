@@ -3,10 +3,14 @@
 namespace IAServer\Http\Controllers\MonitorPiso;
 
 use IAServer\Http\Controllers\MonitorPiso\Model\Instruction;
-use Illuminate\Http\Request;
+use IAServer\Http\Controllers\Node\RestDB2CGS;
 use IAServer\Http\Controllers\MonitorPiso\Model\Ins_Result;
 use IAServer\Http\Requests;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
+use Predis\Client;
 
 
 class AlmacenIA extends Controller
@@ -36,11 +40,11 @@ class AlmacenIA extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         //
     }
+     */
 
     /**
      * Display the specified resource.
@@ -52,102 +56,86 @@ class AlmacenIA extends Controller
     {
         $paginar = true;
         $find = strpos($type,'field');
-//        if ($this->notWorking('ALMACEN')) {
         if ($type === 'limit') {
             $item = $this->getItems();
-            $total = $this->getAllItems();
             $paginar = true;
         } elseif($type ==='all') {
-            $item = $this->getAllItems();
-            $total = $item;
+            $item = $this->getAllItems(false);
             $paginar = false;
-        } elseif($find !== false)
-        {
-            $item = $this->getItemsOrdered($type);
-            $total = $item;
+        } elseif ($type ==='find'){
+            $item = $this->getFiltered();
             $paginar = true;
         }
-        return view('monitorpiso.containerReport',['items'=>$item,'total'=>$total, 'paginar'=>$paginar]);
-//        }
-//        else
-//        {
-//            sleep(15);
-//            if ($type === 'limit') {
-//                $item = $this->getItems();
-//                $total = $this->getAllItems();
-//                $paginar = true;
-//            } elseif ($type === 'all') {
-//                $item = $this->getAllItems();
-//                $total = $item;
-//                $paginar = false;
-//            }
-//            return view('monitorpiso.containerReport',['items'=>$item,'total'=>$total,'paginar'=>$paginar]);
-//        }
+        elseif($find === false)
+        {
+            $item = $this->getItemsOrdered($type);
+            $item->setPath(Request::url());
+            /*$item->appends([
+                'ordenar' => $type
+            ]);*/
+            $paginar = true;
+        }
+        $item->setPath(Request::url());
+        return view('monitorpiso.containerReport',['items'=>$item,'total'=>$item->total(), 'paginar'=>$paginar]);
     }
 
-    public function filtered()
-    {
-        if ($this->notWorking('ALMACEN')) {
-            $item = $this->getFiltered();
-            $total = $this->getAllItems();
-        }
-        else
-        {
-            sleep(15);
-            $item = $this->getFiltered();
-            $total = $this->getAllItems();
-        }
-        $paginar = false;
-        return view('monitorpiso.containerReport',['items'=>$item,'total'=>$total, 'paginar'=>$paginar]);
-    }
     public static function getFiltered()
     {
         $input = Input::only('buscar');
         $pn = $input['buscar'];
-        $query = Ins_Result::select('field1','field2','field3','field5','field6','field7','field9')
-            ->where('field2',$pn)
-            ->orderBy('field2')
-            ->paginate(100);
-        return $query;
+        $query = "
+                  SELECT ITEM_KEY,ITEM_ID,PART_NUMBER,QUANTITY,CNTR_KEY,LOCATION_IN_CNTR,INIT_TMST,LAST_LOAD_TMST,QUARANTINE_LOCKED,LOAD_USER_ID
+                  FROM CGS.ITEM_INFO
+                  WHERE CNTR_KEY=1330111
+                  AND PART_NUMBER = '$pn'
+                  ";
+        $rest = new RestDB2CGS();
+        $paginatedResults = $rest->paginate($query,100);
+        return $paginatedResults;
     }
 
-    public static function notWorking($repo)
-    {
-        $query = Instruction::select('in_use')->where('ins_name',$repo)->get();
-        if ($query[0]->in_use === "N")
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
 
     public static function getItems()
     {
-        $query = Ins_Result::select('field1','field2','field3','field5','field6','field7','field9')
-            ->where('id_instruction','13')
-            ->orderBy('field2')
-            ->paginate(100);
-        return $query;
+        $query = "
+                  SELECT ITEM_KEY,ITEM_ID,PART_NUMBER,QUANTITY,CNTR_KEY,LOCATION_IN_CNTR,INIT_TMST,LAST_LOAD_TMST,QUARANTINE_LOCKED,LOAD_USER_ID
+                  FROM CGS.ITEM_INFO
+                  WHERE CNTR_KEY=1330111
+                  ";
+        $rest = new RestDB2CGS();
+        $paginatedResults = $rest->paginate($query,100);
+        return $paginatedResults;
     }
     public static function getItemsOrdered($type)
     {
-        $query = Ins_Result::select('field1','field2','field3','field5','field6','field7','field9')
-            ->where('id_instruction','13')
-            ->orderBy($type)
-//            ->get();
-            ->paginate(100);
-        return $query;
+        $query = "
+                  SELECT ITEM_KEY,ITEM_ID,PART_NUMBER,QUANTITY,CNTR_KEY,LOCATION_IN_CNTR,INIT_TMST,LAST_LOAD_TMST,QUARANTINE_LOCKED,LOAD_USER_ID
+                  FROM CGS.ITEM_INFO
+                  WHERE CNTR_KEY=1330111
+                  ORDER BY $type asc
+                  ";
+        $rest = new RestDB2CGS();
+        $paginatedResults = $rest->paginate($query,100);
+        return $paginatedResults;
     }
 
-    public static function getAllItems()
+    public static function getAllItems($exportar)
     {
-        $query = Ins_Result::select('field1','field2','field3','field5','field6','field7','field9')
-            ->where('id_instruction','13')
-            ->orderBy('field2')
-            ->get();
-        return $query;
+        $query = "
+                  SELECT ITEM_KEY,ITEM_ID,PART_NUMBER,QUANTITY,CNTR_KEY,LOCATION_IN_CNTR,INIT_TMST,LAST_LOAD_TMST,QUARANTINE_LOCKED,LOAD_USER_ID
+                  FROM CGS.ITEM_INFO
+                  WHERE CNTR_KEY=1330111
+                  ";
+        $rest = new RestDB2CGS();
+        $result = $rest->get($query);
+        $total = $rest->count($query);
+
+        if (!$exportar){
+            return new LengthAwarePaginator($result,$total->TOTAL,50);
+        }else{
+            return $result;
+        }
     }
+
+
 }

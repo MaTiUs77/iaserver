@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class DetalleHistory extends Model
 {
-    protected $connection = 'iaserver';
+    protected $connection = 'aoidata';
     protected $table = 'aoidata.history_inspeccion_detalle';
 
     public function scopeLeftJoinFaultcode($query)

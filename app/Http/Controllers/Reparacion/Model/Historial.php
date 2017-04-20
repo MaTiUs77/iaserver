@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Input;
 
 class Historial extends Model
 {
-    protected $connection = 'iaserver';
+    protected $connection = 'reparacion';
     protected $table = 'reparacion.historial';
 
     private function listarHistorial($id_sector)

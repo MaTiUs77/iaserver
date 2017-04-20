@@ -55,7 +55,7 @@ class Swift_Mime_Headers_DateHeader extends Swift_Mime_Headers_AbstractHeader
     }
 
     /**
-     * Set the model for the field body.
+     * Set the Model for the field body.
      *
      * This method takes a UNIX timestamp.
      *
@@ -67,7 +67,7 @@ class Swift_Mime_Headers_DateHeader extends Swift_Mime_Headers_AbstractHeader
     }
 
     /**
-     * Get the model for the field body.
+     * Get the Model for the field body.
      *
      * This method returns a UNIX timestamp.
      *

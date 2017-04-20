@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class StockerDetalle extends Model
 {
-    protected $connection = 'iaserver';
+    protected $connection = 'aoidata';
     protected $table = 'aoidata.stocker_detalle';
 
     public $fillable = ['id_stocker','id_panel'];

@@ -574,7 +574,7 @@ class Swift_Mime_SimpleMimeEntity implements Swift_Mime_MimeEntity
     }
 
     /**
-     * Get the model data (usually an array or a string) for $field.
+     * Get the Model data (usually an array or a string) for $field.
      */
     protected function _getHeaderFieldModel($field)
     {
@@ -584,7 +584,7 @@ class Swift_Mime_SimpleMimeEntity implements Swift_Mime_MimeEntity
     }
 
     /**
-     * Set the model data for $field.
+     * Set the Model data for $field.
      */
     protected function _setHeaderFieldModel($field, $model)
     {

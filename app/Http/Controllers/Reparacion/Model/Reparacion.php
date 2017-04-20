@@ -7,6 +7,6 @@ use Illuminate\Support\Facades\DB;
 
 class Reparacion extends Model
 {
-    protected $connection = 'iaserver';
+    protected $connection = 'reparacion';
     protected $table = 'reparacion.reparacion';
 }

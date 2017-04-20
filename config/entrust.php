@@ -15,7 +15,7 @@ return [
     | Entrust Role Model
     |--------------------------------------------------------------------------
     |
-    | This is the Role model used by Entrust to create correct relations.  Update
+    | This is the Role Model used by Entrust to create correct relations.  Update
     | the role if it is in a different namespace.
     |
     */

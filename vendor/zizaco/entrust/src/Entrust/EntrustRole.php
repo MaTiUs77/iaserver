@@ -18,14 +18,14 @@ class EntrustRole extends Model implements EntrustRoleInterface
     use EntrustRoleTrait;
 
     /**
-     * The database table used by the model.
+     * The database table used by the Model.
      *
      * @var string
      */
     protected $table;
 
     /**
-     * Creates a new instance of the model.
+     * Creates a new instance of the Model.
      *
      * @param array $attributes
      */

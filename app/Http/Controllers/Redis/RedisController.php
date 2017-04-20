@@ -6,24 +6,38 @@ use IAServer\Http\Controllers\Controller;
 
 class RedisController extends Controller
 {
-    public function push($canal,$message)
-    {
-        \LRedis::set($canal,$message);
+    public $redis;
+
+    public function __construct($connectionName="default") {
+        $this->redis = \LRedis::connection($connectionName);
     }
-    public function cached($canal)
+
+    public function putAndExpire($key,$message,$expireInSeg=60)
+    {
+        $this->redis->set($key,$message);
+        $this->redis->expire($key,$expireInSeg);
+    }
+
+    public function cached($key)
     {
         try
         {
-            return (object) json_decode(\LRedis::get($canal));
+            $result = json_decode($this->redis->get($key));
+            if($result==null) {
+                return null;
+            } else {
+                return (object) $result;
+            }
+
         } catch( \Exception $ex)
         {
-            return (object) ['rediserror' => $ex->getMessage()];
+            return (object) ['error' => $ex->getMessage()];
         }
     }
 
     public function publish($canal,$message)
     {
-        return event(new RedisSend($canal,json_encode($message)));
+        $this->redis->publish($canal,$message);
     }
 }
 ?>

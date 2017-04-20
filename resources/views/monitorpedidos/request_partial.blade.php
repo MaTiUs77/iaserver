@@ -163,7 +163,7 @@
                                         <option value="SMT - 6">SMT - 6</option>
                                     </select>
                                     {{--<input type="text" class="form-control" id="prod_line" name="prod_line" placeholder="LINEA" autocomplete="off"--}}
-                                           {{--ng-model="XXE_WMS_COGISCAN_PEDIDOS.PROD_LINE" ng-required="true">--}}
+                                           {{--ng-Model="XXE_WMS_COGISCAN_PEDIDOS.PROD_LINE" ng-required="true">--}}
                                     <span class="help-inline"
                                           ng-show="frmRequest.prod_line.$invalid && frmRequest.prod_line.$touched">campo obligatorio</span>
                                 </div>

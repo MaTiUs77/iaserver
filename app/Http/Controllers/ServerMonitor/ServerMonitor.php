@@ -13,7 +13,7 @@ class ServerMonitor extends Controller
 
     public function redis() {
         try
-        {
+            {
             $monitor = \LRedis::smembers('servermonitor:online');
 
             $status = array();

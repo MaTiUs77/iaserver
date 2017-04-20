@@ -37,11 +37,9 @@ class RestDB2 extends Rest
 
             $query = "$query LIMIT $pagination->limit OFFSET $pagination->offset";
 
-            $result = new \stdClass();
-            $result->pagination = $pagination;
-            $result->items = $this->get($query);
+            $queryResult = $this->get($query);
 
-            return $result;
+            return new LengthAwarePaginator($queryResult, $pagination->total, $pagination->perPage);
         } else
         {
             return ['error' => 'Total devolvio NULL'];

@@ -30,6 +30,7 @@ class VerificarDeclaracion extends Controller
             // A veces al re intentar declarar en la interfaz existen muchos intentos de declaraciones.
             // Solo vamos a tomar el ultimo intento de cada placa
             $placas = [];
+
             foreach($wip->groupBy('referencia_1') as $placaBarcode => $interfaz) {
                 $placa = $interfaz->first();
                 $placas[] = $placa;
@@ -185,7 +186,7 @@ class VerificarDeclaracion extends Controller
 
     public function transaccionWipStatusByStocker(Stocker $stocker)
     {
-        $query =  DB::connection('iaserver')->select(
+        $query =  DB::connection('aoidata')->select(
             DB::raw("
             select
             tr.trans_ok,

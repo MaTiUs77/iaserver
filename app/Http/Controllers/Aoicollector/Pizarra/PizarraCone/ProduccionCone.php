@@ -36,8 +36,13 @@ class ProduccionCone extends Model
 
             $proy->proyectado = $div_proyectado_period;
             $proy->produccion = $proy->p_real + $proy->p_real_1;
+
+            $proy->mes = str_pad($proy->mes, 2, "0", STR_PAD_LEFT);
+            $proy->dia = str_pad($proy->dia, 2, "0", STR_PAD_LEFT);
+
             $proy->fecha = "$proy->anio-$proy->mes-$proy->dia";
             $proy->periodo = str_pad($proy->horario, 2, "0", STR_PAD_LEFT).":00:00";
+            $proy->chartPeriodo = "$proy->fecha $proy->periodo";
 
             // Evito divisiones por 0
             if($div_proyectado <= 0) {

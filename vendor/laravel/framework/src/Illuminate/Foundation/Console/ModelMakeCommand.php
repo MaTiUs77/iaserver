@@ -13,14 +13,14 @@ class ModelMakeCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $name = 'make:model';
+    protected $name = 'make:Model';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Create a new Eloquent model class';
+    protected $description = 'Create a new Eloquent Model class';
 
     /**
      * The type of class being generated.
@@ -74,7 +74,7 @@ class ModelMakeCommand extends GeneratorCommand
     protected function getOptions()
     {
         return [
-            ['migration', 'm', InputOption::VALUE_NONE, 'Create a new migration file for the model.'],
+            ['migration', 'm', InputOption::VALUE_NONE, 'Create a new migration file for the Model.'],
         ];
     }
 }

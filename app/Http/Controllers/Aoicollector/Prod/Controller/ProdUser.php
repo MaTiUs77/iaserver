@@ -8,10 +8,11 @@ use IAServer\Http\Controllers\Controller;
 use IAServer\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 
 class ProdUser extends Controller
 {
-    public function login($userId,$userName)
+    public function login($userId,$userName,$aoibarcode)
     {
         $output = array();
 
@@ -26,7 +27,8 @@ class ProdUser extends Controller
                 $user->fullname = $user->name;
             }
 
-            $prod = Produccion::where('barcode',Input::get('aoibarcode'))->first();
+            $prod = Produccion::where('barcode',$aoibarcode)->first();
+
             if(isset($prod->id))
             {
                 if($prod->id_user == $user->id)
@@ -43,15 +45,28 @@ class ProdUser extends Controller
 
             $output = $user;
         }else{
-            $output = array('error'=>'Usuario/Password desconocido');
+            $output = array('error'=>'Usuario de acceso desconocido');
         }
 
         return $output;
     }
 
-    public function logout(){
-        Auth::logout();
-        $output = array('done'=>'logout');
+    public function logout($userId,$userName,$aoibarcode) {
+        $user = User::where('id',$userId)->where('name',$userName)->first();
+        $output = array('error'=>'No se encuentra logueado');
+
+        if(isset($user->id)) {
+            $prod = Produccion::where('barcode',$aoibarcode)
+                ->where('id_user',$user->id)
+                ->first();
+
+            if(isset($prod->id))  {
+                if($prod->id_user == $user->id)  {
+                    $prod->id_user = null;
+                    $prod->save();
+                }
+            }
+        }
 
         return $output;
     }

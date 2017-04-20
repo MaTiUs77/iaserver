@@ -107,10 +107,44 @@ class Util extends Controller
         Filter::dateSession($sessionName);
         $rangeSplit = explode(' - ',Session::get($sessionName));
 
+        if(count($rangeSplit)==1)
+        {
+            try {
+                $range->desde = Carbon::createFromFormat('d/m/Y',$rangeSplit[0]);
+            } catch(\Exception $ex)
+            {
+                $range->desde = Carbon::createFromFormat('d-m-Y',$rangeSplit[0]);
+            }
+            $range->hasta = $range->desde;
+        } else {
+            if(count($rangeSplit)==2)
+            {
+                try {
+                    $range->desde = Carbon::createFromFormat('d/m/Y',$rangeSplit[0]);
+                    $range->hasta = Carbon::createFromFormat('d/m/Y',$rangeSplit[1]);
+                } catch(\Exception $ex)
+                {
+                    $range->desde = Carbon::createFromFormat('d-m-Y',$rangeSplit[0]);
+                    $range->hasta = Carbon::createFromFormat('d-m-Y',$rangeSplit[1]);
+                }
+            }
+        }
+        return $range;
+    }
+
+    public static function dateRangeFilterEsToday($sessionName)
+    {
+        $range = new \stdClass();
+        $range->desde = Carbon::today();
+        $range->hasta = Carbon::today();
+
+        Filter::dateSession($sessionName);
+        $rangeSplit = explode(' - ',Session::get($sessionName));
+
         if(count($rangeSplit)==2)
         {
-            $range->desde = Carbon::createFromFormat('d/m/Y',$rangeSplit[0]);
-            $range->hasta = Carbon::createFromFormat('d/m/Y',$rangeSplit[1]);
+            $range->desde = Carbon::createFromFormat('d/m/Y',$rangeSplit[0])->toDateString();
+            $range->hasta = Carbon::createFromFormat('d/m/Y',$rangeSplit[1])->toDateString();
         }
         return $range;
     }
@@ -128,7 +162,12 @@ class Util extends Controller
                 }
             }
             else {
-                $xml_obj->addChild("$key",htmlspecialchars("$value"));
+                if(is_bool($value)) {
+                    $value = ($value) ? 'true' : 'false';
+                } else {
+                    $value = htmlspecialchars("$value");
+                }
+                $xml_obj->addChild("$key",$value);
             }
         }
     }
@@ -161,6 +200,13 @@ class Util extends Controller
         return $collection1;
     }
 
+    public static function byteToHuman($size) {
+        $unit=array('b','kb','mb','gb','tb','pb');
+        return @round($size/pow(1024,($i=floor(log($size,1024)))),2).' '.$unit[$i];
+    }
 
+    public static function memoryUsed() {
+        return self::byteToHuman(memory_get_usage(true));
+    }
 }
 

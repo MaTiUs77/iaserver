@@ -72,7 +72,7 @@ class IlluminateCaster
     }
 
     /**
-     * Get an array representing the properties of a model.
+     * Get an array representing the properties of a Model.
      *
      * @param  \Illuminate\Database\Eloquent\Model  $model
      * @return array

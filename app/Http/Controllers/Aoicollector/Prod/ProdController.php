@@ -47,11 +47,20 @@ class ProdController extends Controller
         if(isset($prod->id))
         {
             $prod->op = $var->op;
-            $prod->line_id = $var->line_id;
-            $prod->puesto_id = $var->puesto_id;
-            $prod->modelo_id = $var->modelo_id;
             $prod->id_stocker = null;
             $prod->id_route_op = null;
+            $prod->manual_mode = 0;
+
+            if(isset($var->id_route_op))
+            {
+                $prod->id_route_op = $var->id_route_op;
+                $prod->manual_mode = $var->id_modo;
+            } else
+            {
+                $prod->line_id = $var->line_id;
+                $prod->puesto_id = $var->puesto_id;
+                $prod->modelo_id = $var->modelo_id;
+            }
 
             $prod->save();
         }

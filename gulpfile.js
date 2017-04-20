@@ -12,7 +12,7 @@
         npm install --no-bin-links
 
     #4 Editar este archivo y ejecutar
-        gulp --production
+        gulp watch --production
 
     #5 Ser feliz!
  */
@@ -40,11 +40,20 @@ elixir(function(mix) {
     ).scriptsIn(
         "resources/views/trazabilidad/assets/js",
         "public/vendor/trazabilidad/trazabilidad.js"
+    ).scriptsIn(
+        "resources/views/aoicollector/monitor/assets/js",
+        "public/vendor/aoicollector/monitor/aoicollectormonitor.js"
     );
 
     // === SERVERMONITOR
     mix.scriptsIn(
         "resources/views/servermonitor/assets/js",
         "public/vendor/servermonitor/servermonitor.js"
+    );
+
+    // === MOLINETE
+    mix.scriptsIn(
+        "resources/views/molinete/assets/js",
+        "public/vendor/molinete/molinete.js"
     );
 });

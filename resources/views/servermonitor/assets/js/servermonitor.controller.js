@@ -21,36 +21,36 @@ app.directive('dynchart', function() {
     }
 });
 
+// CON ADONIS
 app.controller("servidorMonitorController",
-    ["$scope","$http", "$interval","toasty",
-    function ($scope,$http, $interval, toasty) {
-
+["$scope","$http", "$interval","toasty",
+function ($scope,$http, $interval, toasty) {
     $scope.serverList = [];
+    $scope.nodejserror = true;
 
-    var socket = io.connect('http://ARUSHAP34:8081');
+    const io = ws('arushap34:3333', {});
 
-    socket.on('connect_error', function(err){
-        console.log("Error de conexion, servidor caido",err);
+    const client = io.channel('servermonitor');
+    client.connect(function (error, connected) {
+        if (error) {
+            console.log(error);
+            $scope.nodejserror = true;
+            return
+        }
+
+        $scope.nodejserror = false;
+        console.log('ServerMonitor Connected');
+        client.emit('ServerMonitorSubscribe');
     });
 
-    socket.on('redisError', function(message){
-        console.log(message);
+    client.on('disconnect',function() {
+        console.log('ServerMonitor Disconnected');
+        $scope.nodejserror = true;
+
+        $scope.$apply();
     });
 
-    socket.on('disconnect', function () {
-        console.log("Conexion finalizada");
-    });
-
-    socket.on('connect', function(){
-        console.log("Conectado");
-        socket.emit('subscribe', 'servermonitor');
-    });
-
-    socket.on('subscribeResponse', function(message){
-        console.log(message);
-    });
-
-    socket.on('message', function(message){
+    client.on('ServerMonitorChannel', function (message) {
         var server = JSON.parse(message);
 
         var found = false;
@@ -62,13 +62,12 @@ app.controller("servidorMonitorController",
             }
         }
 
-        if(!found)
-        {
+        if(!found) {
             $scope.serverList.push(server);
         }
 
         $scope.$apply();
-
     });
 }]);
+
 

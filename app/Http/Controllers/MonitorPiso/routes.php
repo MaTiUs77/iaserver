@@ -15,15 +15,15 @@ Route::group(['prefix' => 'amr'], function()
 {
 
     /**** ALMACEN IA ****/
-    Route::get('/almacenia/{type?}',[
+    Route::match(['get','post'],'/almacenia/{type?}',[
         'as'=>'monitorpiso.almacenia',
         'uses'=>'MonitorPiso\AlmacenIA@show'
     ]);
 
-    Route::post('/almacenia/find',[
-        'as'=>'monitorpiso.almacenia.find',
-        'uses'=>'MonitorPiso\AlmacenIA@filtered'
-    ]);
+//    Route::post('/almacenia/find',[
+//        'as'=>'monitorpiso.almacenia.find',
+//        'uses'=>'MonitorPiso\AlmacenIA@getFiltered'
+//    ]);
     /********************/
 
     /****** EXPORTAR EXCEL ******/

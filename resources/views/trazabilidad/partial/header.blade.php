@@ -14,6 +14,7 @@
         </div>
         <!-- END BUSQUEDA -->
 
+        @if(isAdmin())
         <div class="col-sm-4">
             <form method="POST" action="{{ route('aoicollector.stocker.trazabilidad.rastrearop.view') }}">
                 <div class="input-group" >
@@ -24,6 +25,7 @@
                 </div>
             </form>
         </div>
+        @endif
 
         <div class="col-sm-4">
             <form method="POST" action="{{ route('aoicollector.stocker.trazabilidad.view') }}">

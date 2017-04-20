@@ -50,7 +50,7 @@ class Swift_Mime_Headers_IdentificationHeader extends Swift_Mime_Headers_Abstrac
     }
 
     /**
-     * Set the model for the field body.
+     * Set the Model for the field body.
      *
      * This method takes a string ID, or an array of IDs.
      *
@@ -64,7 +64,7 @@ class Swift_Mime_Headers_IdentificationHeader extends Swift_Mime_Headers_Abstrac
     }
 
     /**
-     * Get the model for the field body.
+     * Get the Model for the field body.
      *
      * This method returns an array of IDs
      *

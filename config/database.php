@@ -54,10 +54,22 @@ return [
 
         'mysql' => [
             'driver'    => 'mysql',
-            'host'      => env('DB_HOST', '10.30.10.22'),
-            'database'  => env('DB_DATABASE', 'iaserver'),
-            'username'  => env('DB_USERNAME', 'root'),
-            'password'  => env('DB_PASSWORD', 'apisql'),
+            'host'      => env('IA_HOST', '10.30.10.22'),
+            'database'  => env('IA_DATABASE', 'iaserver'),
+            'username'  => env('IA_USERNAME', 'laravel'),
+            'password'  => env('IA_PASSWORD', 'Framework'),
+            'charset'   => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix'    => '',
+            'strict'    => false,
+        ],
+
+        'aoidata' => [
+            'driver'    => 'mysql',
+            'host'      => env('AOIDATA_HOST', '10.30.10.22'),
+            'database'  => env('AOIDATA_DATABASE', 'aoidata'),
+            'username'  => env('AOIDATA_USERNAME', 'laravel'),
+            'password'  => env('AOIDATA_PASSWORD', 'Framework'),
             'charset'   => 'utf8',
             'collation' => 'utf8_unicode_ci',
             'prefix'    => '',
@@ -67,9 +79,21 @@ return [
         'iaserver' => [
             'driver'    => 'mysql',
             'host'      => env('IA_HOST', '10.30.10.22'),
-            'database'  => env('IA_DATABASE', 'aoidata'),
-            'username'  => env('IA_USERNAME', 'root'),
-            'password'  => env('IA_PASSWORD', 'apisql'),
+            'database'  => env('IA_DATABASE', 'iaserver'),
+            'username'  => env('IA_USERNAME', 'laravel'),
+            'password'  => env('IA_PASSWORD', 'Framework'),
+            'charset'   => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix'    => '',
+            'strict'    => false,
+        ],
+
+         'reparacion' => [
+            'driver'    => 'mysql',
+            'host'      => env('REPARACION_HOST', '10.30.10.22'),
+            'database'  => env('REPARACION_DATABASE', 'iaserver'),
+            'username'  => env('REPARACION_USERNAME', 'laravel'),
+            'password'  => env('REPARACION_PASSWORD', 'Framework'),
             'charset'   => 'utf8',
             'collation' => 'utf8_unicode_ci',
             'prefix'    => '',
@@ -142,6 +166,18 @@ return [
             'database'  => env('PIZARRA_DATABASE', 'pizarra'),
             'username'  => env('PIZARRA_USERNAME', 'pizarra'),
             'password'  => env('PIZARRA_PASSWORD', 'Manzana2012'),
+            'charset'   => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix'    => '',
+            'strict'    => false,
+        ],
+
+        'molinete' => [
+            'driver'    => 'sqlsrv',
+            'host'      => env('MOLINETE_HOST', 'ARUS3DB16'),
+            'database'  => env('MOLINETE_DATABASE', 'Ctrl_Estatica'),
+            'username'  => env('MOLINETE_USERNAME', 's-estatica'),
+            'password'  => env('MOLINETE_PASSWORD', 'Passw0rd'),
             'charset'   => 'utf8',
             'collation' => 'utf8_unicode_ci',
             'prefix'    => '',
@@ -234,6 +270,30 @@ return [
             'strict'    => false,
         ],
 
+        'tracenewsan' => [
+            'driver'    => 'mysql',
+            'host'      => env('TRACENEWSAN_HOST', '10.30.10.97'),
+            'database'  => env('TRACENEWSAN_DATABASE', 'tracenewsancogiscan'),
+            'username'  => env('TRACENEWSAN_USERNAME', 'jmc'),
+            'password'  => env('TRACENEWSAN_PASSWORD', 'apisql'),
+            'charset'   => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix'    => '',
+            'strict'    => false,
+        ],
+
+        'tracenewsanY550' => [
+            'driver'    => 'mysql',
+            'host'      => env('Y550_HOST', '10.30.10.97'),
+            'database'  => env('Y550_DATABASE', 'tracenewsany550'),
+            'username'  => env('Y550_USERNAME', 'jmc'),
+            'password'  => env('Y550_PASSWORD', 'apisql'),
+            'charset'   => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix'    => '',
+            'strict'    => false,
+        ],
+
         'amr_prod_desa' => [
             'driver'    => 'mysql',
             'host'      => env('AMRDESA_HOST', '10.30.10.97'),
@@ -278,6 +338,18 @@ return [
             'prefix'   => '',
             'schema'   => 'public',
         ],
+
+        'npmpicker' => [
+            'driver'   => 'mysql',
+            'host'     => env('NPMPICKER_HOST', '10.30.10.22'),
+            'database' => env('NPMPICKER_DATABASE', 'npmpicker'),
+            'username' => env('NPMPICKER_USERNAME', 'npmpicker'),
+            'password' => env('NPMPICKER_PASSWORD', 'npmpicker'),
+            'charset'  => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix'   => '',
+            'schema'   => 'public',
+        ],
     ],
 
     /*
@@ -305,7 +377,6 @@ return [
     */
 
     'redis' => [
-
         'cluster' => false,
 
         'default' => [
@@ -314,6 +385,17 @@ return [
             'database' => 0,
         ],
 
-    ],
+        'aoicollector' => [
+            'host'     => 'ARUSHAP34',
+            'port'     => 6379,
+            'database' => 1,
+        ],
 
+        'amr' => [
+            'host'     => 'ARUSHAP34',
+            'port'     => 6379,
+            'database' => 15,
+        ],
+
+    ],
 ];

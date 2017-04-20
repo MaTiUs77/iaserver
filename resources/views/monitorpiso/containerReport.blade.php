@@ -2,25 +2,25 @@
 @section('body')
 <div class="container">
     <h2>Almacen IA</h2>
-    <p>Materiales en Almacén IA: <strong>{{$total->count()}}</strong></p>
+    <p>Materiales en Almacén IA: <strong>{{$total}}</strong></p>
         <div class="col-lg-12">
             <div class="btn-group">
                 <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Ordernar por <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a href="{{URL('/amr/almacenia/field1')}}">Item Id</a></li>
-                    <li><a href="{{URL('/amr/almacenia/field2')}}">Part Number</a></li>
-                    <li><a href="{{URL('/amr/almacenia/field3')}}">Cantidad</a></li>
-                    <li><a href="{{URL('/amr/almacenia/field5')}}">Ubicación</a></li>
-                    <li><a href="{{URL('/amr/almacenia/field6')}}">Fecha Creación</a></li>
-                    <li><a href="{{URL('/amr/almacenia/field7')}}">Fecha Ultima Carga</a></li>
-                    <li><a href="{{URL('/amr/almacenia/field9')}}">Usuario de Carga</a></li>
+                    <li><a href="{{URL('/amr/almacenia/ITEM_ID')}}">Item Id</a></li>
+                    <li><a href="{{URL('/amr/almacenia/PART_NUMBER')}}">Part Number</a></li>
+                    <li><a href="{{URL('/amr/almacenia/QUANTITY')}}">Cantidad</a></li>
+                    <li><a href="{{URL('/amr/almacenia/LOCATION_IN_CNTR')}}">Ubicación</a></li>
+                    <li><a href="{{URL('/amr/almacenia/INIT_TMST')}}">Fecha Creación</a></li>
+                    <li><a href="{{URL('/amr/almacenia/LAST_LOAD_TMST')}}">Fecha Ultima Carga</a></li>
+                    <li><a href="{{URL('/amr/almacenia/LOAD_USER_ID')}}">Usuario de Carga</a></li>
                 </ul>
                 <div class="col-lg-4">
                     <div class="input-group">
                         <span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-search"></span></span>
-                        <form method="POST" action="{{url('amr/')}}">
+                        <form method="POST" action="{{URL('/amr/almacenia/find')}}">
                             <input type="text" id="buscar" name="buscar" class="form-control" placeholder="Part Number" aria-describedby="basic-addon1" style="text-transform: uppercase;">
                             {{--<button type="submit" class="btn btn-primary">Buscar</button>--}}
                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
@@ -30,9 +30,9 @@
                         {{--</span>--}}
                     </div>
                 </div>
-                <div class="col-lg-2">
-                    <a href="{{url('/amr/almacenia/limit')}}"><button type="button" class="btn btn-info">Paginar(100)</button></a>
-                </div>
+                {{--<div class="col-lg-2">--}}
+                    {{--<a href="{{url('/amr/almacenia/limit')}}"><button type="button" class="btn btn-info">Mostrar 200</button></a>--}}
+                {{--</div>--}}
                 <div class="col-lg-2">
                     <a href="{{url('/amr/almacenia/all')}}"><button type="button" class="btn btn-warning">Mostrar Todos</button></a>
                 </div>
@@ -43,8 +43,11 @@
 
 
         </div>
-    @IF ($paginar){!! $items->render() !!}
-    @ENDIF <!-- Paginación -->
+    @if(($paginar) && ($items instanceof \Illuminate\Pagination\LengthAwarePaginator))
+                {!! $items->links() !!}
+        @endif
+        {{--@IF ($paginar){!!$items->render() !!}--}}
+    {{--@ENDIF <!-- Paginación -->--}}
     <div class="">
     <table class="table table-striped sortable">
         <thead>
@@ -61,13 +64,13 @@
         <tbody>
         @foreach($items as $item)
         <tr>
-            <td>{{$item->field1}}</td>
-            <td>{{$item->field2}}</td>
-            <td>{{$item->field3}}</td>
-            <td>{{$item->field5}}</td>
-            <td>{{$item->field6}}</td>
-            <td>{{$item->field7}}</td>
-            <td>{{$item->field9}}</td>
+            <td>{{$item->ITEM_ID}}</td>
+            <td>{{$item->PART_NUMBER}}</td>
+            <td>{{(int)$item->QUANTITY}}</td>
+            <td>{{$item->LOCATION_IN_CNTR}}</td>
+            <td>{{\Carbon\Carbon::parse($item->INIT_TMST)->toDateTimeString() }}</td>
+            <td>{{\Carbon\Carbon::parse($item->LAST_LOAD_TMST)->toDateTimeString()}}</td>
+            <td>{{$item->LOAD_USER_ID}}</td>
         </tr>
         @endforeach
         </tbody>

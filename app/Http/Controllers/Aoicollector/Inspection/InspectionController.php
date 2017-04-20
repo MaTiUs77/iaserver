@@ -13,6 +13,7 @@ use IAServer\Http\Requests;
 use IAServer\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Session;
 
@@ -38,14 +39,15 @@ class InspectionController extends Controller
 
     public function defectosPeriodo()
     {
-        $carbonDate = Util::dateRangeFilterEs('date_session');
+        $carbonDate = Util::dateRangeFilterEs('defectos_date_session');
 
         $maquinas = Maquina::select('maquina.*','produccion.inf','produccion.cogiscan')
             ->orderBy('maquina.linea')
             ->leftJoin('aoidata.produccion','produccion.id_maquina','=','maquina.id')
             ->get();
 
-        $inspectionList = new InspectionList($maquinas->first()->id,$carbonDate->desde,$carbonDate->hasta);
+        $inspectionList = new InspectionList($carbonDate->desde,$carbonDate->hasta);
+        $inspectionList->setIdMaquina($maquinas->first()->id);
         $defectChart = $inspectionList->queryDefectInspectionRange()->get();
 
         $maquina = $maquinas->first();
@@ -59,12 +61,14 @@ class InspectionController extends Controller
     {
         $id_maquina = (int) $id_maquina;
 
-        $carbonDate = Util::dateRangeFilterEs('date_session');
+        $carbonDate = Util::dateRangeFilterEs('inspection_date_session');
 
-        $inspectionList = new InspectionList($id_maquina,$carbonDate->desde,$carbonDate->hasta);
+        $inspectionList = new InspectionList($carbonDate->desde,$carbonDate->hasta);
+        $inspectionList->setIdMaquina($id_maquina);
         $inspectionList->setPagina($pagina);
         $inspectionList->setMode(Input::get('listMode'));
         $inspectionList->setPeriod(Input::get('filterPeriod'));
+        $inspectionList->programsUsedByIdMaquina();
         if(!empty($op))
         {
             $inspectionList->setOp($op);
@@ -81,7 +85,7 @@ class InspectionController extends Controller
 
         $maquina = $maquinas->where('id',$id_maquina)->first();
 
-        $output = compact('defectChart','inspectionList','maquinas','maquina');
+        $output = compact('inspectionList','maquinas','maquina');
 
         return Response::multiple($output,'aoicollector.inspection.index');
     }
@@ -92,7 +96,7 @@ class InspectionController extends Controller
      * @param $id_maquina
      * @param null $pagina
      * @return \Illuminate\View\View
-     */
+
     public function listWithFilterORIGINAL($id_maquina,$pagina=null,$op='')
     {
         $insp = array();
@@ -112,7 +116,7 @@ class InspectionController extends Controller
         if(is_null($pagina)) { $pagina = 1; }
 
         // Obtengo la fecha, y cambio el formato 16-09-2015 -> 2015-09-16
-        $fecha = Util::dateToEn(Session::get('date_session'));
+        $fecha = Util::dateToEn(Session::get('inspection_date_session'));
 
         $total = PanelHistory::listar($id_maquina, $fecha, $op)->count();
 
@@ -142,12 +146,13 @@ class InspectionController extends Controller
 
         return Response::multiple($output,'aoicollector.inspection.index');
     }
+    */
 
     /**
      * Muestra los bloques pertenecientes a un panel
      *
-     * @param $id_panel
-     * @return \Illuminate\View\View
+     * @param int $id_panel
+     * @return Response Response::multiple($output,'aoicollector.inspection.partial.blocks');
      */
     public function listBlocks($id_panel)
     {
@@ -161,8 +166,8 @@ class InspectionController extends Controller
     /**
      * Muestra los detalles de inspeccion de un bloque
      *
-     * @param $id_bloque
-     * @return \Illuminate\View\View
+     * @param int $id_bloque
+     * @return Response Response::multiple($output,'aoicollector.inspection.partial.detail');
      */
     public function listDetail($id_bloque)
     {
@@ -176,7 +181,7 @@ class InspectionController extends Controller
     /**
      * Muestra los resultados de busqueda de un barcode
      *
-     * @return \Illuminate\View\View
+     * @return Response Response::multiple($output,'aoicollector.inspection.search_barcode');
      */
     public function searchBarcode($search_barcode="")
     {
@@ -194,6 +199,7 @@ class InspectionController extends Controller
         $findService->withCogiscan = true;
         $findService->withSmt = true;
         $findService->withHistory = true;
+        $findService->withWip = true;
         $insp = (object) $findService->barcode($barcode);
 
         if(isset($insp->last))
@@ -286,8 +292,58 @@ class InspectionController extends Controller
     {
         $query = "CALL aoidata.sp_getFindPanelWithReferenceFromHistory('".$id_maquina."','".$programa."','".$turno."','".$fecha."','".$reference."','".$estado."','".$resume_type."');";
 
-        $sql = DB::connection('iaserver')->select($query);
+        $sql = DB::connection('aoidata')->select($query);
 
         return $sql;
+    }
+
+    public function forceOK($barcode)
+    {
+        $findService = new FindInspection();
+        $findService->onlyLast = true;
+        $insp = (object) $findService->barcode($barcode);
+        $insp->last->panel->revision_ins = 'OK';
+
+        $insp->last->panel->save();
+
+        $bloquesHistory = BloqueHistory::where('id_panel_history',$insp->last->panel->id_panel_history)->get();
+
+        foreach($bloquesHistory as $bloque)
+        {
+            $bloque->revision_ins = 'OK';
+            $bloque->save();
+        }
+
+        dd('done',$insp->last);
+    }
+
+    public function createInspection()
+    {
+        $regex = '/([0-9]+)/';
+
+        $input = Input::get('barcodes');
+        $op = Input::get('op');
+
+        preg_match_all($regex, $input, $matches);
+
+        $panel = null;
+        $bloques = null;
+        $barcodes = $matches[0];
+
+        foreach ($barcodes as $index => $barcode) {
+            $index++;
+            if($panel==null)  {
+                $create = new CreateInspection();
+                $panel = $create->createPanel($barcode,count($barcodes),$op);
+
+                $bloques[] = $create->createBlock($panel,$barcode,$index);
+            } else
+            {
+                $create = new CreateInspection();
+                $bloques[] = $create->createBlock($panel,$barcode,$index);
+            }
+        }
+
+        dd($panel,$bloques,'done');
     }
 }

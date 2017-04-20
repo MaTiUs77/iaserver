@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class reservas extends Model
 {
-    protected $connection = 'db2_tools';
+    protected $connection = 'amr_prod';
     protected $table = 'reservas';
 
     //protected $fillable = array('op','linMatWip','rawMaterial','codMat','maquina','ubicacion');

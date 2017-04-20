@@ -781,7 +781,7 @@ EOF
      * > It is an error for two equal keys to appear in the same mapping node.
      * > In such a case the YAML processor may continue, ignoring the second
      * > `key: value` pair and issuing an appropriate warning. This strategy
-     * > preserves a consistent information model for one-pass and random access
+     * > preserves a consistent information Model for one-pass and random access
      * > applications.
      *
      * @see http://yaml.org/spec/1.2/spec.html#id2759572

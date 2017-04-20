@@ -51,7 +51,7 @@ class Swift_Mime_Headers_OpenDKIMHeader implements Swift_Mime_Header
     }
 
     /**
-     * Set the model for the field body.
+     * Set the Model for the field body.
      *
      * This method takes a string for the field value.
      *
@@ -63,7 +63,7 @@ class Swift_Mime_Headers_OpenDKIMHeader implements Swift_Mime_Header
     }
 
     /**
-     * Get the model for the field body.
+     * Get the Model for the field body.
      *
      * This method returns a string.
      *

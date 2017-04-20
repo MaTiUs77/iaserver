@@ -2,10 +2,14 @@
 
 namespace IAServer\Http\Controllers\Aoicollector\Prod\View;
 
+use IAServer\Events\RedisSend;
+use IAServer\Http\Controllers\Aoicollector\Model\Produccion;
 use IAServer\Http\Controllers\Aoicollector\Prod\Controller\ProdUser;
 use IAServer\Http\Requests;
 use IAServer\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 
 class ProdView extends Controller
 {
@@ -18,13 +22,19 @@ class ProdView extends Controller
     {
         $userId = Input::get('userid');
         $userName = Input::get('name');
+        $aoibarcode  = Input::get('aoibarcode');
+
         $user = new ProdUser();
-        return $user->login($userId,$userName);
+        return $user->login($userId,$userName,$aoibarcode);
     }
 
-    public Function userLogout(){
+    public function userLogout(){
+        $userId = Input::get('userid');
+        $userName = Input::get('name');
+        $aoibarcode  = Input::get('aoibarcode');
+
         $user = new ProdUser();
-        $user->logout();
-        return redirect(route('aoicollector.prod.index'));
+        return $user->logout($userId,$userName,$aoibarcode);
+        //return redirect(route('aoicollector.prod.index'));
     }
 }

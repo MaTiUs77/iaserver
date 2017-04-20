@@ -24,9 +24,9 @@ trait EntrustUserTrait
     }
 
     /**
-     * Boot the user model
+     * Boot the user Model
      * Attach event listener to remove the many-to-many records when trying to delete
-     * Will NOT delete any records if the user model uses soft deletes.
+     * Will NOT delete any records if the user Model uses soft deletes.
      *
      * @return void|bool
      */
@@ -35,7 +35,7 @@ trait EntrustUserTrait
         parent::boot();
 
         static::deleting(function($user) {
-            if (!method_exists(Config::get('auth.model'), 'bootSoftDeletingTrait')) {
+            if (!method_exists(Config::get('auth.Model'), 'bootSoftDeletingTrait')) {
                 $user->roles()->sync([]);
             }
 

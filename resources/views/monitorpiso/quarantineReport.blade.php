@@ -1,5 +1,5 @@
-@extends('layouts.master')
-@section('contenido')
+@extends('monitorpiso.layouts.master')
+@section('body')
 <div class="container">
     <h2><span class="glyphicon glyphicon-alert"></span> Cuarentena <span class="glyphicon glyphicon-alert"></span></h2>
     <p>Materiales con estado de Cuarentena <u>ACTIVO</u>: <strong>{{$active->count()}}</strong></p>
