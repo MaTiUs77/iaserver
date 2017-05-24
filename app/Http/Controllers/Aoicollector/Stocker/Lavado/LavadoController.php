@@ -14,13 +14,6 @@ class LavadoController extends Controller
 {
     public function index()
     {
-      //  Auth::attempt(['name' => Input::get('name'), 'password' => Input::get('password')]);
-
-/*        if(Input::get('logout'))
-        {
-            Auth::logout();
-        }*/
-
         $stockers = Stocker::vista()
             ->where('id_stocker_route', 7)
             ->whereDate('created_at', '=', Carbon::today()->toDateString())
@@ -29,6 +22,29 @@ class LavadoController extends Controller
         $lavados = $this->lavadosPorDia();
         $output = compact('stocker', 'stockers','lavados');
         return view('aoicollector.stocker.lavado.index', $output);
+    }
+
+    public function search() {
+
+        $barcode = Input::get('stkbarcode');
+
+        $historial = StockerTraza::select(DB::raw("
+                stk.barcode,
+                stkr.name,
+                stkt.*
+            "))
+            ->from('aoidata.stocker_traza as stkt')
+            ->join('aoidata.stocker as stk', DB::raw('stk.id'), '=', DB::raw('stkt.id_stocker'))
+            ->join('aoidata.stocker_route as stkr', DB::raw('stkr.id'), '=', DB::raw('stkt.id_stocker_route'))
+
+            ->whereRaw("stkt.id_stocker_route = 7")
+            ->whereRaw("stk.barcode = '$barcode'")
+            ->orderBy(DB::raw("stkt.created_at"),'desc')
+            ->get();
+
+        $output = compact('historial');
+
+        return view('aoicollector.stocker.lavado.search', $output);
     }
 
     public function finishClean($barcode)

@@ -10,55 +10,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>IAServer - @yield('title')</title>
 
-    <!-- JQuery -->
-    {!! IAScript('assets/jquery/js/jquery-1.10.2.min.js') !!}
-    {!! IAStyle('assets/jquery/css/jquery-ui-gris.css') !!}
-
-    <!-- Shortcut -->
-    {!! IAScript('assets/jquery/shortcut.js') !!}
-
-    <!-- Cookies -->
-    {!! IAScript('assets/jquery/cookies/cookies.js') !!}
-
-    <!-- Bootstrap -->
-    {!! IAStyle('assets/bootstrap/css/bootstrap.css') !!}
-    {!! IAStyle('assets/bootstrap/css/bootstrap-theme.min.css') !!}
+    <!-- jQuery 2.2.3 -->
+    {!! IAScript('adminlte/plugins/jQuery/jquery-2.2.3.min.js') !!}
+            <!-- Bootstrap 3.3.6 -->
+    {!! IAStyle('adminlte/bootstrap/css/bootstrap.min.css') !!}
+    {!! IAScript('adminlte/bootstrap/js/bootstrap.min.js') !!}
+            <!-- Bootstrap Dialog-->
     {!! IAStyle('assets/dialog-master/css/bootstrap-dialog.min.css') !!}
-    {!! IAScript('assets/bootstrap/js/bootstrap.min.js') !!}
     {!! IAScript('assets/dialog-master/js/bootstrap-dialog.min.js') !!}
-
-    <!-- BootSwatch 
-    {!! IAStyle('assets/bootswatch/paper/bootstrap.min.css') !!}
-	-->
-
-    <!-- AngularJS-->
+            <!-- Font Awesome -->
+    {!! IAStyle('assets/font-awesome/css/font-awesome.min.css') !!}
+            <!-- Shortcut -->
+    {!! IAScript('assets/jquery/shortcut.js') !!}
+            <!-- Cookies -->
+    {!! IAScript('assets/jquery/cookies/cookies.js') !!}
+            <!-- AngularJS-->
     {!! IAStyle('assets/angularjs/loading-bar.css') !!}
     {!! IAScript('assets/angularjs/angular.min.js') !!}
     {!! IAScript('assets/angularjs/angular-route.min.js') !!}
     {!! IAScript('assets/angularjs/angular-animate.min.js') !!}
     {!! IAScript('assets/angularjs/loading-bar.js') !!}
-
-    <!-- Angular Bootstrap -->
+            <!-- Angular Bootstrap -->
     {!! IAScript('assets/angularjs/ui-bootstrap-tpls-0.12.1.min.js') !!}
-
-    <!-- Angular Toasty-->
+            <!-- Angular Toasty-->
     {!! IAStyle('assets/angularjs/toasty/angular-toasty.min.css') !!}
     {!! IAScript('assets/angularjs/toasty/angular-toasty.min.js') !!}
-
-    <!-- BootSwatch Angular File Manager
-    {!! IAStyle('assets/angular-filemanager/dist/angular-filemanager.min.css') !!}
-    {!! IAScript('assets/angular-filemanager/dist/angular-filemanager.min.js') !!}
-    -->
-
-    <!-- Angular Translate
-    {!! IAScript('assets/angular-translate/angular-translate.min.js') !!}
-    -->
-
-    <!-- Other styles -->
+            <!-- Other styles -->
     {!! IAStyle('assets/loader_mini.css') !!}
-
-    <!-- Font Awesome -->
-    {!! IAStyle('assets/font-awesome/css/font-awesome.min.css') !!}
+            <!-- AdminLTE App -->
+    {!! IAStyle('adminlte/dist/css/AdminLTE.css') !!}
+    {!! IAStyle('adminlte/dist/css/skins/skin-blue.min.css') !!}
+    {!! IAScript('adminlte/dist/js/app.min.js') !!}
+            <!-- DataTables -->
+    {!! IAStyle('adminlte/plugins/datatables/dataTables.bootstrap.css') !!}
+    {!! IAScript('adminlte/plugins/datatables/jquery.dataTables.min.js') !!}
+    {!! IAScript('adminlte/plugins/datatables/dataTables.bootstrap.min.js') !!}
+            <!-- Select2 -->
+    {!! IAStyle('adminlte/plugins/select2/select2.min.css') !!}
+            <!-- Moments en español -->
+    {!! IAScript('assets/moment.min.js') !!}
+    {!! IAScript('assets/moment.locale.es.js') !!}
+            <!-- DataRangePicker -->
+    {!! IAScript('assets/jquery/daterangepicker/daterangepicker.js') !!}
+    {!! IAStyle('assets/jquery/daterangepicker/daterangepicker.css') !!}
+            <!-- Angular DataTables -->
+    {!! IAScript('assets/angular-datatables/angular-datatables.min.js') !!}
 
     @yield('head')
 </head>

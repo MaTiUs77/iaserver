@@ -91,9 +91,15 @@
 
             <!-- CONFIGURADOR DE STOCKER -->
             <div ng-show="stockerConfigMode">
+                <div class="row">
+                    <div class="col-xs-6">
                         <input type="number" class="form-control" ng-model="stockerConfigModeNewlimite" placeholder="Filas de stocker"/>
-                        <input type="number" class="form-control" ng-model="stockerConfigModeNewbloques" placeholder="Bloques de panel"/>
-                <button type="button" class="btn btn-xs btn-success btn-block" ng-click="stockerConfig('save');" >Guardar</button>
+                    </div>
+                   <div class="col-xs-6">
+                       <input type="number" class="form-control" ng-model="stockerConfigModeNewbloques" placeholder="Placas en panel"/>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-xs btn-success btn-block" ng-click="StockerConfigSave(stockerConfigModeNewlimite,stockerConfigModeNewbloques);" >Guardar</button>
                 <button type="button" class="btn btn-xs btn-default btn-block" ng-click="stockerConfigMode=!stockerConfigMode" >Cancelar</button>
             </div>
             <!-- FIN CONFIGURADOR DE STOCKER -->

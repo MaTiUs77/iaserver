@@ -32,8 +32,7 @@
     }
 
 </style>
-
-<table class="table table-bordered">
+<table class="table table-striped">
     <thead class="panel">
        <tr>
             <th></th>
@@ -46,7 +45,6 @@
             <th>Falsos</th>
             <th>Reales</th>
             <th>Bloques</th>
-{{--            <th>Etiqueta</th>--}}
             <th>OP</th>
             <th>Fecha</th>
             <th>Hora</th>
@@ -71,7 +69,7 @@
         @else
             <!-- Muestro resultados de paneles inspeccionados -->
             @foreach( $inspectionList->inspecciones as $index => $panel)
-                <tr class="{{ ($panel->revision_aoi == 'OK' && $panel->revision_ins == 'OK' ) ? 'success' : '' }} {{ ($panel->revision_ins == 'NG' ) ? 'danger' : '' }}">
+                <tr class="{{ ($panel->revision_aoi == 'OK' && $panel->revision_ins == 'OK' ) ? 'success' : '' }} {{ ($panel->revision_ins == 'NG' ) ? 'danger' : '' }} {{ ($panel->revision_ins == 'SCRAP' ) ? 'warning' : '' }}">
                     <td>{{ ($index + 1) }}</td>
                     <td style="width:50px;">
                         <button id_panel="{{ $panel->id_panel_history }}" route="{{ route('aoicollector.inspection.blocks',$panel->id_panel_history) }}" ng-click="getInspectionBlocks($event);" class="btn btn-xs btn-default">Bloques</button>
@@ -84,14 +82,11 @@
                     <td>{{ $panel->falsos }}</td>
                     <td>{{ $panel->reales }}</td>
                     <td>{{ $panel->bloques }}</td>
-                 {{--   <td>
-                        @if ($panel->etiqueta === 'E')
-                            Fisica
-                        @else
-                            Virtual
-                        @endif
-                    </td>--}}
-                    <td>{{ $panel->inspected_op }}</td>
+                    <td>
+                        <a href="{{ route('trazabilidad.find.op',$panel->inspected_op) }}" class="btn btn-xs btn-default">
+                            {{ $panel->inspected_op }}
+                        </a>
+                    </td>
                     <td>{{  \IAServer\Http\Controllers\IAServer\Util::dateToEs($panel->created_date) }}</td>
                     <td>{{ $panel->created_time }}</td>
                     <td>
@@ -148,11 +143,17 @@
                                     @endif
                                 @else
                                     <!-- Maquina diferente -->
-                                    <i class="fa fa-code-fork text-danger icosize" tooltip-placement="left" tooltip="Primera inspeccion en
-{{ $maquinas->where('id',$firstApparition->id_maquina)->first()->maquina }}
-{{ \IAServer\Http\Controllers\IAServer\Util::dateToEs($firstApparition->created_date) }} a las {{ $firstApparition->created_time }}"></i>
+                                    <i class="fa fa-code-fork text-danger icosize" tooltip-placement="left" tooltip="Primera inspeccion en {{ $maquinas->where('id',$firstApparition->id_maquina)->first()->maquina }} {{ \IAServer\Http\Controllers\IAServer\Util::dateToEs($firstApparition->created_date) }} a las {{ $firstApparition->created_time }}"></i>
                                 @endif
                             @endif
+                        @endif
+
+                        @if(isset($panel->stocker))
+                            <i class="fa fa-cube"  tooltip="Ubicacion {{ $panel->stocker }}"></i>
+                        @endif
+
+                        @if(isset($panel->cuarentena))
+                            <i class="fa fa-heartbeat"></i>
                         @endif
                     </td>
 

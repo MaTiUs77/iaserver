@@ -13,15 +13,18 @@
                     Procesando datos, espere...
                 </button>
 
-                <button ng-hide="statExporting" class="btn btn-sm btn-danger dropdown-toggle" type="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                    Exportar datos desde historial
+                <button ng-hide="statExporting" class="btn btn-sm btn-success dropdown-toggle" type="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    <i class="fa fa-file-excel-o"></i>
+                    Exportar datos
                     <span class="caret"></span>
                 </button>
 
                 <ul class="dropdown-menu" aria-labelledby="dropdownMenu" ng-hide="statExporting">
-                    <li><a href="{{ route('aoicollector.inspection.export',[$maquina->id,str_replace('/','-',Session::get('inspection_date_session')),'MIN']) }}" ng-click="statExporting = true">Primer estado de cada placa en maquina</a></li>
-                    <li><a href="{{ route('aoicollector.inspection.export',[$maquina->id,str_replace('/','-',Session::get('inspection_date_session')),'MAX']) }}" ng-click="statExporting = true">Ultimo estado de cada placa  en maquina</a></li>
-                    <li><a href="{{ route('aoicollector.inspection.export',[$maquina->id,str_replace('/','-',Session::get('inspection_date_session')),'MINA']) }}" ng-click="statExporting = true">Primer estado de cada placa</a></li>
+                    <li><a href="{{ route('aoicollector.inspection.export.panel',[$maquina->id,str_replace('/','-',Session::get('inspection_date_session')),'MIN']) }}" ng-click="statExporting = true">Primer estado de cada panel en maquina</a></li>
+                    <li><a href="{{ route('aoicollector.inspection.export.panel',[$maquina->id,str_replace('/','-',Session::get('inspection_date_session')),'MAX']) }}" ng-click="statExporting = true">Ultimo estado de cada panel en maquina</a></li>
+                    <li><a href="{{ route('aoicollector.inspection.export.panel',[$maquina->id,str_replace('/','-',Session::get('inspection_date_session')),'MINA']) }}" ng-click="statExporting = true">Primer estado de cada panel</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="{{ route('aoicollector.inspection.export.bloques',[$maquina->id,str_replace('/','-',Session::get('inspection_date_session')),'MINA']) }}" ng-click="statExporting = true">Primer estado de cada placa</a></li>
                 </ul>
             </div>
 
@@ -66,11 +69,9 @@
                 ?>
                     <div class="col-xs-6 col-sm-4" ng-show="detalledeop">
                     <blockquote style="font-size: 16px;">
-                        <div class="dropdown" style="padding-right:5px;">
-                            <button class="btn btn-sm dropdown-toggle {{ isset($resume) && ($p->programa == $resume->programa)  && ($p->inspected_op == $resume->inspected_op)  ? 'btn-default active' : 'btn-default' }}" type="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                <span style="font-size: 16px;">{{ $p->inspected_op }}</span>
-                            </button>
-                        </div>
+                        <a href="{{ route('aoicollector.inspection.showop',$p->inspected_op) }}" tooltip="Filtrar inspecciones con esta OP" class="btn btn-sm {{ isset($resume) && ($p->programa == $resume->programa)  && ($p->inspected_op == $resume->inspected_op)  ? 'btn-default active' : 'btn-default' }}" type="button" >
+                            <span style="font-size: 16px;">{{ $p->inspected_op }}</span>
+                        </a>
 
                         <small>Modelo</small>
                         {{ $smt->modelo  }} - {{ $smt->lote  }} - {{ $smt->panel  }}
@@ -108,29 +109,4 @@
 
     @include('iaserver.common.footer')
     {!! IAScript('vendor/aoicollector/inspection/inspection.js') !!}
-
-    <!-- Include Date Range Picker -->
-    {!! IAScript('assets/moment.min.js') !!}
-    {!! IAScript('assets/moment.locale.es.js') !!}
-    {!! IAScript('assets/jquery/daterangepicker/daterangepicker.js') !!}
-    {!! IAStyle('assets/jquery/daterangepicker/daterangepicker.css') !!}
-    <script type="text/javascript">
-        moment.locale("es");
-
-        $(function() {
-            $('input[name="inspection_date_session"]').daterangepicker({
-                locale: {
-                    format: 'DD/MM/YYYY',
-                    customRangeLabel: 'Definir rango'
-                },
-                ranges: {
-                    'Hoy': [moment(), moment()],
-                    'Ayer': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                    'Ultimos 7 dias': [moment().subtract(6, 'days'), moment()]
-                },
-                autoApply: true,
-                singleDatePicker: true
-            });
-        });
-    </script>
 @endsection

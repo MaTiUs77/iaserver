@@ -12,7 +12,7 @@
             <div class="col-lg-4">
                 <form method="GET" action="{{url('/scrap')}}" class="navbar-form navbar-left">
                     <div class="form-group">
-                        <input type="text" name="pizarra_fecha" value="{{ Session::get('pizarra_fecha') }}" placeholder="Seleccionar fecha" class="form-control"/>
+                        <input type="text" name="pizarra_fecha" value="{{ Session::get('pizarra_fecha') }}" placeholder="Seleccionar fecha" class="form-control fulldatarangepicker"/>
                     </div>
                     <button type="submit" class="btn btn-info"><i class="fa fa-calendar"></i> Buscar</button>
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
@@ -27,34 +27,6 @@
                     </form>
                 </div>
             @endif
-            <!-- DATE RANGE PICKER -->
-            <script type="text/javascript">
-                $(function() {
-                    $('input[name="pizarra_fecha"]').daterangepicker({
-                        locale: {
-                            format: 'DD/MM/YYYY',
-                            customRangeLabel: 'Definir rango'
-                        },
-                        ranges: {
-                            'Hoy': [moment(), moment()],
-                            'Ayer': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                            'Ultimos 7 dias': [moment().subtract(6, 'days'), moment()],
-                            'Ultimos 30 dias': [moment().subtract(29, 'days'), moment()],
-                            'Este Mes': [moment().startOf('month'), moment().endOf('month')],
-                            'Ultimo Mes': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-                        },
-                        autoApply: true
-                    });
-                });
-
-                moment.locale("es");
-
-            </script>
-            <!-- Include Date Range Picker -->
-            {!! IAScript('assets/moment.min.js') !!}
-            {!! IAScript('assets/moment.locale.es.js') !!}
-            {!! IAScript('assets/jquery/daterangepicker/daterangepicker.js') !!}
-            {!! IAStyle('assets/jquery/daterangepicker/daterangepicker.css') !!}
         </div>
 
         <h4>Resultados:</h4>

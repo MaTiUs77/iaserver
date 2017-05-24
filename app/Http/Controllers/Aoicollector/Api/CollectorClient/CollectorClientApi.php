@@ -2,10 +2,13 @@
 namespace IAServer\Http\Controllers\Aoicollector\Api\CollectorClient;
 
 use Carbon\Carbon;
+use IAServer\Http\Controllers\Aoicollector\Cuarentena\CuarentenaController;
 use IAServer\Http\Controllers\Aoicollector\Inspection\FindInspection;
 use IAServer\Http\Controllers\Aoicollector\Inspection\VerificarDeclaracion;
 use IAServer\Http\Controllers\Aoicollector\Model\Produccion;
+use IAServer\Http\Controllers\Aoicollector\Stocker\PanelStockerController;
 use IAServer\Http\Controllers\Redis\RedisBroadcast;
+use IAServer\Http\Controllers\Trazabilidad\Declaracion\Wip\Wip;
 use IAServer\Http\Requests;
 use IAServer\Http\Controllers\Controller;
 
@@ -53,6 +56,7 @@ class CollectorClientApi extends Controller
                 $output->barcode = $barcode;
                 $output->op = $panel->inspected_op;
                 $output->smt = $data->smt;
+                $output->cuarentena = null;
 
                 if(isset($data->bloque)) {
                     $output->revision = $data->bloque->revision_ins;
@@ -73,6 +77,10 @@ class CollectorClientApi extends Controller
                     unset($output->declaracion->parcial_total);
                     unset($output->declaracion->pendiente_total);
                     unset($output->declaracion->error_total);
+
+                    $cuarentena = new CuarentenaController();
+                    $output->cuarentena = $cuarentena->getDetail($barcode);
+
                 } else {
                     $output->error = 'No se localizo el barcode en AOI';
                 }
@@ -179,13 +187,11 @@ class CollectorClientApi extends Controller
             'stocker'=>true,
             'placas'=>true,
             'period' => false,
-            'sfcsroute' => false
+            'sfcsroute' => true
         ]);
 
-        $prodInfo = (object) $output;
-
         // Hace un SET KEY con el nombre del canal, y luego emite un public en el canal
-        $redisProd = new RedisBroadcast("prodinfo:$aoibarcode");
+        $redisProd = new RedisBroadcast("aoicollector:prodinfo:$aoibarcode");
         $redisProd->emit($output);
 
         /*
@@ -201,6 +207,52 @@ class CollectorClientApi extends Controller
         }
         */
 
+        return $output;
+    }
+
+    /**
+     * Muestra el estado de produccion de todas las lineas
+     *
+     * <p>
+     * Adjunta informacion de: Smt, Transaction, Stocker, y Control de placas.
+     *
+     * Guarda en un KEY en Redis llamado <b>prodinfo:$elbarcode</b>, permanece por 60 segundos,
+     * a su vez publica en el CHANNEL denominado de la misma manera.
+     * </p>
+     *
+     * <p>
+     * Webservice {@url http://arushap34/iaserver/public/api/aoicollector/prodinfoall}
+     * </p>
+     *
+     * @return array
+     */
+    public function prodInfoAll()
+    {
+        $prodList = $this->prodList();
+
+        $output = [];
+
+        foreach($prodList as $prod)
+        {
+            if($prod->op) {
+                $barcode = strtoupper($prod->barcode);
+
+                $prodInfo = Produccion::fullInfo($barcode,[
+                    'smt'=>true,
+                    'transaction'=>true,
+                    'stocker'=>true,
+                    'placas'=>true,
+                    'period' => false,
+                    'sfcsroute' => true
+                ]);
+
+                $output[] = $prodInfo;
+
+                // Hace un SET KEY con el nombre del canal, y luego emite un public en el canal
+                $redisProd = new RedisBroadcast("aoicollector:prodinfo:$barcode");
+                $redisProd->emit($prodInfo);
+            }
+        }
 
         return $output;
     }
@@ -216,5 +268,63 @@ class CollectorClientApi extends Controller
     public function prodList()
     {
         return Produccion::all();
+    }
+
+    public function declararPanel($panelBarcode)
+    {
+        $panel = new PanelStockerController();
+        $panel = $panel->declaredDetail($panelBarcode);
+
+        if(isset($panel->error)) {
+            $output = (array) $panel;
+        } else {
+            $w = new Wip();
+            $opinfo = $w->otInfo($panel->inspected_op);
+
+            //if(isset($opinfo)) {
+                $bloques = $panel->verificarDeclaracion->bloques;
+
+                if(count($bloques)>0) {
+
+                    $items = [];
+                    foreach($bloques as $item) {
+                        // Verifica si hay TWIP
+                        if(isset($item->twip)) {
+                            // Si TWIP tuvo error
+                            if($item->twip->trans_ok > 30 ) {
+                                $items[] = ['twip_redeclarar'=>$item->twip];
+                            } else {
+                                $items[] = ['twip'=>$item->twip];
+                            }
+
+                        } else {
+                            // Si no hay TWIP verifica WIP
+                            if(isset($item->wip)) {
+                                // Si WIP tuvo error
+                                if($item->wip->trans_ok > 30 ) {
+                                    $items[] = ['wip_redeclarar'=>$item->wip];
+                                } else {
+                                    $items[] = ['wip'=>$item->wip];
+                                }
+
+                            } else {
+                                $items[] = ['wip_declarar'=>$item->bloque];
+                            }
+                        }
+                    }
+
+                    $output = [
+                        'result'=> 'done',
+                        'detail'=> $items
+                    ];
+                } else {
+                    $output = ['error'=>'La placa no tiene bloques'];
+                }
+            //} else {
+            //    $output = ["error" => "La OP se encuentra cerrada"];
+            //}
+        }
+
+        return $output;
     }
 }

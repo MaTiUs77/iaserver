@@ -1,13 +1,3 @@
-<!-- VENTANA DE ALERTA
-<div class="callout callout-danger" ng-hide="inspectorService.id">
-    <h4>Atencion!</h4>
-    <p>
-        Debe loguearse para operar!, escanee su codigo QR de IAServer, en caso de no disponer de uno, solicitarlo a un
-        Programador IT
-    </p>
-</div>
--->
-
 <div class="row" ng-show="aoiService.produccion.op">
 
     <!-- Stocker en Produccion-->

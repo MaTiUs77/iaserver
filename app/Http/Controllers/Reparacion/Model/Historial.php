@@ -75,6 +75,19 @@ class Historial extends Model
                         LIMIT 1
                     ) = STR_TO_DATE(CONCAT(historial.fecha," ",historial.hora), "%Y-%m-%d %H:%i:%s"), "actual","log"
                 ) as historico
+            '),
+            DB::raw('
+                (
+                    SELECT
+                    hp.inspected_op
+
+                    FROM aoidata.history_inspeccion_bloque hb
+                    inner join aoidata.history_inspeccion_panel hp on hp.id_panel_history = hb.id_panel_history
+                    WHERE
+                    hb.barcode = historial.codigo
+
+                    limit 1
+                ) as op
             ')
         ])
             ->leftJoin('reparacion.causa','reparacion.causa.id','=','reparacion.historial.id_causa')
@@ -85,7 +98,9 @@ class Historial extends Model
             ->leftJoin('reparacion.sector','reparacion.sector.id','=','reparacion.historial.id_sector')
             ->leftJoin('reparacion.area','reparacion.area.id','=','reparacion.historial.id_area')
             ->leftJoin('reparacion.operador','reparacion.operador.id','=','reparacion.historial.id_operador')
-            ->where('historial.id_sector',$id_sector)->orderBy('historial.fecha','desc')->orderBy('historial.hora','desc');
+            ->where('historial.id_sector',$id_sector)
+            ->orderBy('historial.fecha','desc')
+            ->orderBy('historial.hora','desc');
 
         return $sql;
     }

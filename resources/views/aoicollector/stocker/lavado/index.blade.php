@@ -1,6 +1,8 @@
 @extends('adminlte/theme')
 @section('ng','app')
-@section('title','Lavado de Stockers')
+@section('mini',true)
+@section('nobox',true)
+@section('title','Lavado de Stockers - Jornada')
 @section('body')
 <div class="container">
     <!-- will be used to show any messages -->
@@ -10,35 +12,45 @@
 
         <div class="box box-success">
             <div class="box-header with-border">
-                <h3 class="box-title">Lavados de la jornada</h3>
+                <h3 class="box-title">Lavados de stockers</h3>
             </div>
 
             <div class="box-body chart-responsive">
-                @if(hasRole('stocker_lavado') || isAdmin())
                 <!-- BUSQUEDA -->
                 <div class="row">
+                    <div class="col-sm-4">
+                        <form method="POST" action="{{ route('aoicollector.stocker.lavado.search') }}" >
+                            <div class="input-group" >
+                                <input type="text" name="stkbarcode" class="form-control" autocomplete="off" placeholder="Ingresar codigo de stocker" />
+                        <span class="input-group-btn">
+                            <button type="submit" class="btn btn-primary"> Ver historial</button>
+                        </span>
+                            </div>
+                        </form>
+                    </div>
+
                     <div class="col-sm-4 pull-right">
                         <form method="POST" action="{{ route('aoicollector.stocker.lavado.etiquetar') }}" >
                             <div class="input-group" >
                                 <input type="text" name="stk" class="form-control" autocomplete="off" placeholder="Ingresar codigo de stocker" />
                         <span class="input-group-btn">
-                            <button type="submit" class="btn btn-info"> Iniciar lavado</button>
+                            <button type="submit" class="btn btn-success"> Iniciar lavado</button>
                         </span>
                             </div>
                         </form>
                     </div>
                 </div>
                 <!-- END BUSQUEDA -->
-                @endif
                 <br>
 
                 @if(isset($stockers) && count($stockers)>0)
-                    <table class="table table-bordered table-striped">
+                    <h4>Lavados de la jornada</h4>
+                    <table class="table table-bordered table-striped datatable">
                     <thead>
                         <tr>
                             <th>Stocker</th>
                             <th>Ruta</th>
-                            <th>Lavados</th>
+                            <th>Lavados historicos</th>
                             <th>Operador</th>
                             <th>Fecha</th>
                         </tr>
@@ -168,7 +180,6 @@
 
 
             {!! IAScript('assets/highstock/js/highstock-all.js') !!}
-            {!! IAScript('assets/moment.min.js') !!}
         </div>
         <!-- /.box-body -->
     </div>

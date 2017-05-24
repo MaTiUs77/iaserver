@@ -2,6 +2,9 @@
 Route::group([
     'prefix' => 'stocker',
     'namespace' => 'Aoicollector\Stocker'], function() {
+
+    require('Lavado/routes.php');
+
     Route::get('/info/{stkbarcode}', [
         'as' => 'aoicollector.stocker.view.info',
         'uses' => 'View\StockerView@view_stockerInfo'
@@ -12,27 +15,10 @@ Route::group([
         'uses' => 'View\StockerView@view_stockerInfoDeclared'
     ]);
 
-    Route::group(['prefix' => 'lavado'], function(){
-        Route::match(['get', 'post'], '/', [
-            'as' => 'aoicollector.stocker.lavado.index',
-            'uses' => 'Lavado\LavadoController@index'
-        ]);
-
-        Route::get('/imprimir/{etiqueta}/{qty}', [
-            'as' => 'aoicollector.stocker.lavado.imprimir.etiqueta',
-            'uses' => 'Lavado\LavadoController@imprimir'
-        ]);
-
-        Route::get('/finish/{etiqueta}', [
-            'as' => 'aoicollector.stocker.lavado.imprimir.etiqueta.finish',
-            'uses' => 'Lavado\LavadoController@finishClean'
-        ]);
-
-        Route::match(['get', 'post'], '/etiquetar', [
-            'as' => 'stocker.lavado.etiquetar',
-            'uses' => 'Lavado\LavadoController@etiquetar'
-        ]);
-    });
+    Route::get('/redeclarewitherror/{stkbarcode}', [
+        'as' => 'aoicollector.stocker.view.redeclarewitherror',
+        'uses' => 'View\TrazaStockerView@view_reDeclareWithError'
+    ]);
 
     Route::group(['prefix' => 'route'], function() {
 
@@ -51,6 +37,11 @@ Route::group([
         Route::get('/remove/{stkbarcode}', [
             'as' => 'aoicollector.stocker.prod.view.remove',
             'uses' => 'View\StockerView@view_removeStocker'
+        ]);
+
+        Route::get('/config/{stkbarcode}/{limite}/{bloques}', [
+            'as' => 'aoicollector.stocker.prod.config',
+            'uses' => 'Controller\StockerController@configStocker'
         ]);
     });
 

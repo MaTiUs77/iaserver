@@ -28,7 +28,7 @@ class PanelWithAoi extends StockerController
             if (isset($stocker->op) && isset($panel->inspected_op)) {
                 if ($stocker->op == $panel->inspected_op) {
                     // Solo se aceptan paneles OK
-                    if ($panel->revision_ins == 'OK') {
+                    if ($panel->revision_ins == 'OK' || $panel->revision_ins == 'SCRAP') {
                         if ($panelInfo->last->analisis->despachar)
                         {
                             $panelStocker = new PanelStocker();
@@ -37,7 +37,7 @@ class PanelWithAoi extends StockerController
                             $output = array('error' => 'No se leyeron correctamente las etiquetas del panel, es necesaria una nueva inspeccion');
                         }
                     } else {
-                        $output = array('error' => 'El panel se detecto (NG), no se permite el ingreso al stocker. Es requerida una nueva inspeccion.');
+                        $output = array('error' => 'El panel se detecto ('.$panel->revision_ins.'), no se permite el ingreso al stocker. Es requerida una nueva inspeccion.');
                     }
                 } else {
                     $output = array('error' => 'La ' . $panel->inspected_op . ' del panel no coincide con la ' . $stocker->op . ' del stocker');

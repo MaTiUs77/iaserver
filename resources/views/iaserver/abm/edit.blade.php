@@ -1,6 +1,7 @@
 @extends('adminlte/theme')
 @section('ng','app')
-@section('title','Editar usuario')
+@section('mini',true)
+@section('title','Administracion - Editar usuario')
 @section('body')
     @include('iaserver.abm.partial.header')
 
@@ -57,27 +58,37 @@
         <div class="form-group">
 
             <div class="col-sm-4 col-sm-offset-1">
-                <select class="form-control" name="permiso">
-                    <option value="" selected="selected">- Asignar permisos -</option>
-                    @foreach($roles as $rol)
-                        <option value="{{ $rol->id }}">{{ $rol->display_name }}</option>
-                    @endforeach
+                <?php
+                    $permisosActuales = $user->roles()->get();
+                    $permisosId = array_pluck($permisosActuales->toArray(),'id');
+                ?>
+               <h4>Asignar permisos</h4>
+               <select class="s2_permiso form-control" multiple="multiple" name="permiso[]">
+                   @foreach($roles as $rol)
+                       <option value="{{ $rol->id }}" {!! in_array($rol->id,$permisosId) ? 'selected="selected"' : '' !!} >{{ $rol->display_name }}</option>
+                   @endforeach
                 </select>
-
-                <hr>
-                <h4>Asignados</h4>
-                @foreach($user->roles()->get() as $rol)
-                    <button class="btn btn-xs btn-default">{{ $rol->display_name }}</button>
-                @endforeach
             </div>
         </div>
 
         <div class="form-group">
             <div class="col-sm-4 col-sm-offset-1">
-                <input id="submit" name="submit" type="submit" value="Actualizar" class="btn btn-primary">
+                <input id="submit" name="submit" type="submit" value="Actualizar" class="btn btn-success">
             </div>
         </div>
     </form>
 
-    @include('p2i.common.footer')
+
+    @include('iaserver.abm.partial.footer')
+@endsection
+
+@section('footer')
+    <script>
+        $(function(){
+            $(".s2_permiso").select2({
+                tags: true,
+                placeholder: "Ingresar permisos"
+            })
+        });
+    </script>
 @endsection

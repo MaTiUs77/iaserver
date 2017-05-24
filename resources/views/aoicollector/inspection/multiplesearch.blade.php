@@ -69,7 +69,7 @@
                                         </tr>
                                     @else
                                         <!-- Si hay un error los muestro -->
-                                        <tr class="{{ ($inspection->panel->revision_aoi == 'OK' && $inspection->panel->revision_ins == 'OK' ) ? 'success' : '' }} {{ ($inspection->panel->revision_ins == 'NG' ) ? 'danger' : '' }}">
+                                        <tr class="{{ ($inspection->panel->revision_aoi == 'OK' && $inspection->panel->revision_ins == 'OK' ) ? 'success' : '' }} {{ ($inspection->panel->revision_ins == 'NG' ) ? 'danger' : '' }} {{ ($inspection->panel->revision_ins == 'SCRAP' ) ? 'warning' : '' }}">
                                             <td style="width:50px;">
                                                 <button id_panel="{{ $inspection->panel->id_panel_history }}" route="{{ route('aoicollector.inspection.blocks',$inspection->panel->id_panel_history) }}" ng-click="getInspectionBlocks($event);" class="btn btn-xs btn-default">Bloques</button>
                                             </td>
@@ -108,30 +108,4 @@
 
     @include('iaserver.common.footer')
     {!! IAScript('vendor/aoicollector/inspection/inspection.js') !!}
-
-
-            <!-- Include Date Range Picker -->
-    {!! IAScript('assets/moment.min.js') !!}
-    {!! IAScript('assets/moment.locale.es.js') !!}
-    {!! IAScript('assets/jquery/daterangepicker/daterangepicker.js') !!}
-    {!! IAStyle('assets/jquery/daterangepicker/daterangepicker.css') !!}
-    <script type="text/javascript">
-        moment.locale("es");
-
-        $(function() {
-            $('input[name="inspection_date_session"]').daterangepicker({
-                locale: {
-                    format: 'DD/MM/YYYY',
-                    customRangeLabel: 'Definir rango'
-                },
-                ranges: {
-                    'Hoy': [moment(), moment()],
-                    'Ayer': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                    'Ultimos 7 dias': [moment().subtract(6, 'days'), moment()]
-                },
-                autoApply: true,
-                singleDatePicker: true
-            });
-        });
-    </script>
 @endsection

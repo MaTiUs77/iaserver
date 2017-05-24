@@ -13,7 +13,7 @@ class Stocker extends Model
     protected $connection = 'aoidata';
     protected $table = 'aoidata.stocker';
 
-    protected $fillable = ['semielaborado'];
+    protected $fillable = ['semielaborado','limite','bloques'];
 
     public function joinPanel()
     {

@@ -29,3 +29,4 @@ require('Controllers/Molinete/routes.php');
 require('Controllers/MonitorPiso/routes.php');
 require('Controllers/OvenLog/routes.php');
 require('Controllers/Scrap/routes.php');
+require('Controllers/ControlDeStencil/routes.php');

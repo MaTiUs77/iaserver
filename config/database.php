@@ -350,6 +350,18 @@ return [
             'prefix'   => '',
             'schema'   => 'public',
         ],
+
+        'stencil' => [
+            'driver'   => 'mysql',
+            'host'     => env('NPMPICKER_HOST', '10.30.10.22'),
+            'database' => env('STENCIL_DATABASE', 'stencil'),
+            'username' => env('STENCIL_USERNAME', 'stencil'),
+            'password' => env('STENCIL_PASSWORD', 'stencil'),
+            'charset'  => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix'   => '',
+            'schema'   => 'public',
+        ],
     ],
 
     /*

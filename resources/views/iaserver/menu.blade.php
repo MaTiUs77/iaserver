@@ -1,4 +1,3 @@
-
 <nav>
     <ul>
     @foreach($root as $m)

@@ -1,11 +1,5 @@
 @extends('inventario.index')
 @section('ng','app')
-@section('head')
-    {!! IAScript('adminlte/plugins/datatables/jquery.dataTables.min.js') !!}
-    {!! IAScript('adminlte/plugins/datatables/dataTables.bootstrap.min.js') !!}
-    {!! IAStyle('adminlte/plugins/datatables/dataTables.bootstrap.css') !!}
-    {{--{!! IAStyle('assets/bootswatch/paper/bootstrap.min.css') !!}--}}
-@endsection
 @section('body')
     @if(hasRole('smtdatabase_operator') || isAdmin())
     <h2>Reporte de Impresiones</h2>
@@ -22,7 +16,7 @@
                             <option value="{{$planta->id_planta}}">{{$planta->descripcion}}</option>
                             @endforeach
                         </select>
-                        <input type="text" name="pizarra_fecha" value="{{ Session::get('pizarra_fecha') }}" placeholder="Seleccionar fecha" class="form-control"/>
+                        <input type="text" name="pizarra_fecha" value="{{ Session::get('pizarra_fecha') }}" placeholder="Seleccionar fecha" class="form-control fulldatarangepicker"/>
 
                                 <div class="pull-right">
                                 <button type="submit" class="btn btn-success"><span class="fa fa-file-excel-o"></span> Exportar a Excel</button>
@@ -36,34 +30,6 @@
                 {!! IAScript('vendor/iaserver/iaserver.js') !!}
                 {!! IAScript('vendor/inventario/consulta/consulta.factory.js') !!}
                 {!! IAScript('vendor/inventario/consulta/reportes.controller.js') !!}
-                {!! IAScript('assets/moment.min.js') !!}
-                        <!-- Include Date Range Picker -->
-                {!! IAScript('assets/moment.locale.es.js') !!}
-                {!! IAScript('assets/jquery/daterangepicker/daterangepicker.js') !!}
-                {!! IAStyle('assets/jquery/daterangepicker/daterangepicker.css') !!}
-
-                <script type="text/javascript">
-                    $(function() {
-                        $('input[name="pizarra_fecha"]').daterangepicker({
-                            locale: {
-                                format: 'YYYY-MM-DD',
-                                customRangeLabel: 'Definir rango'
-                            },
-                            ranges: {
-                                'Hoy': [moment(), moment()],
-                                'Ayer': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                                'Ultimos 7 dias': [moment().subtract(6, 'days'), moment()],
-                                'Ultimos 30 dias': [moment().subtract(29, 'days'), moment()],
-                                'Este Mes': [moment().startOf('month'), moment().endOf('month')],
-                                'Ultimo Mes': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-                            },
-                            autoApply: true
-                        });
-                    });
-
-                    moment.locale("es");
-
-                </script>
 
             </div>
         </div>

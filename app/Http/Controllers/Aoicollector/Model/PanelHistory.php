@@ -15,7 +15,6 @@ class PanelHistory extends Model
     protected $table = 'aoidata.history_inspeccion_panel';
     public $timestamps = false;
 
-
     /**
      * Relacion de history_inspeccion_panel.id_maquina con maquina.id
      *
@@ -31,9 +30,19 @@ class PanelHistory extends Model
         return $this->hasMany('IAServer\Http\Controllers\Aoicollector\Model\BloqueHistory', 'id_panel_history', 'id_panel_history');
     }
 
+    public function joinPanel()
+    {
+        return $this->hasOne('IAServer\Http\Controllers\Aoicollector\Model\Panel', 'id', 'id');
+    }
+
     public function joinFirstInspection()
     {
         return $this->hasOne('IAServer\Http\Controllers\Aoicollector\Model\PanelHistory', 'id_panel_history', 'first_history_inspeccion_panel');
+    }
+
+    public function joinLastInspection()
+    {
+        return $this->hasOne('IAServer\Http\Controllers\Aoicollector\Model\PanelHistory', 'id_panel_history', 'last_history_inspeccion_panel');
     }
 
     public function twip()

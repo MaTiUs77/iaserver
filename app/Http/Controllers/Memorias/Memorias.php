@@ -6,6 +6,7 @@ use IAServer\Http\Controllers\IAServer\Debug;
 use IAServer\Http\Controllers\Ingenieria\Ingenieria;
 use IAServer\Http\Controllers\Memorias\Model\Grabacion;
 use IAServer\Http\Controllers\Memorias\Model\Plan;
+use IAServer\Http\Controllers\Memorias\Model\ZebraMemorias;
 use IAServer\Http\Controllers\SMTDatabase\Model\OrdenTrabajo;
 use IAServer\Http\Controllers\Trazabilidad\Declaracion\Wip\Wip;
 use IAServer\Http\Controllers\Trazabilidad\Declaracion\Wip\WipSerie;
@@ -21,10 +22,20 @@ class Memorias extends Controller
     //$host = '10.30.56.116'; // Ultima Zebra en Memorias
     //$host = '10.30.30.128'; // Zebra de Diego
 
-    public $zebra_ip = '10.30.79.194';
+    public $zebra_ip = '10.128.30.16';
     public $zebra_port = 9100;
     public $zebra_prn = 'zebra/memorias';
     public $zebra_ebs = 'P3-UshZebra5';
+
+    public function __construct()
+    {
+        $config = ZebraMemorias::where('name','default')->first();
+
+        $this->zebra_ip = $config->impresora_ip;
+        $this->zebra_port = $config->impresora_port;
+        $this->zebra_prn = $config->prn;
+        $this->zebra_ebs = $config->ebs;
+    }
 
     public static function updateTransPendientes()
     {

@@ -4,6 +4,7 @@ namespace IAServer\Http\Controllers\Aoicollector\Stocker;
 
 use Carbon\Carbon;
 use IAServer\Http\Controllers\Aoicollector\Inspection\FindInspection;
+use IAServer\Http\Controllers\Aoicollector\Inspection\VerificarDeclaracion;
 use IAServer\Http\Controllers\Aoicollector\Model\Produccion;
 use IAServer\Http\Controllers\Aoicollector\Model\TransaccionWip;
 use IAServer\Http\Controllers\Aoicollector\Stocker\Controller\StockerController;
@@ -128,6 +129,7 @@ class PanelStockerController extends StockerController
     public function declarePanel($panelBarcode)
     {
         $find = new FindInspection();
+        $find->onlyLast = true;
         $panel = (object) $find->barcode($panelBarcode);
 
         $output = array();
@@ -156,6 +158,35 @@ class PanelStockerController extends StockerController
         }
 
         return (array) $output;
+    }
+
+    public function declaredDetail($panelBarcode) {
+        $find = new FindInspection();
+        $find->onlyLast = true;
+        $panel = (object) $find->barcode($panelBarcode);
+
+        if(!isset($panel->error)) {
+            $panel = $panel->last->panel;
+
+            if ($panel->isSecundario()) {
+                $verify = new VerificarDeclaracion();
+                $interfazWip = $verify->panelSecundarioEnInterfazWip($panel);
+
+                $panel->verificarDeclaracion = $interfazWip;
+            } else {
+                $verify = new VerificarDeclaracion();
+                $interfazWip = $verify->panelEnTransaccionesWipOrCheckInterfazWip($panel);
+
+                $panel->verificarDeclaracion = $interfazWip;
+            }
+
+            $output = $panel;
+
+        } else {
+            $output = $panel;
+        }
+
+        return $output;
     }
 
     /**

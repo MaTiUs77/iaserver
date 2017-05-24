@@ -10,6 +10,8 @@
   <title>IAServer 4.0 - @yield('title')</title>
   <!-- Tell the browser to be responsive to screen width -->
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <!-- Select2 -->
+    {!! IAStyle('adminlte/plugins/select2/select2.min.css') !!}
     <!-- jQuery 2.2.3 -->
     {!! IAScript('adminlte/plugins/jQuery/jquery-2.2.3.min.js') !!}
     <!-- Bootstrap 3.3.6 -->
@@ -45,10 +47,16 @@
     {!! IAStyle('adminlte/plugins/datatables/dataTables.bootstrap.css') !!}
     {!! IAScript('adminlte/plugins/datatables/jquery.dataTables.min.js') !!}
     {!! IAScript('adminlte/plugins/datatables/dataTables.bootstrap.min.js') !!}
-
+    <!-- Moments en español -->
+    {!! IAScript('assets/moment.min.js') !!}
+    {!! IAScript('assets/moment.locale.es.js') !!}
+    <!-- DataRangePicker -->
+    {!! IAScript('assets/jquery/daterangepicker/daterangepicker.js') !!}
+    {!! IAStyle('assets/jquery/daterangepicker/daterangepicker.css') !!}
+    <!-- Angular DataTables -->
+    {!! IAScript('assets/angular-datatables/angular-datatables.min.js') !!}
     <script>
-      function remoteLink(uri)
-      {
+      function remoteLink(uri) {
         document.getElementById("ltebody").innerHTML='<object type="text/html" data="'+uri+'"  width="100%" height="2000"></object>';
       }
     </script>
@@ -110,11 +118,15 @@
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <section class="content">
+      @hasSection('nobox')
+        @yield('body')
+      @else
         <div class="box">
-            <div class="box-body" id="ltebody">
-              @yield('body')
-            </div>
+          <div class="box-body" id="ltebody">
+            @yield('body')
+          </div>
         </div>
+      @endif
     </section>
     <!-- /.content -->
   </div>
@@ -127,8 +139,23 @@
 
 <toasty></toasty>
 
-<script>
+<!-- iCheck para checkboxes -->
+{!! IAStyle('adminlte/plugins/iCheck/all.css') !!}
+{!! IAScript('adminlte/plugins/iCheck/icheck.min.js') !!}
+
+<!-- Select2 -->
+{!! IAScript('adminlte/plugins/select2/select2.full.min.js') !!}
+
+<script type="text/javascript">
+  // Moment en español
+  moment.locale("es");
+
+  // Funcion para levantar el datatable
   $(function() {
+    //Initialize Select2 Elements
+    $(".select2").select2();
+
+    //Initialize datatable Elements
     $(".datatable").DataTable( {
       "language": {
         "scrollX": true,
@@ -144,8 +171,51 @@
         }
       }
     });
+
+    // Datapicker sin rango de fechas
+    $('input.defaultdatapicker').daterangepicker({
+      locale: {
+        format: 'DD/MM/YYYY'
+      },
+      autoApply: true,
+      singleDatePicker: true
+    });
+
+    // Datapicker con rango de fechas
+    $('input.defaultdatarangepicker').daterangepicker({
+      locale: {
+        format: 'DD/MM/YYYY',
+        customRangeLabel: 'Definir rango'
+      },
+      ranges: {
+        'Hoy': [moment(), moment()],
+        'Ayer': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+        'Ultimos 7 dias': [moment().subtract(6, 'days'), moment()]
+      },
+      autoApply: true
+    });
+
+    // Datapicker con rango de fechas full
+    $('input.fulldatarangepicker').daterangepicker({
+      locale: {
+        format: 'DD/MM/YYYY',
+        customRangeLabel: 'Definir rango'
+      },
+      ranges: {
+        'Hoy': [moment(), moment()],
+        'Ayer': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+        'Ultimos 7 dias': [moment().subtract(6, 'days'), moment()],
+        'Ultimos 30 dias': [moment().subtract(29, 'days'), moment()],
+        'Este Mes': [moment().startOf('month'), moment().endOf('month')],
+        'Ultimo Mes': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+      },
+      autoApply: true
+    });
   });
 </script>
+
+
+@yield('footer')
 
 </body>
 </html>

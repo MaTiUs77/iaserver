@@ -13,7 +13,8 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        \IAServer\Console\Commands\AoicollectorStatExport::class
+        \IAServer\Console\Commands\AoicollectorStatExport::class,
+        \IAServer\Console\Commands\ReworkStatExport::class
     ];
 
     /**

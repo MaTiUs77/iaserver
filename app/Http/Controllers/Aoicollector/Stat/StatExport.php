@@ -72,11 +72,13 @@ class StatExport extends StatController
                 $toResume->modelo = $smt->modelo;
                 $toResume->lote = $smt->lote;
                 $toResume->panel = $smt->panel;
+                $toResume->semielaborado = $smt->semielaborado;
             } else
             {
                 $toResume->modelo = '';
                 $toResume->lote = '';
                 $toResume->panel = '';
+                $toResume->semielaborado = null;
             }
 
             $toResume->total_paneles = $item->total_paneles;

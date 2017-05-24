@@ -40,7 +40,7 @@
                         <option>SMD-5</option>
                     </select>
 -->
-                    <input type="text" name="pizarra_fecha_range" value="{{ Session::get('pizarra_fecha_range') }}" placeholder="Seleccionar fecha" class="form-control"/>
+                    <input type="text" name="pizarra_fecha_range" value="{{ Session::get('pizarra_fecha_range') }}" placeholder="Seleccionar fecha" class="form-control defaultdatapicker"/>
                 </div>
                 <button type="submit" class="btn btn-info"><i class="glyphicon glyphicon-calendar"></i> Aplicar</button>
             </form>
@@ -151,8 +151,6 @@
     @include('iaserver.common.footer')
 
     {!! IAScript('assets/highstock/js/highstock.js') !!}
-    {!! IAScript('assets/moment.min.js') !!}
-
 
     <script>
         function chartController(title, renderTo, series, tooltip, legend, enableNavigator)
@@ -230,33 +228,6 @@
         {
         });
     </script>
-
-<!-- Include Date Range Picker -->
-{!! IAScript('assets/moment.locale.es.js') !!}
-{!! IAScript('assets/jquery/daterangepicker/daterangepicker.js') !!}
-{!! IAStyle('assets/jquery/daterangepicker/daterangepicker.css') !!}
-<script type="text/javascript">
-    moment.locale("es");
-
-    $(function() {
-        $('input[name="pizarra_fecha_range"]').daterangepicker({
-            locale: {
-                format: 'DD/MM/YYYY',
-                customRangeLabel: 'Definir rango'
-            },
-            ranges: {
-                'Hoy': [moment(), moment()],
-                'Ayer': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                'Ultimos 7 dias': [moment().subtract(6, 'days'), moment()],
-                'Ultimos 30 dias': [moment().subtract(29, 'days'), moment()],
-                'Este Mes': [moment().startOf('month'), moment().endOf('month')],
-                'Ultimo Mes': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-            },
-            autoApply: true,
-            singleDatePicker: true
-        });
-    });
-</script>
 
 @endsection
 

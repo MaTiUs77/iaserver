@@ -187,7 +187,15 @@ class InspectionList extends Controller
                 where
                 subt.barcode = hp.panel_barcode
                 order by subt.created_at desc limit 1
-            ) as ultima_ruta
+            ) as ultima_ruta,
+            (
+                select stk.barcode from `aoidata`.`stocker_detalle` as stkd
+                inner join aoidata.stocker stk on stk.id = stkd.id_stocker
+                where
+                stkd.id_panel = hp.id
+                limit 1
+            ) as stocker,
+            SEC_TO_TIME((TIME_TO_SEC(hp.created_time) DIV (60*60)) * (60*60)) AS periodo
             "))
             ->from("aoidata.history_inspeccion_panel as hp")
             ->where("hp.id_maquina",$this->idMaquina)
@@ -223,6 +231,20 @@ class InspectionList extends Controller
                 select trans_ok from `aoidata`.`transaccion_wip` as subt where
                 subt.barcode = hp.panel_barcode
             ) as trans_ok,
+            (
+                select stkr.name from `aoidata`.`transaccion_wip` as subt
+                inner join aoidata.stocker_route stkr on stkr.id = subt.id_last_route
+                where
+                subt.barcode = hp.panel_barcode
+                order by subt.created_at desc limit 1
+            ) as ultima_ruta,
+            (
+                select stk.barcode from `aoidata`.`stocker_detalle` as stkd
+                inner join aoidata.stocker stk on stk.id = stkd.id_stocker
+                where
+                stkd.id_panel = hp.id
+                limit 1
+            ) as stocker,
             SEC_TO_TIME((TIME_TO_SEC(hp.created_time) DIV (60*60)) * (60*60)) AS periodo
 	        "))
             ->from("aoidata.history_inspeccion_panel as hp")
@@ -275,15 +297,37 @@ class InspectionList extends Controller
     public function bloqueFirstGlobalApparition()
     {
         $q = PanelHistory::select(DB::raw("
+            hb.barcode,
+            p.programa,
             hp.turno,
+            hb.revision_aoi,
+            hb.revision_ins,
+            hb.errores,
+            hb.falsos,
+            hb.reales,
             hp.inspected_op,
+            p.semielaborado,
             hp.created_date,
-            hb.*,
+            hp.created_time,
             (
                 select trans_ok from `aoidata`.`transaccion_wip` as subt where
                 subt.barcode = hb.barcode
                 order by subt.created_at  desc limit 1
             ) as trans_ok,
+            (
+                select stkr.name from `aoidata`.`transaccion_wip` as subt
+                inner join aoidata.stocker_route stkr on stkr.id = subt.id_last_route
+                where
+                subt.barcode = hb.barcode
+                order by subt.created_at desc limit 1
+            ) as ultima_ruta,
+            (
+                select stk.barcode from `aoidata`.`stocker_detalle` as stkd
+                inner join aoidata.stocker stk on stk.id = stkd.id_stocker
+                where
+                stkd.id_panel = p.id
+                limit 1
+            ) as stocker,
             SEC_TO_TIME((TIME_TO_SEC(hp.created_time) DIV (60*60)) * (60*60)) AS periodo
 	        "))
             ->from("aoidata.history_inspeccion_panel as hp")

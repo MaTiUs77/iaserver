@@ -13,14 +13,25 @@
 @else
     {{ $controldeplacas->scalar }}
 
-    @if($wip->active)
-        <?php
-            $diferenciaDeclarada = $wip->wip_ot->quantity_completed - $controldeplacas->scalar;
-        ?>
-        @if($diferenciaDeclarada>0)
-            <span style="color: #5CB85C;font-size:14px;">
-                +{{ $diferenciaDeclarada }}
-            </span>
+    <?php
+        //$diferenciaDeclarada = $wip->wip_ot->quantity_completed - $controldeplacas->scalar;
+
+        $allstocker = \IAServer\Http\Controllers\Aoicollector\Model\Stocker::vista()
+            ->where('op', $op)
+            ->where('paneles','>',0)
+            ->where('id_stocker_route', 1)
+            ->orderBy('created_at','desc')
+            ->get();
+
+    ?>
+    @if(count($allstocker)>0)
+        <span style="color: #5CB85C;font-size:14px;">
+            +{{ $allstocker->sum('paneles') * $allstocker->first()->bloques }}
+        </span>
+
+        @if(isset($wip))
+        <small>Stockers</small>
+            <a class="btn btn-sm btn-success" ng-click="openModal('{{ route('trazabilidad.form.allprodstocker',$wip->wip_ot->nro_op) }}','Stockers en produccion','success')">Ver stockers en produccion</a>
         @endif
     @endif
 @endif

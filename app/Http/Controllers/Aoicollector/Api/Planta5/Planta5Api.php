@@ -59,6 +59,13 @@ class Planta5Api extends CollectorClientApi
                 $request->debugPro->append("OK");
             }
 
+            if($placa->cuarentena->isBlocked)
+            {
+                $output['estado'] = 'NG';
+                $output['mensaje'] = 'En cuarentena: '.$placa->cuarentena->causa->motivo;
+                $request->debugPro->append("CUARENTENA");
+            }
+
             // Define la ruta de la placa en Planta 5 Montaje
             $twip = TransaccionWip::where('barcode',$placa->barcode)->first();
             if($twip!=null) {

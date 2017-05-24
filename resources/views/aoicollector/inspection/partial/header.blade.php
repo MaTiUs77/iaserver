@@ -14,39 +14,77 @@
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
                 <li>
-                    <a href="{{ route('aoicollector.stat.index') }}">Ver Estadisticas</a>
-                </li>
+
+                        <div class="btn-group" style="margin-top:8px;">
+                            <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
+                                Aplicaciones <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                                <li>
+                                    <a href="{{ route('aoicollector.stat.index') }}">Ver Estadisticas</a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('aoicollector.inspection.defectos.periodo') }}">Defectos por periodo</a>
+                                </li>
+                                <li>
+                                    <a href="{{ url('aoicollector/cuarentena') }}">Cuarentena</a>
+                                </li>
+                            </ul>
+                        </div>
+
                 <li>
-                    <a href="{{ route('aoicollector.inspection.defectos.periodo') }}">Defectos por periodo</a>
-                </li>
-                <li>
-                    <a href="#search"><i class="glyphicon glyphicon-search"></i> Buscar placa</a>
+                    <a href="#search"><i class="fa fa-search"></i> Buscar placa</a>
                 </li>
 
                 <li class="dropdown user user-menu" >
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                        <span class="hidden-xs"><i class="glyphicon glyphicon-search"></i> Busqueda multiple</span>
+                        <span class="hidden-xs"><i class="fa fa-search-plus"></i> Busqueda multiple</span>
                     </a>
 
                     <ul class="dropdown-menu" style="width:300px;height:200px;">
                         <!-- The user image in the menu -->
                         <form method="POST" action="{{ route('aoicollector.inspection.multiplesearch') }}">
                             <div class="box box-primary box-solid" style="width:100%;height:100%">
-                            <div class="box-body">
-                                <textarea style="height:100px;" name="barcodes" class="form-control" placeholder="Ingresar multiples barcode" ng-required="true"/></textarea>
+                                <div class="box-body">
+                                    <textarea style="height:100px;" name="barcodes" id="multiplebarcode" class="form-control" placeholder="Ingresar multiples barcode" ng-required="true"/></textarea>
+                                </div>
+                                <div class="box-footer">
+                                    <button type="submit" style="float:left;" name="mode" value="first" class="btn btn-info">Primer resultado</button>
+                                    <button type="submit" style="float:left;margin-left:5px;"  name="mode" value="last" class="btn btn-info">Ultimo resultado</button>
+                                </div>
                             </div>
-                            <div class="box-footer">
-                                <button type="submit" style="float:left;" name="mode" value="first" class="btn btn-info">Primer resultado</button>
-                                <button type="submit" style="float:left;margin-left:5px;"  name="mode" value="last" class="btn btn-info">Ultimo resultado</button>
-                            </div>
-                        </div>
                         </form>
                     </ul>
                 </li>
+
+                @if(isAdmin())
+                    <li class="dropdown user user-menu" >
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <span class="hidden-xs"><i class="fa fa-heartbeat"></i> Cuarentena</span>
+                        </a>
+
+                        <ul class="dropdown-menu" style="width:300px;height:200px;">
+                            <!-- The user image in the menu -->
+                            <form method="POST" action="{{ url('aoicollector/cuarentena') }}">
+                                <div class="box box-danger box-solid" style="width:100%;height:100%">
+                                    <div class="box-body">
+                                        <textarea style="height:100px;" name="barcodes" class="form-control" placeholder="Ingresar multiples barcode" ng-required="true"/></textarea>
+                                        <h5>Redactar motivo</h5>
+                                        <textarea style="height:100px;" name="motivo" class="form-control" placeholder="Ingresar motivo de cuarentena" ng-required="true"/></textarea>
+                                    </div>
+                                    <div class="box-footer">
+                                        <button type="submit" style="float:left;" name="tipo" value="CODE" class="btn btn-danger btn-block">Crear cuarentena</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </ul>
+                    </li>
+                @endif
+
                 <li>
                     <form method="GET" action="{{ route('aoicollector.inspection.show',$maquina->id) }}" class="navbar-form">
                         <div class="form-group">
-                            <input type="text" name="inspection_date_session" value="{{ Session::get('inspection_date_session') }}" placeholder="Seleccionar fecha" class="form-control"/>
+                            <input type="text" name="inspection_date_session" value="{{ Session::get('inspection_date_session') }}" placeholder="Seleccionar fecha" class="form-control defaultdatapicker"/>
                         </div>
                         <button type="submit" class="btn btn-info"><i class="glyphicon glyphicon-calendar"></i> Aplicar</button>
                     </form>

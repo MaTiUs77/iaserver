@@ -36,34 +36,45 @@ class IAServerController extends Controller
         $root = array();
         foreach($all_menu as $menu)
         {
-            // Por defecto se muestran las opciones del menu
-            $print_menu = true;
-
-            // Muestra / Oculta las opciones que no coincidan con nuestro permiso
-            $permisos = explode(',',$menu->permiso);
-            if(!empty($menu->permiso))
-            {
-                if(Auth::user() && Auth::user()->hasRole($permisos))
-                {
-                    $print_menu = true;
-                } else
-                {
-                    $print_menu = false;
-                }
-            }
-
-            if($print_menu)
+            if(self::menuAccess($menu->permiso))
             {
                 $root[$menu->id] = $menu;
                 $root[$menu->id]['submenu'] = array_filter(iterator_to_array($all_menu), function($m) use($menu) {
                     if($m->root == $menu->id) {
-                        return $m;
+                        if(self::menuAccess($m->permiso)) {
+                            return $m;
+                        }
                     }
                 });
             }
         }
 
         return $root;
+    }
+
+    public static function menuAccess($permisos) {
+        // Por defecto no se imprime el menu root
+        $print = false;
+
+        // Verifico permisos del menu
+        $permisosToArray = explode(',',$permisos);
+
+        // Si el menu no requiere permisos lo muestro
+        if($permisos==null) {
+            $print = true;
+        } else {
+            // El menu requiere permisos, verifico si el usuario dispone de los mismos
+            if(Auth::user() && Auth::user()->hasRole($permisosToArray))
+            {
+                $print = true;
+            } else
+            {
+                // No esta autenticado o no tiene permisos... oculto menu
+                $print = false;
+            }
+        }
+
+        return $print;
     }
 
     public function logo()

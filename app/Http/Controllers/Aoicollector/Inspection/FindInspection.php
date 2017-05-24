@@ -2,6 +2,7 @@
 
 namespace IAServer\Http\Controllers\Aoicollector\Inspection;
 
+use IAServer\Http\Controllers\Aoicollector\Cuarentena\CuarentenaController;
 use IAServer\Http\Controllers\Aoicollector\Model\BloqueHistory;
 use IAServer\Http\Controllers\Aoicollector\Model\PanelHistory;
 use IAServer\Http\Requests;
@@ -41,6 +42,10 @@ class FindInspection extends Controller
      * @var bool Adjunta ultima ruta de la placa
      */
     public $withLastRoute = false;
+    /**
+     * @var bool Adjunta estado de cuarentena
+     */
+    public $withCuarentena = false;
 
     public function barcode($barcode)
     {
@@ -56,6 +61,7 @@ class FindInspection extends Controller
 
             if(count($placas)>0)  {
                 if(count($placas)==1)  {
+
                     $result = new \stdClass();
                     $result->first = $this->panelDataHandler($placas->last());
                     $result->last = $result->first;
@@ -92,9 +98,16 @@ class FindInspection extends Controller
                  * Hay que buscar en paneles el codigo sin el guion
                  */
                 $panel = PanelHistory::buscarPanel($barcode);
+
                 if(count($panel)>0) {
                     $result = new \stdClass();
-                    $result->first = $this->panelDataHandler($panel->last());
+
+                    if($this->onlyLast) {
+                        $result->first = null;
+                    } else {
+                        $result->first = $this->panelDataHandler($panel->last());
+                    }
+
                     $result->last = $this->panelDataHandler($panel->first());
 
                     if ($this->withHistory) {
@@ -154,6 +167,12 @@ class FindInspection extends Controller
             $verify = new VerificarDeclaracion();
             $verifyResult = $verify->bloqueEnTransaccionWip($placa->barcode);
             $moreInfo->wip = $verifyResult;
+        }
+
+        if($this->withCuarentena)
+        {
+            $cuarentena = new CuarentenaController();
+            $moreInfo->cuarentena = $cuarentena->getDetail($placa->barcode);
         }
 
         return $moreInfo;

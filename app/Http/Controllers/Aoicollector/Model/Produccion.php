@@ -169,10 +169,15 @@ class Produccion extends Model
 
                     // Adhiero informacion de SFCS
                     if ($option->sfcsroute) {
-                        $sf = new Sfcs();
-                        $sfcs = $sf->declareMode($prod->op, $prod->line_id, $prod->modelo_id, $prod->puesto_id);
 
-                        $prod->sfcs = $sfcs;
+                        if($prod->line_id != null && $prod->modelo_id != null && $prod->puesto_id != null)
+                        {
+                            $sf = new Sfcs();
+                            $sfcs = $sf->declareMode($prod->op, $prod->line_id, $prod->modelo_id, $prod->puesto_id);
+                            $prod->sfcs = $sfcs;
+                        } else {
+                            $prod->sfcs = ['error'=>'Faltan datos'];
+                        }
                     }
 
                     // Adhiero informacion de stockers

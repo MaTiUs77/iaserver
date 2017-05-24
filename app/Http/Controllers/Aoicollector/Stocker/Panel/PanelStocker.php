@@ -100,6 +100,7 @@ class PanelStocker extends StockerController
 
         return $output;
     }
+
     public function broadcast($stockerBarcode,$stockerInfo)
     {
         // Guarda los datos del stocker, se mantienen por 1 semana

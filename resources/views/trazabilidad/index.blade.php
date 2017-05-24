@@ -1,5 +1,6 @@
-@extends('angular')
+@extends('adminlte/theme')
 @section('ng','app')
+@section('mini',true)
 @section('title','Trazabilidad')
 @section('body')
     <div ng-controller="trazaController">

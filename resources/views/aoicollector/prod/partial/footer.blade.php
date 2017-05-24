@@ -1,12 +1,11 @@
 @include('iaserver.common.footer')
 
-{!! IAScript('assets/adonis/ws.min.js') !!}
-{!! IAScript('assets/moment.min.js') !!}
 {!! IAScript('assets/bootstrap/js/bootstrap-switch.js') !!}
 
+{!! IAScript('assets/adonis/ws.min.js') !!}
 {!! IAScript('vendor/aoicollector/prod/prod.js') !!}
 
-<script>
+<script type="text/javascript">
     $(function(){
         var scope = angular.element($("[ng-controller='prodController']")).scope();
         var scopeHeader = angular.element($("[ng-controller='prodHeaderController']")).scope();

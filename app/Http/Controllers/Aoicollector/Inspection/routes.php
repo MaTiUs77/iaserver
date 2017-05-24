@@ -16,10 +16,18 @@ Route::group(['prefix' => 'inspection'], function()
     ]);
 
     // Exportar inspecciones
-    Route::get('/export/{id_maquina}/{fecha}/{minormax}',  [
-        'as' => 'aoicollector.inspection.export',
-        'uses' => 'Aoicollector\Inspection\InspectionExport@toExcel'
-    ]);
+    Route::group(['prefix' => 'export'], function()
+    {
+        Route::get('/bloques/{id_maquina}/{fecha}/{minormax}',  [
+            'as' => 'aoicollector.inspection.export.bloques',
+            'uses' => 'Aoicollector\Inspection\InspectionExport@bloquesToExcel'
+        ]);
+
+        Route::get('/panel/{id_maquina}/{fecha}/{minormax}',  [
+            'as' => 'aoicollector.inspection.export.panel',
+            'uses' => 'Aoicollector\Inspection\InspectionExport@toExcel'
+        ]);
+    });
 
     // Lista de inspecciones filtradas por maquina
     Route::get('/show/{id_maquina}/{pagina?}',  [

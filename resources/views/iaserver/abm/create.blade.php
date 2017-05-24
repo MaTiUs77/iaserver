@@ -1,6 +1,7 @@
 @extends('adminlte/theme')
 @section('ng','app')
-@section('title','Crear usuario')
+@section('mini',true)
+@section('title','Administracion - Crear usuario')
 @section('body')
     @include('iaserver.abm.partial.header')
 
@@ -42,20 +43,20 @@
 
         <div class="form-group">
             <div class="col-sm-4 col-sm-offset-1">
-                <input type="text" class="form-control" name="name" placeholder="Usuario, ej: mflores" value="{{  Input::old('name')  }}">
+                <input type="text" class="form-control" name="name"  autocomplete="off" placeholder="Usuario, ej: mflores" value="{{  Input::old('name')  }}">
             </div>
         </div>
 
         <div class="form-group">
             <div class="col-sm-4 col-sm-offset-1">
-                <input type="password" class="form-control" name="password" placeholder="Clave" value="">
+                <input type="password" class="form-control" name="password" placeholder="Clave"  autocomplete="off"  value="">
             </div>
         </div>
 
         <div class="form-group">
             <div class="col-sm-4 col-sm-offset-1">
-                <select class="form-control" name="permiso">
-                    <option value="" selected="selected">- Asignar permisos -</option>
+                <h4>Asignar permisos</h4>
+                <select class="s2_permiso form-control" multiple="multiple" name="permiso[]">
                     @foreach($roles as $rol)
                         <option value="{{ $rol->id }}">{{ $rol->display_name }}</option>
                     @endforeach
@@ -65,10 +66,21 @@
 
         <div class="form-group">
             <div class="col-sm-4 col-sm-offset-1">
-                <input id="submit" name="submit" type="submit" value="Guardar" class="btn btn-primary">
+                <input id="submit" name="submit" type="submit" value="Guardar" class="btn btn-success">
             </div>
         </div>
     </form>
 
-    @include('p2i.common.footer')
+    @include('iaserver.abm.partial.footer')
+@endsection
+
+@section('footer')
+    <script>
+        $(function(){
+            $(".s2_permiso").select2({
+                tags: true,
+                placeholder: "Ingresar permisos"
+            })
+        });
+    </script>
 @endsection

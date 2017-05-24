@@ -4,9 +4,16 @@ app.controller("prodController",
 
 	var io;
 	var client;
-	
+
     $rootScope.lastScannerCommand = { cmd:'', toastId:0 };
     $rootScope.configprod = {
+        wsocket: {
+            host: 'ARUSHAP34',
+            port: '3333'
+        },
+        wservice: {
+            host: 'ARUSHAP34'
+        },
         aoibarcode : IaCore.storage({name:'aoibarcode'})
     };
 	
@@ -14,8 +21,46 @@ app.controller("prodController",
     $rootScope.stockerService = {};
     $rootScope.inspectorService = {};
 
-//    $rootScope.socketserver = 'arushap34:3333';
-    $rootScope.socketserver = 'localhost:3333';
+    $rootScope.socketserver = $rootScope.configprod.wsocket.host+':'+$rootScope.configprod.wsocket.port;
+
+    $scope.lastProdinfoChannelData = moment();
+    $scope.prodInfoInterval = null;
+
+    $scope.prodUpdateInterval = function(){
+        $scope.prodInfoInterval = setInterval(function(){
+            var momentDiff = moment().diff($scope.lastProdinfoChannelData);
+            // Si han pasado 10 segundos, y todavia no hay actualizacion de estado... obtengo datos del service
+            if(momentDiff> (1000 * 10)) {
+                $scope.getProdinfo();
+                $scope.lastProdinfoChannelData = moment();
+            }
+        },1000);
+    };
+
+    $scope.getProdinfo = function() {
+        httpget = IaCore.http({
+            url: 'http://'+$rootScope.configprod.wservice.host+'/iaserver/public/api/aoicollector/prodinfo/'+$rootScope.configprod.aoibarcode,
+            method: 'GET',
+            timeout: 10
+        });
+
+        httpget.result.promise.then(function(data) {
+            console.log('getProdinfo()',$rootScope.configprod.aoibarcode,'Result:',data);
+
+            if($rootScope.stockerService) {
+                Stocker.autoscroll($rootScope.stockerService.paneles);
+            }
+
+        },function(err) {
+            console.log('getProdinfo()',$rootScope.configprod.aoibarcode,'Error:',err.error);
+
+            toasty.error({
+                title: "Produccion",
+                msg: err.error,
+                timeout: 2000
+            });
+        });
+    };
 
     io = ws($rootScope.socketserver, {});
     client = io.channel('inspectordash');
@@ -25,16 +70,20 @@ app.controller("prodController",
             return
         }
 
-        console.log('InspectorDash Connected');
+        console.log('Connected to server');
 
-        toasty.wait({
-            title: "Produccion",
-            msg: "Descargando informacion",
-            timeout: false,
-            onAdd: function(){
-                client.emit('start',$rootScope.configprod.aoibarcode,this.id);
-            }
-        });
+        if($rootScope.configprod.aoibarcode!=undefined) {
+            toasty.wait({
+                title: "Produccion",
+                msg: "Descargando informacion",
+                timeout: false,
+                onAdd: function(){
+                    client.emit('start',$rootScope.configprod.aoibarcode,this.id);
+                }
+            });
+        } else {
+            console.log('No hay codigo de produccion definido');
+        }
 
         $scope.$apply();
     });
@@ -42,20 +91,19 @@ app.controller("prodController",
     client.on('start:response',function(result,toastId) {
         console.log('start:response',result);
 
-        if(result.trycatch)
-        {
+        clearInterval($scope.prodInfoInterval);
+
+        if(result.trycatch) {
             toasty.clear(toastId);
             toasty.error({
                 title: "Produccion",
                 msg: result.trycatch,
                 timeout: 3000
             });
-        } else
-        {
+        } else  {
             toasty.clear(toastId);
 
-            if(result.error)
-            {
+            if(result.error)  {
                 toasty.error({
                     title: "Produccion",
                     msg: result.error,
@@ -70,23 +118,41 @@ app.controller("prodController",
             }
 
             $rootScope.aoiService = result;
-            $rootScope.stockerService = result.produccion.stocker;
             $rootScope.inspectorService = result.produccion.inspector;
+            $rootScope.stockerService = result.produccion.stocker;
 
-           // client.emit('subscribe:stocker',$rootScope.stockerService.barcode);
-            //client.emit('subscribe:prodinfo',$rootScope.aoiService.produccion.barcode);
-
-            Stocker.autoscroll($rootScope.stockerService.paneles);
+            if($rootScope.stockerService) {
+                Stocker.autoscroll($rootScope.stockerService.paneles);
+            }
+            // client.emit('subscribe:stocker',$rootScope.stockerService.barcode);
         }
 
-
-        setInterval(function(){
-            client.emit('prod:info',$rootScope.configprod.aoibarcode);
-        },1000);
+        client.emit('aoicollector:prodinfo:subscribe');
+        $scope.prodUpdateInterval();
 
         $scope.$apply();
     });
 
+    client.on('aoicollector:prodinfo:channel', function (message) {
+        var info = JSON.parse(message);
+
+        if(info.produccion.barcode.toUpperCase() == $rootScope.configprod.aoibarcode.toUpperCase()) {
+            console.log('aoicollector:prodinfo:channel',$rootScope.configprod.aoibarcode,'Info:',info);
+
+            $rootScope.aoiService = info;
+            $rootScope.inspectorService = info.produccion.inspector;
+
+            $rootScope.stockerService = info.produccion.stocker;
+
+            if($rootScope.stockerService) {
+                Stocker.autoscroll($rootScope.stockerService.paneles);
+            }
+
+            $scope.lastProdinfoChannelData = moment();
+            $scope.$apply();
+        }
+    });
+/*
     client.on('stocker:channel:response',function(result) {
         result = JSON.parse(result);
         console.log('stocker:channel:response',result);
@@ -96,20 +162,8 @@ app.controller("prodController",
 
         $scope.$apply();
     });
-
-    client.on('prodinfo:channel:response',function(result) {
-        result = JSON.parse(result);
-        console.log('prodinfo:channel:response',result);
-
-        $rootScope.aoiService = result;
-        $rootScope.stockerService = result.produccion.stocker;
-        $rootScope.inspectorService = result.produccion.inspector;
-
-        Stocker.autoscroll($rootScope.stockerService.paneles);
-
-        $scope.$apply();
-    });
-
+    */
+/*
     client.on('prod:info:response',function(result) {
         console.log('prod:info:response',result);
 
@@ -140,28 +194,15 @@ app.controller("prodController",
 
         $scope.$apply();
     });
-
-    /*
-     client.on('channel:data',function(msg) {
-     console.log(msg.channel,msg.data);
-     switch(msg.channel) {
-     case 'inspectordash:reproceso:stocker':
-     $rootScope.stockerService = msg.data;
-
-     console.log(msg.data);
-     break;
-     }
-
-     $scope.$apply();
-     });
-     */
-
+*/
     client.on('disconnect',function() {
         console.log("InspectorDash Disconnected");
         toasty.warning({
             title: "Produccion",
             msg: "Desconectado del servidor"
         });
+
+        clearInterval($scope.prodInfoInterval);
 
         $scope.$apply();
     });
@@ -172,11 +213,20 @@ app.controller("prodController",
             msg: "Error de conexion, servidor caido",
             timeout: 5000
         });
+
         $scope.$apply();
     });
 
     Stocker.nodeInit(client);
     Inspector.nodeInit(client);
+
+    $rootScope.stockerConfigModeHide = function() {
+        console.log('stockerConfigModeHide',$scope.stockerConfigMode);
+    };
+
+    $rootScope.StockerConfigSave = function(limite,bloques) {
+        Stocker.config(limite,bloques);
+    };
 
     $rootScope.printError = function(title,result,modal) {
         if(result.error!=undefined) { result = result.error; }

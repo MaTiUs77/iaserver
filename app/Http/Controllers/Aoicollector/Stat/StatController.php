@@ -9,11 +9,8 @@ use Illuminate\Support\Facades\DB;
 
 class StatController extends Controller
 {
-    public $debug;
-
     function __construct()
     {
-        //$this->debug = new Debug($this);
     }
 
     public function aoiResume($id_maquina, $turno, $fecha, $programa, $op, $resume_type='first')

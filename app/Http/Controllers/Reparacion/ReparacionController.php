@@ -2,15 +2,18 @@
 
 namespace IAServer\Http\Controllers\Reparacion;
 
+use Carbon\Carbon;
 use IAServer\Http\Controllers\IAServer\Filter;
 use IAServer\Http\Controllers\IAServer\Util;
 use IAServer\Http\Controllers\Reparacion\Model\Historial;
+use IAServer\Http\Controllers\Reparacion\Model\Sector;
 use IAServer\Http\Requests;
 use IAServer\Http\Controllers\Controller;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Session;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 class ReparacionController extends Controller
 {
@@ -23,13 +26,30 @@ class ReparacionController extends Controller
         */
     }
 
-    public function getReporte() {
+    public function getReporte($sector = '',$desde='',$hasta='') {
 
         // Crea una session para filtro de fecha
-        $range = Util::dateRangeFilterEs('reparacion_fecha');
+        if($desde=='' && $hasta =='')
+        {
+            $range = Util::dateRangeFilterEs('reparacion_fecha');
+        }
+        else
+        {
+            $range = new \stdClass();
+            $range->desde = Carbon::parse($desde);
+            $range->hasta = Carbon::parse($hasta);
+
+        }
         Filter::makeSession('id_sector',25);
 
-        $id_sector = Session::get('id_sector');
+        if($sector =='')
+        {
+            $id_sector = Session::get('id_sector');
+        }
+        else
+        {
+            $id_sector = $sector;
+        }
 
         if(is_numeric($id_sector) && $id_sector>0) {
 
@@ -70,7 +90,14 @@ class ReparacionController extends Controller
 
         $output = compact('id_sector','resumen','stats','reparacion');
 
-        return Response::multiple($output,'reparacion.index');
+        if($desde== '')
+        {
+            return Response::multiple($output,'reparacion.index');
+        }
+        else
+        {
+            return ($reparacion);
+        }
     }
 
     public function extendHistorialCollection(Collection $collection)
@@ -225,5 +252,11 @@ class ReparacionController extends Controller
         }
         $output = compact('reparacion');
         return Response::multiple($output,'reparacion.index');
+    }
+
+    public function getSectors()
+    {
+        $sector = Sector::where('toExport','1')->get();
+        return $sector;
     }
 }

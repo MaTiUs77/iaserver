@@ -1,6 +1,7 @@
 @extends('adminlte/theme')
 @section('ng','app')
-@section('title','Administracion')
+@section('mini',true)
+@section('title','Administracion - Lista de usuarios')
 @section('bodytag',' ng-controller="IAAbm" ')
 @section('body')
 
@@ -10,7 +11,7 @@
         <div class="alert alert-info">{{ Session::get('message') }}</div>
     @endif
 
-    <table class="table table-bordered">
+    <table class="table table-bordered datatable">
         <thead class="panel">
             <tr>
                 <th></th>
@@ -36,9 +37,9 @@
                     <td>{{ $user->profile ? $user->profile->nombre : ''}}</td>
                     <td>{{ $user->profile ? $user->profile->apellido : ''}}</td>
                     <td>
-                        <a class="btn btn-xs btn-success" ng-click="modalPermisos('{{ route('iaserver.forms.prompt',['holder'=>'Permisos']) }}')">
+                       {{-- <a class="btn btn-xs btn-success" ng-click="modalPermisos('{{ route('iaserver.forms.prompt',['holder'=>'Permisos']) }}')">
                             <i class="fa fa-plus" aria-hidden="true"></i> Add
-                        </a>
+                        </a>--}}
                         @foreach($user->roles()->get() as $rol)
                             <button class="btn btn-xs btn-default">{{ $rol->display_name }}</button>
                         @endforeach
@@ -49,7 +50,6 @@
     </table>
 
 @include('iaserver.abm.partial.footer')
-
 
 <script>
     app.controller("IAAbm",function($scope,IaCore){

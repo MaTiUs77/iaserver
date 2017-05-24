@@ -25,10 +25,7 @@
         <div class="col-sm-4 col-md-4 col-lg-4">
             @if(isset($smt) && !$is_memory)
                 <blockquote>
-                    @include('trazabilidad.widget.resumen_controldeplacas',[$smt,$controldeplacas])
-
-                    <small>Stockers</small>
-                    <a class="btn btn-sm btn-success" ng-click="openModal('{{ route('trazabilidad.form.allprodstocker',$wip->wip_ot->nro_op) }}','Stockers en produccion','success')">Ver stockers en produccion</a>
+                    @include('trazabilidad.widget.resumen_controldeplacas',[$wip,$smt,$controldeplacas])
                 </blockquote>
             @endif
         </div>

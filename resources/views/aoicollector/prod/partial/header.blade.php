@@ -27,6 +27,10 @@
                Inspector:  <b>@{{ inspectorService.fullname }}</b>
             </a>
 
+            <a href="#" class="btn bg-navy" ng-show="inspectorService.id" data-toggle="modal" data-target="#modalInspeccionVisual" data-op="@{{ aoiService.produccion.barcode }}">
+                Inspeccion visual
+            </a>
+
             <div class="btn-group">
                 <div class="btn-group" ng-show="aoiService.produccion.op && inspectorService.id" >
                     <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
@@ -81,3 +85,54 @@
         </div>
     </div>
 </nav>
+
+<!-- Modal -->
+<div class="modal fade" id="modalInspeccionVisual" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Agregar inspeccion visual</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+
+                    <div class="col-xs-6">
+                        <input class="form-control" name="panelbarcode" placeholder="Codigo de placa" ng-model="visualPanelBarcode"/>
+                    </div>
+
+                    <div class="col-xs-6">
+                        <select class="form-control select2" style="width: 100%;" ng-show="visualPanelBarcode">
+                            <option>- Seleccionar posicion -</option>
+                            <?php
+                                $posiciones =  \IAServer\Http\Controllers\SMTDatabase\Model\Lotes::select('posicion')
+                                        ->where('id_ingenieria',1661390)
+                                        ->where('logop','MAI')
+                                        ->get();
+                            ?>
+                            @foreach($posiciones as $item)
+                                <option value="{{ $item->posicion }}">{{ $item->posicion }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary">Agregar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $('#modalInspeccionVisual').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // Button that triggered the modal
+//        var recipient = button.data('op'); // Extract info from data-* attributes
+        var modal = $(this);
+//        modal.find('.modal-body input').val(recipient);
+
+    })
+</script>

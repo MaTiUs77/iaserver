@@ -27,9 +27,8 @@
         }
     </style>
 
-    <div id="prodController" ng-controller="prodController" ng-init="setEnvironment('production')">
+    <div id="prodController" ng-controller="prodController">
         @include('aoicollector.prod.partial.header')
-
         <div class="container">
             <div ng-show="configprod.aoibarcode">
                 <div class="well"  ng-show="aoiService.error">
@@ -41,6 +40,8 @@
                 @include('aoicollector.prod.widget.production_angular')
             </div>
         </div>
+
+        <code class="pull-right">@{{ socketserver }}</code>
     </div>
 
     @include('aoicollector.prod.partial.footer')

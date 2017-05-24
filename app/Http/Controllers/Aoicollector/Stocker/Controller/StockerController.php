@@ -216,6 +216,32 @@ class StockerController extends Controller
         return $output;
     }
 
+    public function configStocker($stockerBarcode,$limite,$bloques) {
+        $output = null;
+        if($limite>0 && $bloques>0) {
+            $stocker = $this->stockerInfoByBarcode($stockerBarcode);
+            if(isset($stocker->error)) {
+                $output = $stocker;
+            } else {
+                if (isset($stocker->id)) {
+
+                    $stk = Stocker::find($stocker->id);
+                    $stk->limite =  $limite;
+                    $stk->bloques =  $bloques;
+                    $stk->save();
+
+                    // Obtengo datos actualizados de DB
+                    $stocker = $this->stockerInfoByBarcode($stockerBarcode);
+                }
+            }
+            $output = compact('stocker');
+        } else {
+            $output = ['error'=>'Datos invalidos'];
+        }
+
+        return $output;
+    }
+
     private function sp_stockerSet(Produccion $produccion, $stocker)
     {
         $procced = true;

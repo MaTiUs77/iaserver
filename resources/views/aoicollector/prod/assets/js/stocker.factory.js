@@ -60,7 +60,6 @@ app.factory('Stocker',[
                 }
             }
 
-
             console.log('stocker:add:response',result);
 
             $rootScope.$digest();
@@ -83,11 +82,47 @@ app.factory('Stocker',[
                         timeout: 2000
                     });
 
-                    $rootScope.stockerService = {};
+                    // Si el stocker removido, es el stocker actual quito de la vista el stocker
+                    if(result.id == $rootScope.stockerService.id) {
+                        $rootScope.stockerService = {};
+                    }
                 }
             }
 
             console.log('stocker:remove:response',result);
+
+            $rootScope.$digest();
+        });
+
+        socket.on('stocker:config:response', function (result,toastId) {
+            toasty.clear(toastId);
+
+            if(result) {
+                if(result.error || result.trycatch) {
+                    var errmsg = result.error;
+
+                    if(result.trycatch) {
+                        errmsg = "Error "+result.trycatch.statusCode;
+                    }
+
+                    toasty.error({
+                        title: "Stocker",
+                        msg: errmsg,
+                        timeout: 5000
+                    });
+                } else {
+                    toasty.success({
+                        title: "Stocker",
+                        msg: "Configurado correctamente",
+                        timeout: 2000
+                    });
+
+                    $rootScope.stockerConfigModeHide();
+                    $rootScope.stockerService = result.stocker;
+                }
+            }
+
+            console.log('stocker:config:response',result);
 
             $rootScope.$digest();
         });
@@ -210,6 +245,19 @@ app.factory('Stocker',[
                 timeout: false,
                 onAdd: function(){
                     socket.emit('panel:remove',panelbarcode,this.id);
+                }
+            });
+        }
+    };
+
+    interfaz.config = function(limite,bloques) {
+        if(limite!=null && bloques !=null) {
+            toasty.wait({
+                title: "Stocker",
+                msg: "Configurando "+$rootScope.stockerService.barcode,
+                timeout: false,
+                onAdd: function(){
+                    socket.emit('stocker:config',$rootScope.stockerService.barcode,limite,bloques,this.id);
                 }
             });
         }

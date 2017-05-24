@@ -47,7 +47,7 @@ class AbmController extends Controller
             'name'  => 'required',
             'nombre' => 'required',
             'apellido' => 'required',
-            'permiso' => 'required|numeric',
+            'permiso' => 'array',
         );
 
         $validator = Validator::make(Input::all(), $rules);
@@ -70,7 +70,20 @@ class AbmController extends Controller
 
             $user->profile()->save($profile);
 
-            $user->attachRole(Input::get('permiso'));
+
+            $permisos = Input::get('permiso');
+
+            if(is_array($permisos) && $permisos > 0)
+            {
+                // Creo permisos nuevos
+                foreach($permisos as $permiso)
+                {
+                    if(is_numeric($permiso) && $permiso > 0)
+                    {
+                        $user->attachRole($permiso);
+                    }
+                }
+            }
 
             return redirect('abm')->with('message','Usuario creado con exito!');
         }
@@ -81,7 +94,7 @@ class AbmController extends Controller
         $rules = array(
             'nombre' => 'required',
             'apellido' => 'required',
-            'permiso' => 'numeric',
+            'permiso' => 'array',
         );
 
         $validator = Validator::make(Input::all(), $rules);
@@ -100,13 +113,34 @@ class AbmController extends Controller
                 $user->save();
             }
 
-            $user->profile->nombre = Input::get('nombre');
-            $user->profile->apellido = Input::get('apellido');
-            $user->profile->save();
-
-            if(is_numeric(Input::get('permiso')) && Input::get('permiso')> 0)
+            if(isset($user->profile))
             {
-                $user->attachRole(Input::get('permiso'));
+                $user->profile->nombre = Input::get('nombre');
+                $user->profile->apellido = Input::get('apellido');
+
+                $user->profile->save();
+            } else {
+                $profile = new Profile();
+                $profile->nombre = Input::get('nombre');
+                $profile->apellido = Input::get('apellido');
+                $profile->save();
+            }
+
+            // Al editar, por defecto se eliminan todos los permisos
+            $user->detachRoles($user->roles);
+
+            $permisos = Input::get('permiso');
+
+            if(is_array($permisos) && $permisos > 0)
+            {
+                // Creo permisos nuevos
+                foreach($permisos as $permiso)
+                {
+                    if(is_numeric($permiso) && $permiso > 0)
+                    {
+                        $user->attachRole($permiso);
+                    }
+                }
             }
 
             return redirect('abm')->with('message','Usuario actualizado con exito!');

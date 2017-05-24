@@ -14,7 +14,7 @@
     </thead>
     <tbody>
     @foreach( $bloques as $bloque )
-        <tr class="{{ ($bloque->revision_aoi == 'OK' && $bloque->revision_ins == 'OK' ) ? 'success' : '' }} {{ ($bloque->revision_ins == 'NG' ) ? 'danger' : '' }}">
+        <tr class="{{ ($bloque->revision_aoi == 'OK' && $bloque->revision_ins == 'OK' ) ? 'success' : '' }} {{ ($bloque->revision_ins == 'NG' ) ? 'danger' : '' }} {{ ($bloque->revision_ins == 'SCRAP' ) ? 'warning' : '' }} ">
             <td style="width:50px;">
                 @if($bloque->errores)
                     <button id_bloque="{{ $bloque->id_bloque_history }}" route="{{ route('aoicollector.inspection.detail',$bloque->id_bloque_history) }}" ng-click="getInspectionDetail($event);" class="btn btn-xs btn-default">Detalle</button>

@@ -56,4 +56,10 @@ elixir(function(mix) {
         "resources/views/molinete/assets/js",
         "public/vendor/molinete/molinete.js"
     );
+
+    // === LAVADODEPLACAS
+    mix.scriptsIn(
+        "resources/views/controldestencil/assets/js",
+        "public/vendor/controldestencil/controldestencil.js"
+    );
 });

@@ -2,6 +2,7 @@
 namespace IAServer\Http\Controllers\Aoicollector\Stocker\View;
 
 use IAServer\Http\Controllers\Aoicollector\Stocker\Trazabilidad\TrazaStocker;
+use IAServer\Http\Controllers\Trazabilidad\Declaracion\Wip\Wip;
 use IAServer\Http\Requests;
 use Illuminate\Support\Facades\Input;
 
@@ -64,4 +65,42 @@ class TrazaStockerView extends TrazaStocker
 
         $output = $this->changeOp($stockerBarcode,$toOp);
     }
+
+    public function view_reDeclareWithError($stkbarcode)
+    {
+        $find = $this->findElement($stkbarcode);
+
+        if(isset($find->stocker))
+        {
+            $contenido = $this->stockerDeclaredDetail($find->stocker);
+
+            $declaracion = [];
+            foreach($contenido->paneles as $itemp)
+            {
+                if(!$itemp->declaracion->declarado)
+                {
+                    $w = new Wip();
+                    $opinfo = $w->otInfo($itemp->panel->inspected_op);
+
+                    if(isset($opinfo->codigo_producto))
+                    {
+                        if(count($itemp->bloques)) {
+                            foreach ($itemp->bloques as $itemb) {
+                                $declaracion[] = $w->declarar('UP3', $itemp->panel->inspected_op, $opinfo->codigo_producto,1,$itemb->bloque->barcode);
+                            }
+                        } else {
+                            $declaracion = ["error" => "La placa no tiene bloques!, es necesaria una reinspeccion"];
+                        }
+                    } else {
+                        $declaracion = ["error" => "La OP se encuentra cerrada"];
+                    }
+                }
+            }
+        }
+
+        $output = compact('find','declaracion');
+
+        return $output;
+    }
+
 }

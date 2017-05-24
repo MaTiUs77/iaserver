@@ -27,7 +27,7 @@
                 <li>
                     <form method="GET" action="{{ route('aoicollector.stat.show',[$maquina->id, $turno , 0]) }}" class="navbar-form">
                         <div class="form-group">
-                            <input type="text" name="inspection_date_session" value="{{ Session::get('inspection_date_session') }}" placeholder="Seleccionar fecha" class="form-control"/>
+                            <input type="text" name="inspection_date_session" value="{{ Session::get('inspection_date_session') }}" placeholder="Seleccionar fecha" class="form-control defaultdatapicker"/>
                         </div>
                         <button type="submit" class="btn btn-info"><i class="glyphicon glyphicon-calendar"></i> Aplicar</button>
                     </form>
@@ -36,29 +36,3 @@
         </div><!-- /.navbar-collapse -->
     </div><!-- /.container-fluid -->
 </nav>
-
-
-<!-- Include Date Range Picker -->
-{!! IAScript('assets/moment.min.js') !!}
-{!! IAScript('assets/moment.locale.es.js') !!}
-{!! IAScript('assets/jquery/daterangepicker/daterangepicker.js') !!}
-{!! IAStyle('assets/jquery/daterangepicker/daterangepicker.css') !!}
-<script type="text/javascript">
-    moment.locale("es");
-
-    $(function() {
-        $('input[name="inspection_date_session"]').daterangepicker({
-            locale: {
-                format: 'DD/MM/YYYY',
-                customRangeLabel: 'Definir rango'
-            },
-            ranges: {
-                'Hoy': [moment(), moment()],
-                'Ayer': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                'Ultimos 7 dias': [moment().subtract(6, 'days'), moment()]
-            },
-            autoApply: true,
-            singleDatePicker: true
-        });
-    });
-</script>

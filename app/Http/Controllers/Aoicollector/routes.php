@@ -8,6 +8,8 @@ Route::group(['prefix' => 'aoicollector'], function()
     include('Inspection/routes.php');
     include('Stocker/routes.php');
     include('Monitor/routes.php');
+    include('Cuarentena/routes.php');
+    include('Scrap/routes.php');
 });
 
 

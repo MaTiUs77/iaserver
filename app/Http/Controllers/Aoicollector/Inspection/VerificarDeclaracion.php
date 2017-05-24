@@ -34,7 +34,23 @@ class VerificarDeclaracion extends Controller
             foreach($wip->groupBy('referencia_1') as $placaBarcode => $interfaz) {
                 $placa = $interfaz->first();
                 $placas[] = $placa;
+
+                $addBloque = new \stdClass();
+                $addBloque->bloque = $placa;
+                $addBloque->declaracion = new StockerContentDeclaracion();
+
+                $trans_ok = (int) $placa->trans_ok;
+
+                $addBloque->declaracion->declarado_total = ($trans_ok == 1 ? 1 : 0 );
+                $addBloque->declaracion->pendiente_total = ($trans_ok == 0 ? 1 : 0 );
+                $addBloque->declaracion->error_total = ($trans_ok > 1 ? 1 : 0 );
+                $addBloque->declaracion->process(1);
+
+                $addBloque->wip = $placa;
+
+                $this->bloques[] = $addBloque;
             }
+
             $placas = collect($placas);
 
             $this->declaracion->declarado_total = $placas->where('trans_ok','1')->count();
@@ -182,7 +198,6 @@ class VerificarDeclaracion extends Controller
 
         return $this;
     }
-
 
     public function transaccionWipStatusByStocker(Stocker $stocker)
     {

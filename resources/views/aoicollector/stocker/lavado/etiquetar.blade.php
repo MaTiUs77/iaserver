@@ -1,5 +1,6 @@
 @extends('adminlte/theme')
 @section('ng','app')
+@section('mini',true)
 @section('title','Stocker - Re etiquetar')
 @section('body')
     <div class="container" ng-controller="etiquetadoController" ng-init="lavadoIndex = '{{ route('aoicollector.stocker.lavado.index') }}'">

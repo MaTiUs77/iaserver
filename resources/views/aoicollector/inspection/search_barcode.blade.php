@@ -40,15 +40,14 @@
                         <h3>No se encontraron resultados</h3>
                     @else
 
-                        @if(isAdmin())
-                            <a href="{{ route('aoicollector.inspection.admin.forceok',$barcode) }}" class="btn btn-success">Forzar estado OK</a>
-                        @endif
-
                         @foreach( $insp_by_date as $date => $panels)
                             <h3>{{ $date }}</h3>
                             <table class="table table-bordered">
                                 <thead class="panel">
                                 <tr>
+                                    @if(isAdmin())
+                                        <th></th>
+                                    @endif
                                     <th></th>
                                     <th>Linea</th>
                                     <th>Panel</th>
@@ -81,7 +80,22 @@
                                                 </td>
                                             </tr>
                                         @else
-                                            <tr class="{{ ($inspection->panel->revision_aoi == 'OK' && $inspection->panel->revision_ins == 'OK' ) ? 'success' : '' }} {{ ($inspection->panel->revision_ins == 'NG' ) ? 'danger' : '' }}">
+                                            <tr class="{{ ($inspection->panel->revision_aoi == 'OK' && $inspection->panel->revision_ins == 'OK' ) ? 'success' : '' }} {{ ($inspection->panel->revision_ins == 'NG' ) ? 'danger' : '' }} {{ ($inspection->panel->revision_ins == 'SCRAP' ) ? 'warning' : '' }}">
+                                                @if(isAdmin())
+                                                    <td style="width:50px;">
+
+                                                        <div class="btn-group">
+                                                            <button type="button" class="btn btn-xs bg-purple dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                <i class="fa fa-gear" aria-hidden="true"></i> Admin <span class="caret"></span>
+                                                            </button>
+                                                            <ul class="dropdown-menu">
+                                                                <li>
+                                                                    <a href="{{ route('aoicollector.inspection.admin.forceok',$barcode) }}">Forzar estado OK</a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </td>
+                                                @endif
                                                 <td style="width:50px;">
                                                     <button id_panel="{{ $inspection->panel->id_panel_history }}" route="{{ route('aoicollector.inspection.blocks',$inspection->panel->id_panel_history) }}" ng-click="getInspectionBlocks($event);" class="btn btn-xs btn-default">Bloques</button>
                                                 </td>
@@ -177,30 +191,4 @@
 
     @include('iaserver.common.footer')
     {!! IAScript('vendor/aoicollector/inspection/inspection.js') !!}
-
-
-            <!-- Include Date Range Picker -->
-    {!! IAScript('assets/moment.min.js') !!}
-    {!! IAScript('assets/moment.locale.es.js') !!}
-    {!! IAScript('assets/jquery/daterangepicker/daterangepicker.js') !!}
-    {!! IAStyle('assets/jquery/daterangepicker/daterangepicker.css') !!}
-    <script type="text/javascript">
-        moment.locale("es");
-
-        $(function() {
-            $('input[name="inspection_date_session"]').daterangepicker({
-                locale: {
-                    format: 'DD/MM/YYYY',
-                    customRangeLabel: 'Definir rango'
-                },
-                ranges: {
-                    'Hoy': [moment(), moment()],
-                    'Ayer': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                    'Ultimos 7 dias': [moment().subtract(6, 'days'), moment()]
-                },
-                autoApply: true,
-                singleDatePicker: true
-            });
-        });
-    </script>
 @endsection

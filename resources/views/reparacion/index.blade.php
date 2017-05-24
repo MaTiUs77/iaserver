@@ -1,5 +1,6 @@
 @extends('adminlte/theme')
 @section('ng','app')
+@section('mini',true)
 @section('title','Reparacion - Reporte')
 @section('body')
 
@@ -19,7 +20,7 @@
             </div>
 
             <div class="col-xs-2">
-                <input type="text" name="reparacion_fecha" value="{{ Session::get('reparacion_fecha') }}" placeholder="Seleccionar fecha" class="form-control"/>
+                <input type="text" name="reparacion_fecha" value="{{ Session::get('reparacion_fecha') }}" placeholder="Seleccionar fecha" class="form-control defaultdatarangepicker"/>
             </div>
 
             <div class="col-xs-2">
@@ -149,11 +150,12 @@
 
 
         <div class="table-responsive" style="height: 500px;">
-            <table class="table table-hover" >
+            <table class="table table-hover datatable" >
                 <thead>
                 <tr>
                     <th>Estado</th>
                     <th>Codigo</th>
+                    <th>OP</th>
                     <th>Modelo</th>
                     <th>Lote</th>
                     <th>Panel</th>
@@ -192,6 +194,7 @@
 
                         </td>
                         <td>{{ $rep->codigo }}</td>
+                        <td>{{ $rep->op }}</td>
                         <td>{{ $rep->modelo }}</td>
                         <td>{{ $rep->lote }}</td>
                         <td>{{ $rep->panel }}</td>
@@ -223,33 +226,5 @@
 
 @include('iaserver.common.footer')
 {!! IAScript('assets/highchart/js/highcharts.js') !!}
-
-<!-- Include Date Range Picker -->
-{!! IAScript('assets/moment.min.js') !!}
-{!! IAScript('assets/moment.locale.es.js') !!}
-{!! IAScript('assets/jquery/daterangepicker/daterangepicker.js') !!}
-{!! IAStyle('assets/jquery/daterangepicker/daterangepicker.css') !!}
-
-<script type="text/javascript">
-    $(function() {
-        moment.locale("es");
-
-        $('input[name="reparacion_fecha"]').daterangepicker({
-            locale: {
-                format: 'DD/MM/YYYY',
-                customRangeLabel: 'Definir rango'
-            },
-            ranges: {
-                'Hoy': [moment(), moment()],
-                'Ayer': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                'Ultimos 7 dias': [moment().subtract(6, 'days'), moment()],
-                'Ultimos 30 dias': [moment().subtract(29, 'days'), moment()],
-                'Este Mes': [moment().startOf('month'), moment().endOf('month')],
-                'Ultimo Mes': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-            },
-            autoApply: true
-        });
-    });
-</script>
 @endsection
 

@@ -13,13 +13,6 @@
     </aside>
 
 @endsection
-@section('head')
-    {!! IAScript('adminlte/plugins/datatables/jquery.dataTables.min.js') !!}
-    {!! IAScript('adminlte/plugins/datatables/dataTables.bootstrap.min.js') !!}
-    {!! IAStyle('adminlte/plugins/datatables/dataTables.bootstrap.css') !!}
-    {{--{!! IAStyle('assets/bootswatch/paper/bootstrap.min.css') !!}--}}
-@endsection
-
 @section('body')
     @if(hasRole('smtdatabase_operator') || isAdmin())
         <input type="hidden" name="_token" id="csrf-token" value="{{ Session::token() }}">
@@ -39,35 +32,12 @@
                             @endforeach
                         </select>
 
-                            <input type="text" name="pizarra_fecha" value="{{ Session::get('pizarra_fecha') }}" placeholder="Seleccionar fecha" class="form-control"/>
+                            <input type="text" name="pizarra_fecha" value="{{ Session::get('pizarra_fecha') }}" placeholder="Seleccionar fecha" class="form-control fulldatarangepicker"/>
                         </div>
                         <button type="submit" class="btn btn-info"><i class="fa fa-calendar"></i> Buscar</button>
                     </form>
 
                 </div>
-
-                <script type="text/javascript">
-                    $(function() {
-                        $('input[name="pizarra_fecha"]').daterangepicker({
-                            locale: {
-                                format: 'DD/MM/YYYY',
-                                customRangeLabel: 'Definir rango'
-                            },
-                            ranges: {
-                                'Hoy': [moment(), moment()],
-                                'Ayer': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                                'Ultimos 7 dias': [moment().subtract(6, 'days'), moment()],
-                                'Ultimos 30 dias': [moment().subtract(29, 'days'), moment()],
-                                'Este Mes': [moment().startOf('month'), moment().endOf('month')],
-                                'Ultimo Mes': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-                            },
-                            autoApply: true
-                        });
-                    });
-
-                    moment.locale("es");
-
-                </script>
 
                 @if(hasRole('smtdatabase_operator') || isAdmin())
                     <div class="pull-right">
@@ -78,11 +48,6 @@
         </div>
     </div>
 
-    {!! IAScript('assets/moment.min.js') !!}
-            <!-- Include Date Range Picker -->
-    {!! IAScript('assets/moment.locale.es.js') !!}
-    {!! IAScript('assets/jquery/daterangepicker/daterangepicker.js') !!}
-    {!! IAStyle('assets/jquery/daterangepicker/daterangepicker.css') !!}
     @if(!empty($datos))
         <div class="col-lg-12">
             <table id="tablaRecupero" class="table table-striped">

@@ -208,5 +208,6 @@ class Util extends Controller
     public static function memoryUsed() {
         return self::byteToHuman(memory_get_usage(true));
     }
+
 }
 

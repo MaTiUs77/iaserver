@@ -1,6 +1,7 @@
 <?php
 namespace IAServer\Http\Controllers\Aoicollector\Stocker\Trazabilidad;
 
+use IAServer\Http\Controllers\Aoicollector\Cuarentena\CuarentenaController;
 use IAServer\Http\Controllers\Aoicollector\Inspection\FindInspection;
 use IAServer\Http\Controllers\Aoicollector\Inspection\VerificarDeclaracion;
 use IAServer\Http\Controllers\Aoicollector\Model\PanelHistory;
@@ -9,7 +10,6 @@ use IAServer\Http\Controllers\Aoicollector\Model\Stocker;
 use IAServer\Http\Controllers\Aoicollector\Stocker\Controller\StockerController;
 use IAServer\Http\Controllers\Aoicollector\Stocker\Src\StockerContent;
 use IAServer\Http\Requests;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
 
 class TrazaStocker extends StockerController
@@ -32,7 +32,7 @@ class TrazaStocker extends StockerController
     }
 
     // Localiza un stocker segun su barcode
-    public function findStocker($barcode)
+    public function findStocker($barcode,$withTraza=true)
     {
         $barcode = strtoupper($barcode);
         $output = array();
@@ -42,7 +42,9 @@ class TrazaStocker extends StockerController
                 $error = $stocker->error;
                 $output = compact('error');
             } else {
-                $trazabilidad = $this->getStockerTraza($stocker->id);
+                if($withTraza) {
+                    $trazabilidad = $this->getStockerTraza($stocker->id);
+                }
 
                 if(isset($stocker->aoi_barcode))
                 {
@@ -58,6 +60,36 @@ class TrazaStocker extends StockerController
         }
 
         return (object) $output;
+    }
+
+    public function stockerWithCarentena(StockerContent $content)
+    {
+        $cuarentena = [];
+
+        foreach($content->paneles as $itemPanel)
+        {
+            if($itemPanel->panel->isSecundario())
+            {
+                $check = new CuarentenaController();
+                $detail = $check->getDetail($itemPanel->panel->panel_barcode);
+
+                if($detail->isBlocked) {
+                    $cuarentena[] = $detail;
+                }
+            } else {
+                foreach($itemPanel->bloques as $itemBloque)
+                {
+                    $check = new CuarentenaController();
+                    $detail = $check->getDetail($itemBloque->bloque->barcode);
+
+                    if($detail->isBlocked) {
+                        $cuarentena[] = $detail;
+                    }
+                }
+            }
+        }
+
+        return $cuarentena;
     }
 
     public function stockerDeclaredDetail(Stocker $stocker)
@@ -84,6 +116,7 @@ class TrazaStocker extends StockerController
                 $interfazWip = $verify->panelSecundarioEnInterfazWip($panel);
 
                 $addPanel->declaracion = $interfazWip->declaracion;
+                $addPanel->bloques = $interfazWip->bloques;
             } else
             {
                 $verify = new VerificarDeclaracion();
@@ -212,5 +245,4 @@ class TrazaStocker extends StockerController
 
         return $output;
     }
-
 }

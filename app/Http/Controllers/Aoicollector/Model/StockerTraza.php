@@ -14,4 +14,19 @@ class StockerTraza extends Model
     {
         return $this->hasOne('IAServer\Http\Controllers\Aoicollector\Model\StockerRoute', 'id', 'id_stocker_route');
     }
+
+    public function inspector()
+    {
+        $inspector = null;
+
+        $inspector = User::find($this->id_user);
+        if ($inspector != null) {
+            if ($inspector->hasProfile()) {
+                $inspector->fullname = $inspector->profile->fullname();
+            } else {
+                $inspector->fullname = $inspector->name;
+            }
+        }
+        return $inspector;
+    }
 }
